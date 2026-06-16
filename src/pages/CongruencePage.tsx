@@ -1,0 +1,96 @@
+import { Link } from "react-router-dom";
+import { getTaskCountByMood, getTasksByMood, getUpcomingTaskTitle } from "../Data/taskStorage";
+
+export default function CongruencePage() {
+
+  {/* State specfic previews */}
+  const stateCards = [
+    {
+      title: "Focused",
+      description: "Ready for Deep work that moves the needle.",
+
+      lastSession: `${getUpcomingTaskTitle(getTasksByMood("Focused"))}`,
+      readyTasks: `${getTaskCountByMood("Focused")} Task/s`,
+      nextTask: `${getUpcomingTaskTitle(getTasksByMood("Focused"))}`,
+
+      buttonText: "Enter Focus",
+      route: "/focus",
+    },
+
+    {
+      title: "Planning",
+      description: "Organize ideas and prepare for execution.",
+
+      lastSession: `${getUpcomingTaskTitle(getTasksByMood("Planning"))}`,
+      readyTasks: `${getTaskCountByMood("Planning")} Task/s`,
+      nextTask: `${getUpcomingTaskTitle(getTasksByMood("Planning"))}`,
+
+      buttonText: "Start Planning",
+      route: "/planning",
+    },
+
+    {
+      title: "Recharge",
+      description:
+        "Recover energy while staying engaged through reflection, learning, or light creative work.",
+
+      lastSession: `${getUpcomingTaskTitle(getTasksByMood("Recharge"))}`,
+      readyTasks: `${getTaskCountByMood("Recharge")} Task/s`,
+      nextTask: `${getUpcomingTaskTitle(getTasksByMood("Recharge"))}`,
+
+      buttonText: "Begin Recharge",
+      route: "/recharge",
+    },
+  ];
+
+  return (
+    <div>
+      <h1>Congruence</h1>
+      <hr />
+
+      <p className="congruence-intro">
+        Congruence is the alignment between who you actually are, who you want to be,
+        and how you act every day. Within BetterEveryDay, Congruence dynamically matches
+        the activities you choose to work on with your energy and focus levels.
+      </p>
+
+      {/* Congruence explination */}
+      <div className="how-it-works">
+        <div className="section-heading">How it works</div>
+        <ol>
+          <li>Select how you're showing up today.</li>
+          <li>Better Every Day recommends work that matches your mindset.</li>
+          <li>Stay productive with activities designed for that state.</li>
+        </ol>
+      </div>
+
+      {/* Mood specfic Preview cards */}
+      <div className="state-selection">
+        <div className="section-heading">How are you showing up today?</div>
+
+        {/* Display State cards with all info */}
+        <div className="state-grid">
+          {stateCards.map((state) => (
+            <div key={state.title} className="glass-panel state-card">
+              <h3>{state.title}</h3>
+              <p>{state.description}</p>
+
+              <hr />
+
+              <div className="state-preview">
+                <p><strong>Last Session</strong><br />{state.lastSession}</p>
+                <p><strong>Ready Tasks</strong><br />{state.readyTasks}</p>
+                <p><strong>Next Task up</strong><br />{state.nextTask}</p>
+              </div>
+
+              {/* Button to Page  */}
+              <Link to={state.route}>
+                <button className="open-btn">{state.buttonText}</button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

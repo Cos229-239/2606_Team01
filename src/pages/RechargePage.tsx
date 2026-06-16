@@ -1,0 +1,47 @@
+//Imports
+import { useEffect, useState } from "react";
+import TaskCard from "../Components/TaskCard";
+import type { Task } from "../Data/tasks";
+import { getTasksByMood, getTaskCountByMood } from "../Data/taskStorage";
+
+//This is where:components state rendering buttons activities will live.
+
+export default function RechargePage() {
+
+  const [rechargeTasks, setRechargeTasks] = useState<Task[]>([]);
+
+  // ======================================================
+  //        Load Planning Task
+  // ======================================================
+
+  useEffect(() => {
+    setRechargeTasks(getTasksByMood("Recharge"));
+  }, []);
+
+  //rendering
+  return (
+    <div>
+      <h1>Recharge Page</h1>
+
+      <p>This is where we Take a moment, brethe and grow from what
+        we've learned.</p>
+
+      <hr />
+
+      <h2>Recharge Tasks</h2>
+
+      {/*if no focused task show   */}
+      {getTaskCountByMood("Recharge") == 0 ? (
+        <p>No Planning Task Avaliable.</p>
+      ) : (
+        //else show this
+        rechargeTasks.map((task) => (
+          <TaskCard key={task.id}
+            {...task}
+            onDelete={() => { }}
+          />
+        ))
+      )}
+    </div>
+  );
+}
