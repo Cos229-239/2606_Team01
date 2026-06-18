@@ -1,24 +1,64 @@
+import { useNavigate } from "react-router-dom";
+
+const settingsCategories = [
+  {
+    title: "Appearance",
+    description: "Starfield, themes and display options",
+    path: "/settings/appearance",
+    icon: "✦",
+  },
+  {
+    title: "Notifications",
+    description: "Notification preferences",
+    path: null,
+    icon: "🔔",
+  },
+  {
+    title: "Account",
+    description: "Account settings",
+    path: null,
+    icon: "👤",
+  },
+];
+
 export default function SettingsPage() {
+  const navigate = useNavigate();
+
   return (
     <div>
       <h1>Settings</h1>
-
-      <div className="glass-panel" style={{ padding: '20px', marginTop: '20px', maxWidth: '500px' }}>
-        <h2>Appearance</h2>
-        <hr />
-        <p>Theme and display options coming soon.</p>
-      </div>
-
-      <div className="glass-panel" style={{ padding: '20px', marginTop: '16px', maxWidth: '500px' }}>
-        <h2>Notifications</h2>
-        <hr />
-        <p>Notification preferences coming soon.</p>
-      </div>
-
-      <div className="glass-panel" style={{ padding: '20px', marginTop: '16px', maxWidth: '500px' }}>
-        <h2>Account</h2>
-        <hr />
-        <p>Account settings coming soon.</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px", maxWidth: "500px" }}>
+        {settingsCategories.map((cat) => (
+          <div
+            key={cat.title}
+            className="glass-panel"
+            onClick={() => cat.path && navigate(cat.path)}
+            style={{
+              padding: "18px 20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              cursor: cat.path ? "pointer" : "default",
+              opacity: cat.path ? 1 : 0.5,
+              transition: "border-color 0.2s, background 0.2s",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+              <span style={{ fontSize: "18px" }}>{cat.icon}</span>
+              <div>
+                <p style={{ margin: 0, color: "rgba(220,235,255,0.95)", fontSize: "13px", fontWeight: 600 }}>
+                  {cat.title}
+                </p>
+                <p style={{ margin: "2px 0 0", fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
+                  {cat.description}
+                </p>
+              </div>
+            </div>
+            {cat.path && (
+              <span style={{ color: "rgba(160,190,255,0.5)", fontSize: "16px" }}>›</span>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
