@@ -5,9 +5,28 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Better Every Day</title>
+    <style>
+      /* Star canvas sits behind everything */
+      #star-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        display: block;
+        pointer-events: none;
+      }
+      /* React root sits above canvas */
+      #root {
+        position: relative;
+        z-index: 1;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
   </head>
   <body>
+    <canvas id="star-canvas"></canvas>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script src="/starfield.js"></script>
   </body>
 </html>

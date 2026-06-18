@@ -3,18 +3,16 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
 
-  /* ── Color Palette ──────────────────────────────────────────────────────
-     Swap these base values to shift the entire color scheme.
-     e.g. change --hue to 260 for purple, 200 for cyan, 160 for green       */
-  --hue: 225;                          /* base hue for accent color          */
-  --hue-sat: 70%;                      /* saturation of accent               */
+  /* ── Color Palette ──────────────────────────────────────────────────────*/
+  --hue: 225;
+  --hue-sat: 70%;
 
-  /* Background */
-  --bg-base:          #07041a;         /* page background                    */
-  --bg-sidebar:       rgba(15, 10, 40, 0.75);
-  --bg-toolbar:       rgba(15, 10, 40, 0.55);
-  --bg-panel:         rgba(30, 20, 70, 0.45);
-  --bg-panel-hover:   rgba(60, 40, 120, 0.50);
+  /* Background — transparent so starfield shows through */
+  --bg-base:          transparent;
+  --bg-sidebar:       rgba(7, 4, 26, 0.55);
+  --bg-toolbar:       rgba(7, 4, 26, 0.40);
+  --bg-panel:         rgba(20, 12, 55, 0.38);
+  --bg-panel-hover:   rgba(50, 30, 110, 0.44);
   --bg-input:         rgba(255, 255, 255, 0.07);
   --bg-input-focus:   rgba(255, 255, 255, 0.10);
   --bg-btn:           rgba(100, 140, 255, 0.14);
@@ -59,23 +57,20 @@
   --status-done:      rgba(140, 220, 160, 0.85);
   --status-active:    rgba(180, 210, 255, 0.90);
 
-  /* ── Radii ──────────────────────────────────────────────────────────────
-     Change these to go sharper (4px) or more rounded (16px+)               */
-  --radius-panel:     12px;            /* cards, accordions                  */
-  --radius-popup:     16px;            /* modal popup                        */
-  --radius-btn:       7px;             /* buttons                            */
-  --radius-input:     7px;             /* inputs, selects, textareas         */
-  --radius-sidebar-btn: 7px;          /* sidebar nav buttons                */
+  /* ── Radii ──────────────────────────────────────────────────────────────*/
+  --radius-panel:     12px;
+  --radius-popup:     16px;
+  --radius-btn:       7px;
+  --radius-input:     7px;
+  --radius-sidebar-btn: 7px;
 
-  /* ── Blur / Glass ───────────────────────────────────────────────────────
-     Higher = more frosted. 0px = no blur (flat look)                       */
-  --blur-panel:       16px;
-  --blur-sidebar:     20px;
-  --blur-toolbar:     16px;
+  /* ── Blur / Glass ───────────────────────────────────────────────────────*/
+  --blur-panel:       18px;
+  --blur-sidebar:     24px;
+  --blur-toolbar:     18px;
   --blur-popup-overlay: 6px;
 
-  /* ── Spacing ────────────────────────────────────────────────────────────
-     Base unit for consistent padding/gap scaling                            */
+  /* ── Spacing ────────────────────────────────────────────────────────────*/
   --space-xs:   4px;
   --space-sm:   8px;
   --space-md:   14px;
@@ -83,9 +78,9 @@
   --space-xl:   28px;
 
   /* Panel padding */
-  --panel-padding:    18px 20px;       /* accordion & task cards             */
-  --popup-padding:    26px;            /* modal window                       */
-  --page-padding:     28px;            /* page content area                  */
+  --panel-padding:    18px 20px;
+  --popup-padding:    26px;
+  --page-padding:     28px;
   --sidebar-padding:  20px 14px;
   --toolbar-padding:  12px 20px;
 
@@ -93,9 +88,9 @@
   --sidebar-width:    180px;
 
   /* ── Card width ─────────────────────────────────────────────────────────*/
-  --card-width:       340px;           /* dashboard accordion cards          */
-  --popup-width:      460px;           /* create task popup                  */
-  --activity-width:   520px;           /* activity page max-width            */
+  --card-width:       340px;
+  --popup-width:      460px;
+  --activity-width:   520px;
 
   /* ── Typography ─────────────────────────────────────────────────────────*/
   --font-base:        -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -118,122 +113,88 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   BASE STYLES
+   BASE RESET
    ═══════════════════════════════════════════════════════════════════════════ */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body, #root {
+html, body {
   height: 100%;
-  width: 100%;
+  /* deep space colour — starfield canvas sits on top as fixed bg */
+  background: #07041a;
 }
 
 body {
-  background: var(--bg-base);
-  color: var(--text-base);
   font-family: var(--font-base);
   font-size: var(--font-size-base);
-  min-height: 100vh;
-  overflow-x: hidden;
+  color: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  /* transparent so the fixed canvas shows through */
+  background: transparent;
 }
 
-h1 { font-size: var(--font-size-h1); font-weight: 600; letter-spacing: 0.04em; color: var(--text-heading); }
-h2 { font-size: var(--font-size-h2); font-weight: 500; letter-spacing: 0.04em; color: var(--text-h2); }
-h3 { font-size: var(--font-size-h3); font-weight: 600; letter-spacing: 0.05em; color: var(--text-h3); }
-
-p {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-
-a { text-decoration: none; color: inherit; }
-
-hr {
-  border: none;
-  border-top: 1px solid var(--border-hr);
-  margin: 24px 0;
-}
-
+/* ── Reset elements ─────────────────────────────────────────────────────── */
 button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-base);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--accent-text-btn);
-  background: var(--bg-btn);
-  border: 1px solid var(--border-btn);
-  border-radius: var(--radius-btn);
-  padding: 7px 16px;
-  height: auto;
-  width: auto;
-  min-width: 100px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.15s;
-  white-space: nowrap;
-  box-shadow: 0 0 10px var(--accent-glow-btn), inset 0 1px 0 rgba(255,255,255,0.08);
+  outline: none;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-btn);
+  background: var(--bg-btn);
+  color: var(--accent-text-btn);
+  padding: 6px 14px;
+  letter-spacing: 0.06em;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.12s;
+  box-shadow: 0 0 0 0 transparent;
 }
 
 button:hover {
-  color: #fff;
-  border-color: var(--border-btn-hover);
   background: var(--bg-btn-hover);
-  box-shadow: 0 0 18px var(--accent-glow-btn-hover), inset 0 1px 0 rgba(255,255,255,0.12);
+  border-color: var(--border-btn-hover);
+  box-shadow: 0 0 14px var(--accent-glow-btn-hover);
   transform: translateY(-1px);
 }
 
 button:active {
   background: var(--bg-btn-active);
-  transform: translateY(1px);
-  box-shadow: none;
+  transform: translateY(0);
 }
 
-input, textarea, select {
-  font-family: var(--font-base);
-  font-size: var(--font-size-sm);
+input, select, textarea {
+  font-family: inherit;
+  font-size: var(--font-size-base);
   color: var(--text-base);
   background: var(--bg-input);
   border: 1px solid var(--border-input);
   border-radius: var(--radius-input);
-  padding: 8px 11px;
-  width: 100%;
+  padding: 7px 11px;
   outline: none;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-  letter-spacing: 0.03em;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  width: 100%;
 }
 
-input:focus, textarea:focus, select:focus {
-  border-color: var(--border-input-focus);
+input:focus, select:focus, textarea:focus {
   background: var(--bg-input-focus);
-  box-shadow: 0 0 12px var(--accent-glow-input);
+  border-color: var(--border-input-focus);
+  box-shadow: 0 0 0 3px var(--accent-glow-input);
 }
 
-input::placeholder, textarea::placeholder { color: rgba(255, 255, 255, 0.28); }
-
-select option { background: #0d0a2a; color: var(--text-base); }
+select option { background: #0f0a28; color: var(--text-base); }
 
 label {
-  display: block;
-  font-size: var(--font-size-label);
-  letter-spacing: 0.16em;
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color: var(--text-label);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-xs);
 }
 
-textarea { resize: vertical; line-height: 1.5; }
+h1 { font-size: var(--font-size-h1); font-weight: 700; color: var(--text-heading); letter-spacing: 0.04em; margin-bottom: var(--space-md); }
+h2 { font-size: var(--font-size-h2); font-weight: 600; color: var(--text-h2); letter-spacing: 0.05em; margin-bottom: var(--space-sm); }
+h3 { font-size: var(--font-size-h3); font-weight: 600; color: var(--text-h3); }
 
-.logo {
-  font-size: var(--font-size-logo);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-logo);
-}
+hr { border: none; border-top: 1px solid var(--border-hr); margin: var(--space-md) 0; }
+
+p { color: var(--text-muted); font-size: var(--font-size-sm); line-height: 1.6; }
