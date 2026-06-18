@@ -7,6 +7,7 @@ import CongruencePage from "./pages/CongruencePage";
 import Toolbar from "./Components/Toolbar";
 import PlanningPage from "./pages/PlanningPage";
 import RechargePage from "./pages/RechargePage";
+import SettingsPage from "./pages/SettingsPage";
 import "./Css/App.css";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/planning" element={<PlanningPage />} />
             <Route path="/recharge" element={<RechargePage />} />
             <Route path="/congruence" element={<CongruencePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </div>
       </div>
