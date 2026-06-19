@@ -484,7 +484,7 @@
 
 .timer-controls{
     position:absolute;
-    bottom:24px;
+    bottom:50px;
     left:50%;
     transform:translateX(-50%);
 
@@ -510,7 +510,7 @@
 
 .arrow-row{
     display:flex;
-    gap:120px; /* gives separation between minutes + seconds */
+    gap:170px; /* gives separation between minutes + seconds */
 }
 
 .arrow-group{
@@ -518,7 +518,7 @@
     flex-direction:column;
     align-items:center;
 
-    gap:6px;
+    gap:130px;
 }
 
 

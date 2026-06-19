@@ -84,7 +84,7 @@ export default function TimerControls (
                     className="timer-btn"
                     onClick={isRunning ? onPause : onStart}
                 >
-                    {isRunning ? "Pause" : "Start"}
+                    {isRunning ? "Pause" : "Play"}
                 </button>
 
                 <button

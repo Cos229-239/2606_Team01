@@ -1,0 +1,20 @@
+// ======================================================
+// electron.d.ts
+// ------------------------------------------------------
+// Declares the Electron API exposed by preload.ts.
+// This allows TypeScript to recognize
+// window.electron throughout the React application.
+// ======================================================
+
+export {};
+
+declare global
+{
+    interface Window
+    {
+        electron:
+        {
+            openTimer: () => void;
+        };
+    }
+}
