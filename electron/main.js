@@ -1,32 +1,37 @@
+// Import Electron modules used to control the application
+// and create native desktop windows.
 import { app, BrowserWindow } from "electron";
-
-function createWindow()
-{
-    const mainWindow = new BrowserWindow(
-        {
-            width:2200,
-            height: 1380
-        }
-    );
-
-    mainWindow.loadURL("http://localhost:5173");
-}
+import { createMainWindow } from "./windows/mainWindow.js";
+import { createTimerWindow } from "./windows/timerWindow.js";
 
 
-app.whenReady().then(() =>
-{
-    createWindow();
-});
 
-app.on("activate", () =>
-{
-    if (BrowserWindow.getAllWindows().length === 0)
+
+        // Wait until Electron has finished starting before
+        // creating the application's main window.
+    app.whenReady().then(() =>
     {
-        createWindow();
-    }
-});
+            //creates mainWindow for application
+        createMainWindow();
 
-app.on("window-all-closed", () =>
-{
-    app.quit();
-});
+        //temp show timer
+        createTimerWindow();
+    });
+
+
+        // Recreate the window if the application is activated
+        // and no windows are currently open (primarily for macOS).
+    app.on("activate", () =>
+    {
+        if (BrowserWindow.getAllWindows().length === 0)
+        {
+            createMainWindow();
+        }
+    });
+
+
+        // Close the application once every window has been closed.
+    app.on("window-all-closed", () =>
+    {
+        app.quit();
+    });
