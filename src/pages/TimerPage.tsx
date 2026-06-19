@@ -1,32 +1,95 @@
-import { useState } from "react";
+// ======================================================
+// TimerPage.tsx
+// ------------------------------------------------------
+// Floating timer window.
+// Owns timer state and connects the display and controls.
+// ======================================================
+import { useState, useEffect } from "react";
+import TimerControls from "../Components/Timer/TimerControls";
+import TimerDisplay from "../Components/Timer/TimerDisplay";
 
-function TimerPage()
+export default function TimerPage() {
+
+    const [minutes, setMinutes] = useState(25);
+    const [seconds, setSeconds] = useState(0);
+
+    const [remainingSeconds, setRemainingSeconds] = useState(25 * 60);
+    const [originalDuration, setOriginalDuration] = useState(25 * 60);
+
+    const [isRunning, setIsRunning] = useState(false);
+
+    useEffect(() =>
 {
+    if (isRunning) return;
+    const interval = setInterval(() => 
+    {
+        setRemainingSeconds(prev =>
+        {
+            if (prev <= 1) 
+                {
+                    setIsRunning(false);
+                    return 0;
+            }
+            return prev - 1;
+        });
+    }, 1000);
+    return () => clearInterval(interval);
+}, [isRunning]);
+    // =========================
+    // SYNC HELPERS
+    // =========================
 
-    const [ showControls, setShowControls ] = useState(false);
+    function updateFromInputs(newMinutes: number, newSeconds: number) {
+        setMinutes(newMinutes);
+        setSeconds(newSeconds);
+        setRemainingSeconds(newMinutes * 60 + newSeconds);
+    }
 
-return(
+    function handleMinutesChange(value: number) {
+        updateFromInputs(value, seconds);
+    }
 
-    <div
-        className = "timer-page"
-        onMouseEnter ={() => setShowControls(true)}
-        onMouseLeave = {() => setShowControls(false)}>
+    function handleSecondsChange(value: number) {
+        updateFromInputs(minutes, value);
+    }
 
-            {/* Center Display */}
-            <div className = "timer-display">
-                25:00
-            </div>
+    function handleStart() {
+        const total = minutes * 60 + seconds;
 
-            {/* Hover Controls */}
-            { showControls && (
-                <div className = "timer-controls">
-                    <button className = "timer-btn"> Start </ button>
+        setOriginalDuration(total);
+        setRemainingSeconds(total);
 
-                    <button className = "timer-btn"> Reset </button>
-                </div>
-            )}
-    </div>
-);
+        setIsRunning(true);
+    }
+
+    function handlePause() {
+        setIsRunning(false);
+    }
+
+    function handleReset() {
+        setRemainingSeconds(originalDuration);
+        setIsRunning(false);
+    }
+
+    return (
+        <div className="timer-page">
+
+            <TimerDisplay remainingSeconds={remainingSeconds} />
+
+            <TimerControls
+                minutes={minutes}
+                seconds={seconds}
+
+                isRunning={isRunning}
+
+                onMinutesChange={handleMinutesChange}
+                onSecondsChange={handleSecondsChange}
+
+                onStart={handleStart}
+                onPause={handlePause}
+                onReset={handleReset}
+            />
+
+        </div>
+    );
 }
-
-export default TimerPage;
