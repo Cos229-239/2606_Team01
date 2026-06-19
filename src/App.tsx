@@ -44,6 +44,8 @@ function App() {
             <Route path="/planning" element={<PlanningPage />} />
             <Route path="/recharge" element={<RechargePage />} />
             <Route path="/congruence" element={<CongruencePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/appearance" element={<AppearancePage />} />
           </Route>
 
          
