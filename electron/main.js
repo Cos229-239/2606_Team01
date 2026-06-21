@@ -15,8 +15,7 @@ import { ipcMain } from "electron";
             //creates mainWindow for application
         createMainWindow();
 
-        //temp show timer
-        createTimerWindow();
+       
     });
 
     ipcMain.on("open-timer", () =>

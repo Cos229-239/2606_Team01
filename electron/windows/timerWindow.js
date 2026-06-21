@@ -25,7 +25,7 @@ const __dirname = path.dirname(__filename);
 
                 webPreferences:
                          {
-                             preload: path.join(__dirname, "../preload.js")
+                             preload: path.join(__dirname, "../preload.cjs")
                          }
 
                
