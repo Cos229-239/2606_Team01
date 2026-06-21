@@ -26,7 +26,7 @@ export function loadNotebooks(): Notebook[]
     return JSON.parse(data);
 }
 
-export function savedNotebooks(notebooks: Notebook[]): void{
+export function saveNotebooks(notebooks: Notebook[]): void{
     localStorage.setItem(NOTEBOOKS_KEY, JSON.stringify(notebooks));
 }
 
@@ -44,7 +44,7 @@ export function loadPages(): Page[]
     return JSON.parse(data);
 }
 
-export function savedPages(pages: Page[]): void{
+export function savePages(pages: Page[]): void{
     localStorage.setItem(PAGES_KEY, JSON.stringify(pages));
 }
 
@@ -62,7 +62,7 @@ export function loadBlocks(): Page[]
     return JSON.parse(data);
 }
 
-export function savedBlocks(blocks: Block[]): void{
+export function saveBlocks(blocks: Block[]): void{
     localStorage.setItem(BLOCKS_KEY, JSON.stringify(blocks));
 }
 
