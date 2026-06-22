@@ -9,7 +9,9 @@ import TaskBlock from "../blocks/TaskBlock";
 
 interface BlockRendererProps {
     block: Block;
-    onUpdateBlock: (blockId: string, content: string) => void;
+    onUpdateBlock: ( blockId: string, content: string) => void;
+    onCreateBlockAfter: (  blockId: string  ) => void;
+    focused?: boolean;
 }
 
 /**
@@ -22,6 +24,8 @@ interface BlockRendererProps {
 export default function BlockRenderer({
     block,
     onUpdateBlock,
+    onCreateBlockAfter,
+    focused,
 }: BlockRendererProps) {
     switch (block.type) {
         case "empty":
@@ -29,6 +33,8 @@ export default function BlockRenderer({
                 <EmptyBlock
                     block={block}
                     onUpdateBlock={onUpdateBlock}
+                    onCreateBlockAfter={  onCreateBlockAfter }
+                     focused={focused}
                 />
             );
 

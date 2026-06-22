@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
 import type { Notebook, Page, Block } from "../Features/notes/types";
-import {
-    loadNotebooks,
-    loadPages,
-    saveNotebooks,
-    savePages,
-    loadBlocks,
-    saveBlocks,
-} from "../Features/notes/storage/notebookStorage";
 
-import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
-import { createNotebook, createPage } from "../Features/notes/utils/NotesFactory";
+import {   loadNotebooks, loadPages,  saveNotebooks,
+              savePages,   loadBlocks,    saveBlocks,
+        } from "../Features/notes/storage/notebookStorage";
 
-// ✅ ADD THIS IMPORT
+import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";import
+ {
+    createNotebook,  createPage, createEmptyBlock,
+} from "../Features/notes/utils/NotesFactory";
 import BlockList from "../Features/notes/editor/BlockList";
 
 export default function NotesPage() {
@@ -26,11 +22,15 @@ export default function NotesPage() {
     const [selectedPageId, setSelectedPageId] =
         useState<string | null>(null);
 
+    const [focusedBlockId, setFocusedBlockId] =
+    useState<string | null>(null);
+
     useEffect(() => {
         setNotebooks(loadNotebooks());
         setPages(loadPages());
         setBlocks(loadBlocks());
     }, []);
+
 
     // ==================================================
     // Notebook Actions
@@ -129,6 +129,59 @@ export default function NotesPage() {
         saveBlocks(updatedBlocks);
     }
 
+
+    // ==================================================
+// Create Block After
+// ==================================================
+function handleCreateBlockAfter(
+    blockId: string
+)
+{
+    if (!selectedPage)
+    {
+        return;
+    }
+
+    const newBlock = createEmptyBlock(selectedPage.id);
+    
+
+    const updatedBlocks = [
+        ...blocks,
+        newBlock, 
+    ];
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    const updatedPages =
+                    pages.map((page) =>
+        {
+            if (
+                page.id !== selectedPage.id
+            )
+            {
+                return page;
+            }
+
+            const index =
+                page.blockIds.indexOf(blockId);
+
+            const newBlockIds = [  ...page.blockIds,    ];
+
+            newBlockIds.splice(
+                index + 1,  0,   newBlock.id
+            );
+
+            return {
+                ...page,
+                blockIds: newBlockIds,
+            };
+        });
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+    setFocusedBlockId(newBlock.id);
+}
     return (
         <div
             style={{
@@ -153,8 +206,7 @@ export default function NotesPage() {
             {/* ==========================================
                 Document Workspace
             ========================================== */}
-            <main
-                style={{
+            <main style={{
                     flex: 1,
                     display: "flex",
                     justifyContent: "center",
@@ -163,8 +215,7 @@ export default function NotesPage() {
                 }}
             >
                 {selectedPage ? (
-                    <div
-                        style={{
+                    <div  style={{
                             width: "100%",
                             maxWidth: "900px",
                             backgroundColor: "rgba(20, 12, 55, 0.38)",
@@ -176,8 +227,7 @@ export default function NotesPage() {
                         }}
                     >
                         {/* Page Header */}
-                        <input
-                            type="text"
+                        <input  type="text"
                             value={selectedPage.title}
                             onChange={(e) =>
                                 handlePageTitleChange(e.target.value)
@@ -195,8 +245,7 @@ export default function NotesPage() {
                         />
 
                         {/* Metadata */}
-                        <p
-                            style={{
+                        <p  style={{
                                 color: "#777",
                                 fontSize: ".9rem",
                                 marginBottom: "24px",
@@ -205,8 +254,7 @@ export default function NotesPage() {
                             Last edited: Just now
                         </p>
 
-                        <hr
-                            style={{
+                        <hr   style={{
                                 border: "none",
                                 borderTop: "1px solid #e5e5e5",
                                 marginBottom: "40px",
@@ -221,6 +269,8 @@ export default function NotesPage() {
                                 page={selectedPage}
                                 blocks={blocks}
                                 onUpdateBlock={handleUpdateBlock}
+                                onCreateBlockAfter={ handleCreateBlockAfter }
+                                focusedBlockId={focusedBlockId}
                             />
                         </div>
                     </div>

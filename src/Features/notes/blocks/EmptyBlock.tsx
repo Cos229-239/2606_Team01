@@ -5,6 +5,9 @@ import type { Block } from "../types";
 interface EmptyBlockProps {
     block: Block;
     onUpdateBlock?: (blockId: string, content: string) => void;
+
+    onCreateBlockAfter?: ( blockId: string  ) => void;
+    focused?: boolean;
 }
 
 /**
@@ -20,9 +23,14 @@ interface EmptyBlockProps {
 export default function EmptyBlock({
     block,
     onUpdateBlock,
+    onCreateBlockAfter,
+    focused,
+
 }: EmptyBlockProps) {
-    const [value, setValue] = useState<string>(
-        block.type === "empty" ? block.content : ""
+     const [value, setValue] = useState<string>(
+        block.type === "empty"
+            ? String(block.content ?? "")
+            : ""
     );
 
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -30,23 +38,69 @@ export default function EmptyBlock({
     // Sync with external updates
     useEffect(() => {
         if (block.type === "empty") {
-            setValue(block.content);
+              setValue(
+                String(block.content ?? "")
+            );
         }
-    }, [block.id, block.type, block.content]);
+    }, [block]);
+    
+    // ==================================================
+    // Text Updates
+    // ==================================================
 
-    function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-        const newValue = e.target.value;
+    function handleChange(
+        event: React.ChangeEvent<HTMLTextAreaElement>
+    ) {
+        const newValue = event.target.value;
+
         setValue(newValue);
 
-        // bubble up to parent system (if wired later)
-        if (onUpdateBlock) {
-            onUpdateBlock(block.id, newValue);
+        onUpdateBlock?.(
+            block.id,
+            newValue
+        );
+    }
+
+    // ==================================================
+    // Keyboard Controls
+    // ==================================================
+
+    function handleKeyDown(
+        event: React.KeyboardEvent<HTMLTextAreaElement>
+    ) {
+        if (event.key === "Enter" &&  event.shiftKey) 
+        {
+            event.preventDefault();
+
+            onCreateBlockAfter?.(
+                block.id
+            );
         }
     }
+
+    // ==================================================
+    // Focus Helpers
+    // ==================================================
 
     function handleClick() {
         inputRef.current?.focus();
     }
+
+    // ==================================================
+    // Render
+    // ==================================================
+
+
+    useEffect(() =>
+{
+    if (
+        focused &&
+        inputRef.current
+    )
+    {
+        inputRef.current.focus();
+    }
+}, [focused]);
 
     return (
         <div
@@ -61,6 +115,7 @@ export default function EmptyBlock({
                 ref={inputRef}
                 value={value}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 placeholder="Click here to start writing..."
                 style={{
                     width: "100%",

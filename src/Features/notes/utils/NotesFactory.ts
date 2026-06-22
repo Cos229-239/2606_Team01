@@ -30,15 +30,18 @@ import type { Notebook, Page, EmptyBlock } from "../types";
 
                     // Create the page's initial empty block.
                 
-               const emptyBlock = createEmptyBlock("");
+               const pageId = crypto.randomUUID();
 
-               const page: Page = {
-                    id:crypto.randomUUID(),
+                const page: Page = {
+                    id: pageId,
                     notebookId,
                     title,
-                    blockIds: [emptyBlock.id],
+                    blockIds: [],
                 };
-                emptyBlock.pageId = page.id;
+
+                const emptyBlock = createEmptyBlock(pageId);
+
+                page.blockIds.push(emptyBlock.id);
 
                 return{
                     page, block: emptyBlock,
@@ -53,7 +56,7 @@ import type { Notebook, Page, EmptyBlock } from "../types";
                 id:crypto.randomUUID(),
                     pageId,
                     type: "empty",
-                    content: null,
+                    content: "",
 
             };
         }

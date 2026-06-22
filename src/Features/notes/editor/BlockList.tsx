@@ -1,3 +1,14 @@
+// ======================================================
+// BlockList.tsx
+// ------------------------------------------------------
+// Renders all blocks belonging to a page.
+//
+// Responsibilities:
+// - Render blocks in page order
+// - Pass editor callbacks downward
+// - Act as the document rendering layer
+// ======================================================
+
 import type { Page, Block } from "../types";
 import BlockRenderer from "./BlockRenderer";
 
@@ -5,19 +16,35 @@ interface BlockListProps {
     page: Page;
     blocks: Block[];
     onUpdateBlock: (blockId: string, content: string) => void;
+    onCreateBlockAfter: (  blockId: string   ) => void;
+    focusedBlockId: string | null;
 }
+
 
 export default function BlockList({
     page,
     blocks,
     onUpdateBlock,
-}: BlockListProps) {
+    onCreateBlockAfter,
+    focusedBlockId,
+        }: BlockListProps) {
     if (!page) return null;
 
-    // ONLY blocks belonging to this page
-    const pageBlocks = blocks.filter(
-        (block) => page.blockIds.includes(block.id)
-    );
+   
+    // ==================================================
+    // Render blocks using page.blockIds order
+    // ==================================================
+
+    const pageBlocks = page.blockIds
+        .map((blockId) =>
+            blocks.find(
+                (block) => block.id === blockId
+            )
+        )
+        .filter(
+            (block): block is Block =>
+                block !== undefined
+        );
 
     return (
         <div
@@ -32,6 +59,8 @@ export default function BlockList({
                     key={block.id}
                     block={block}
                     onUpdateBlock={onUpdateBlock}
+                    onCreateBlockAfter={   onCreateBlockAfter   }
+                    focused={  block.id === focusedBlockId }
                 />
             ))}
         </div>
