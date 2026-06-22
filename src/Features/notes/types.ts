@@ -68,7 +68,7 @@
 export interface EmptyBlock extends BaseBlock {
     type: "empty";
 
-    content: null;
+    content: string;
 }
 
 export interface TextBlock extends BaseBlock {
