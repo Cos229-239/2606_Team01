@@ -25,13 +25,23 @@ import type { Notebook, Page, EmptyBlock } from "../types";
             //page
             export function createPage( notebookId: string,
                 title = "Untitled Page"
-            ): Page
+            )
             {
-                return {
+
+                    // Create the page's initial empty block.
+                
+               const emptyBlock = createEmptyBlock("");
+
+               const page: Page = {
                     id:crypto.randomUUID(),
                     notebookId,
                     title,
-                    blockIds: [],
+                    blockIds: [emptyBlock.id],
+                };
+                emptyBlock.pageId = page.id;
+
+                return{
+                    page, block: emptyBlock,
                 };
             }
 

@@ -7,8 +7,9 @@
 
 
 import { useEffect, useState } from "react";
-import type { Notebook, Page } from "../Features/notes/types";
-import { loadNotebooks,loadPages, saveNotebooks, savePages } from "../Features/notes/storage/notebookStorage";
+import type { Notebook, Page, Block } from "../Features/notes/types";
+import { loadNotebooks,loadPages, saveNotebooks, savePages,
+            loadBlocks, saveBlocks } from "../Features/notes/storage/notebookStorage";
 import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
 import { createNotebook, createPage } from "../Features/notes/utils/NotesFactory";
 
@@ -16,6 +17,7 @@ export default function NotesPage()
 {
     const [notebooks, setNotebooks ] = useState <Notebook[]> ([]);
     const [ pages, setPages ] = useState <Page[]> ([]);
+    const [blocks, setBlocks] = useState<Block[]>([]);
 
     const [ selectedNotebookId, setSelectedNotebookId ] = 
             useState <string | null > (null)
@@ -27,6 +29,7 @@ export default function NotesPage()
     {
         setNotebooks(loadNotebooks());
         setPages(loadPages());
+        setBlocks(loadBlocks());
     }, []);
 
    
@@ -55,26 +58,32 @@ export default function NotesPage()
         setSelectedPageId(null);
     }
 
-
+         // Every page now begins with its first EmptyBlock.
         function handleCreatePage(notebookId: string)
         {
-            const newPage = createPage(notebookId);
-            const updatedPages = [...pages, newPage];
+            const {page, block} = createPage(notebookId);
+            const updatedPages = [...pages, page];
 
             setPages(updatedPages);
             savePages(updatedPages);
+
+             const updatedBlocks = [
+            ...blocks,  block, ];
+
+        setBlocks(updatedBlocks);
+        saveBlocks(updatedBlocks);
 
             const updatedNotebooks = notebooks.map((notebook) =>
             {
                 if (notebook.id !== notebookId) return notebook;
                 return {
-                    ...notebook, pageIds: [ ...notebook.pageIds, newPage.id],
+                    ...notebook, pageIds: [ ...notebook.pageIds, page.id],
                 };
             });
             setNotebooks(updatedNotebooks);
             saveNotebooks(updatedNotebooks);
 
-            setSelectedPageId(newPage.id);
+            setSelectedPageId(page.id);
 
 
         }
@@ -83,6 +92,32 @@ export default function NotesPage()
         {
             setSelectedPageId(pageId);
         }
+
+   
+        // Updates the page title immediately and persists it.
+    function handlePageTitleChange(title: string)
+    {
+        if (!selectedPageId)
+        {
+            return;
+        }
+
+        const updatedPages = pages.map((page) =>
+        {
+            if (page.id !== selectedPageId)
+            {
+                return page;
+            }
+
+            return {
+                ...page,
+                title,
+            };
+        });
+
+        setPages(updatedPages);
+        savePages(updatedPages);
+    }
 
         const selectedPage = pages.find(
             (page) => page.id === selectedPageId

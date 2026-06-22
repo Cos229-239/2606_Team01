@@ -50,7 +50,7 @@ export function savePages(pages: Page[]): void{
 
 
 //Blocks storage
-export function loadBlocks(): Page[]
+export function loadBlocks(): Block[]
 {
     const data = localStorage.getItem(BLOCKS_KEY);
 
