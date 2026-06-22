@@ -1,113 +1,97 @@
-// ======================================================
-// NotesPage.tsx
-// ------------------------------------------------------
-// Entry point for the Notes feature.
-//
-// Responsible for coordinating the Notes UI.
-
-
 import { useEffect, useState } from "react";
 import type { Notebook, Page, Block } from "../Features/notes/types";
-import { loadNotebooks,loadPages, saveNotebooks, savePages,
-            loadBlocks, saveBlocks } from "../Features/notes/storage/notebookStorage";
+import {
+    loadNotebooks,
+    loadPages,
+    saveNotebooks,
+    savePages,
+    loadBlocks,
+    saveBlocks,
+} from "../Features/notes/storage/notebookStorage";
+
 import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
 import { createNotebook, createPage } from "../Features/notes/utils/NotesFactory";
 
-export default function NotesPage()
-{
-    const [notebooks, setNotebooks ] = useState <Notebook[]> ([]);
-    const [ pages, setPages ] = useState <Page[]> ([]);
+// ✅ ADD THIS IMPORT
+import BlockList from "../Features/notes/editor/BlockList";
+
+export default function NotesPage() {
+    const [notebooks, setNotebooks] = useState<Notebook[]>([]);
+    const [pages, setPages] = useState<Page[]>([]);
     const [blocks, setBlocks] = useState<Block[]>([]);
 
-    const [ selectedNotebookId, setSelectedNotebookId ] = 
-            useState <string | null > (null)
-    const [ selectedPageId, setSelectedPageId ] = 
-            useState <string | null > (null);
+    const [selectedNotebookId, setSelectedNotebookId] =
+        useState<string | null>(null);
 
+    const [selectedPageId, setSelectedPageId] =
+        useState<string | null>(null);
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         setNotebooks(loadNotebooks());
         setPages(loadPages());
         setBlocks(loadBlocks());
     }, []);
 
-   
+    // ==================================================
+    // Notebook Actions
+    // ==================================================
 
-    function handleCreateNotebook()
-    {
+    function handleCreateNotebook() {
         const notebook = createNotebook();
 
-        const updatedNotebooks = [ ...notebooks, notebook,];
+        const updatedNotebooks = [...notebooks, notebook];
 
         setNotebooks(updatedNotebooks);
         saveNotebooks(updatedNotebooks);
 
-            //automatically select created notebook
         setSelectedNotebookId(notebook.id);
-
-            //no page selected 
-        setSelectedPageId( null );
-    }
-
-    function handleSelectedNotebook(notebookId: string)
-    {
-        setSelectedNotebookId(notebookId);
-
-          // We'll choose the notebook's first page in a later sprint.
         setSelectedPageId(null);
     }
 
-         // Every page now begins with its first EmptyBlock.
-        function handleCreatePage(notebookId: string)
-        {
-            const {page, block} = createPage(notebookId);
-            const updatedPages = [...pages, page];
+    function handleSelectedNotebook(notebookId: string) {
+        setSelectedNotebookId(notebookId);
+        setSelectedPageId(null);
+    }
 
-            setPages(updatedPages);
-            savePages(updatedPages);
+    // ==================================================
+    // Page Actions
+    // ==================================================
 
-             const updatedBlocks = [
-            ...blocks,  block, ];
+    function handleCreatePage(notebookId: string) {
+        const { page, block } = createPage(notebookId);
 
+        const updatedPages = [...pages, page];
+        setPages(updatedPages);
+        savePages(updatedPages);
+
+        const updatedBlocks = [...blocks, block];
         setBlocks(updatedBlocks);
         saveBlocks(updatedBlocks);
 
-            const updatedNotebooks = notebooks.map((notebook) =>
-            {
-                if (notebook.id !== notebookId) return notebook;
-                return {
-                    ...notebook, pageIds: [ ...notebook.pageIds, page.id],
-                };
-            });
-            setNotebooks(updatedNotebooks);
-            saveNotebooks(updatedNotebooks);
+        const updatedNotebooks = notebooks.map((notebook) => {
+            if (notebook.id !== notebookId) return notebook;
 
-            setSelectedPageId(page.id);
+            return {
+                ...notebook,
+                pageIds: [...notebook.pageIds, page.id],
+            };
+        });
 
+        setNotebooks(updatedNotebooks);
+        saveNotebooks(updatedNotebooks);
 
-        }
+        setSelectedPageId(page.id);
+    }
 
-         function handleSelectedPage(pageId: string)
-        {
-            setSelectedPageId(pageId);
-        }
+    function handleSelectedPage(pageId: string) {
+        setSelectedPageId(pageId);
+    }
 
-   
-        // Updates the page title immediately and persists it.
-    function handlePageTitleChange(title: string)
-    {
-        if (!selectedPageId)
-        {
-            return;
-        }
+    function handlePageTitleChange(title: string) {
+        if (!selectedPageId) return;
 
-        const updatedPages = pages.map((page) =>
-        {
-            if (page.id !== selectedPageId)
-            {
-                return page;
-            }
+        const updatedPages = pages.map((page) => {
+            if (page.id !== selectedPageId) return page;
 
             return {
                 ...page,
@@ -119,12 +103,43 @@ export default function NotesPage()
         savePages(updatedPages);
     }
 
-        const selectedPage = pages.find(
-            (page) => page.id === selectedPageId
-        );
+    const selectedPage = pages.find(
+        (page) => page.id === selectedPageId
+    );
 
- return (
-        <div>
+    // ==================================================
+    // BLOCK UPDATE (STEP 3 CORE)
+    // ==================================================
+
+    function handleUpdateBlock(blockId: string, content: string) {
+        const updatedBlocks = blocks.map((block) => {
+            if (block.id !== blockId) return block;
+
+            if (block.type === "empty") {
+                return {
+                    ...block,
+                    content,
+                };
+            }
+
+            return block;
+        });
+
+        setBlocks(updatedBlocks);
+        saveBlocks(updatedBlocks);
+    }
+
+    return (
+        <div
+            style={{
+                display: "flex",
+                height: "100vh",
+                backgroundColor: "rgba(20, 12, 55, 0.38)",
+            }}
+        >
+            {/* ==========================================
+                Notebook Sidebar
+            ========================================== */}
             <NotebookBrowser
                 notebooks={notebooks}
                 pages={pages}
@@ -135,17 +150,95 @@ export default function NotesPage()
                 onSelectedPage={handleSelectedPage}
             />
 
-            {/* SIMPLE PAGE VIEW */}
-            <div style={{ marginTop: "20px" }}>
+            {/* ==========================================
+                Document Workspace
+            ========================================== */}
+            <main
+                style={{
+                    flex: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    padding: "40px",
+                    overflowY: "auto",
+                }}
+            >
                 {selectedPage ? (
-                    <div>
-                        <h2>{selectedPage.title}</h2>
-                        <p>Empty page (editor coming next)</p>
+                    <div
+                        style={{
+                            width: "100%",
+                            maxWidth: "900px",
+                            backgroundColor: "rgba(20, 12, 55, 0.38)",
+                            borderRadius: "10px",
+                            boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+                            padding: "48px",
+                            minHeight: "900px",
+                            boxSizing: "border-box",
+                        }}
+                    >
+                        {/* Page Header */}
+                        <input
+                            type="text"
+                            value={selectedPage.title}
+                            onChange={(e) =>
+                                handlePageTitleChange(e.target.value)
+                            }
+                            placeholder="Untitled Page"
+                            style={{
+                                width: "100%",
+                                fontSize: "2.5rem",
+                                fontWeight: "bold",
+                                border: "none",
+                                outline: "none",
+                                background: "transparent",
+                                marginBottom: "12px",
+                            }}
+                        />
+
+                        {/* Metadata */}
+                        <p
+                            style={{
+                                color: "#777",
+                                fontSize: ".9rem",
+                                marginBottom: "24px",
+                            }}
+                        >
+                            Last edited: Just now
+                        </p>
+
+                        <hr
+                            style={{
+                                border: "none",
+                                borderTop: "1px solid #e5e5e5",
+                                marginBottom: "40px",
+                            }}
+                        />
+
+                        {/* ======================================
+                            DOCUMENT BODY (NOW LIVE EDITOR)
+                        ====================================== */}
+                        <div style={{ minHeight: "600px" }}>
+                            <BlockList
+                                page={selectedPage}
+                                blocks={blocks}
+                                onUpdateBlock={handleUpdateBlock}
+                            />
+                        </div>
                     </div>
                 ) : (
-                    <p>Select a page</p>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%",
+                            color: "#777",
+                            fontSize: "1.2rem",
+                        }}
+                    >
+                        Select or create a page to begin writing.
+                    </div>
                 )}
-            </div>
+            </main>
         </div>
     );
 }
