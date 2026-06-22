@@ -6,19 +6,27 @@
 // This component is responsible only for rendering the
 // notebook browser.
 
-import type { Notebook } from "../types";
+import type { Notebook, Page } from "../types";
 
 interface NotebookBrowserProps
 {
     notebooks: Notebook[];
-
+    pages: Page[];
+    selectedNotebookId: string | null;
     onCreateNotebook: () => void;
+    onSelectedNotebook: (notebookId: string) => void;
+
+    onCreatePage: (notebookId: string) => void;
+    onSelectedPage: (pageId: string) => void;
 
 }
 
 export default function NotebookBrowser(
     {
-        notebooks, onCreateNotebook, }: NotebookBrowserProps)
+        notebooks, onCreateNotebook,
+        selectedNotebookId, onSelectedNotebook,
+        pages, onCreatePage,
+        onSelectedPage, }: NotebookBrowserProps)
 {
     return (
         <section>
@@ -31,9 +39,52 @@ export default function NotebookBrowser(
             ): (
                 <ul>
                     { notebooks.map((notebook) =>
-                    ( <li key = {notebook.id} > 
-                        {notebook.title} </li>
-                    ))}
+                    {
+                        const isSelected = notebook.id === selectedNotebookId;
+
+                        const notebookPages = pages.filter(
+                            (page) => page.notebookId === notebook.id
+                        );
+
+                        return (
+                            <li key = { notebook.id }>
+                            <div onClick = {() => onSelectedNotebook(notebook.id)
+                            }
+                            style = {{
+                                cursor: "pointer",
+                                fontWeight: isSelected ? "bold" : "normal",
+                            }} >
+                        
+                         ▼ {notebook.title}
+                         </div>
+                         {isSelected && (
+                                    <button
+                                        onClick={() =>
+                                            onCreatePage(notebook.id)
+                                        }
+                                    >
+                                        + New Page
+                                    </button>
+                                )}
+                                
+                           {notebookPages.length > 0 && (
+                                    <ul>
+                                        {notebookPages.map((page) => (
+                                            <li
+                                                key={page.id}
+                                                style={{
+                                                    marginLeft: "1.5rem",
+                                                    cursor: "default",
+                                                }}
+                                            >
+                                                {page.title}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </section>
