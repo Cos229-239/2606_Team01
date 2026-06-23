@@ -180,23 +180,70 @@ function MoodTintRow({ moodKey, label, accent }: {
   );
 }
 
+// ── Background mode hook ──────────────────────────────────────────────────
+function useBackgroundMode() {
+  const [mode, setMode] = useState(() => localStorage.getItem("background-mode") ?? "starfield");
+  const set = useCallback((v: string) => {
+    setMode(v);
+    localStorage.setItem("background-mode", v);
+    window.dispatchEvent(new CustomEvent("background-update"));
+    window.dispatchEvent(new CustomEvent("starfield-update"));
+  }, []);
+  return [mode, set] as const;
+}
+
+// ── City setting hook (fires cityscape-update) ────────────────────────────
+function useCitySetting(key: string, defaultValue: string) {
+  const [value, setValue] = useState(() => localStorage.getItem(key) ?? defaultValue);
+  const set = useCallback((v: string) => {
+    setValue(v);
+    localStorage.setItem(key, v);
+    window.dispatchEvent(new CustomEvent("cityscape-update"));
+  }, [key]);
+  return [value, set] as const;
+}
+
+// ── Timer background hook ─────────────────────────────────────────────────
+function useTimerBg() {
+  const [timerBg, setTimerBg] = useState(() => localStorage.getItem("timer-background") ?? "starfield");
+  const set = useCallback((v: string) => {
+    setTimerBg(v);
+    localStorage.setItem("timer-background", v);
+    window.dispatchEvent(new CustomEvent("timer-background-update"));
+  }, []);
+  return [timerBg, set] as const;
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────
 export default function AppearancePage() {
   const navigate = useNavigate();
 
+  // Background mode
+  const [bgMode, setBgMode] = useBackgroundMode();
+
   // Starfield settings
   const [scroll,      setScroll]      = useSetting("star-scroll",       "false");
   const [mouseLook,   setMouseLook]   = useSetting("star-mouselook",    "true");
-  const [scrollSpeed, setScrollSpeed] = useSetting("star-scroll-speed", "3");
+  const [scrollSpeed, setScrollSpeed] = useSetting("star-scroll-speed", "40");
 
   // Default tint settings
   const [defaultHue,      setDefaultHue]      = useTintSetting("tint-default-h", "220");
   const [defaultStrength, setDefaultStrength] = useTintSetting("tint-default-s", "0");
 
+  // City settings
+  const [cityScrollSpeed, setCityScrollSpeed] = useCitySetting("city-scroll-speed", "40");
+  const [cityTintHue,     setCityTintHue]     = useCitySetting("city-tint-h", "30");
+  const [cityTintStr,     setCityTintStr]     = useCitySetting("city-tint-s", "0");
+
+  // Timer background
+  const [timerBg, setTimerBg] = useTimerBg();
+
   const scrollOn    = scroll === "true";
   const mouseLookOn = mouseLook === "true";
   const dHue = parseInt(defaultHue);
   const dStr = parseFloat(defaultStrength);
+  const cHue = parseInt(cityTintHue);
+  const cStr = parseFloat(cityTintStr);
 
   return (
     <div>
@@ -215,8 +262,146 @@ export default function AppearancePage() {
 
       <h1>Appearance</h1>
 
-      {/* ── Starfield panel ──────────────────────────────────────────── */}
+      {/* ── Background Mode panel ───────────────────────────────────── */}
       <div className="glass-panel" style={{ padding: "20px", marginTop: "20px", maxWidth: "500px" }}>
+        <h2>Background</h2>
+        <hr />
+        <p style={{ margin: "0 0 14px", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+          Choose the animated background for the app.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {/* Starfield option */}
+          <label style={{
+            display: "flex", alignItems: "center", gap: "12px",
+            padding: "12px 14px", borderRadius: "10px", cursor: "pointer",
+            background: bgMode === "starfield" ? "rgba(120,160,255,0.10)" : "rgba(255,255,255,0.03)",
+            border: `1px solid ${bgMode === "starfield" ? "rgba(120,160,255,0.45)" : "rgba(255,255,255,0.08)"}`,
+            transition: "all 0.25s",
+          }}>
+            <input
+              type="radio" name="bgMode" value="starfield"
+              checked={bgMode === "starfield"}
+              onChange={() => setBgMode("starfield")}
+              style={{ display: "none" }}
+            />
+            {/* Starfield mini preview */}
+            <div style={{
+              width: "52px", height: "34px", borderRadius: "6px", flexShrink: 0,
+              background: "linear-gradient(160deg, #07041a 0%, #120830 60%, #1a0d35 100%)",
+              border: "1px solid rgba(255,255,255,0.12)", overflow: "hidden", position: "relative",
+            }}>
+              {[...Array(14)].map((_, i) => (
+                <div key={i} style={{
+                  position: "absolute",
+                  width: i % 4 === 0 ? "2px" : "1px", height: i % 4 === 0 ? "2px" : "1px",
+                  borderRadius: "50%", background: "rgba(255,255,255,0.85)",
+                  left: `${(i * 29 + 7) % 90}%`, top: `${(i * 37 + 11) % 80}%`,
+                }} />
+              ))}
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: "13px", color: "rgba(220,235,255,0.9)", fontWeight: 500 }}>Starfield</p>
+              <p style={{ margin: "2px 0 0", fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Deep space parallax with mood themes</p>
+            </div>
+            {bgMode === "starfield" && (
+              <div style={{
+                marginLeft: "auto", width: "7px", height: "7px", borderRadius: "50%",
+                background: "rgba(120,160,255,0.9)", boxShadow: "0 0 6px rgba(120,160,255,0.7)",
+              }} />
+            )}
+          </label>
+
+          {/* City Scrolling option */}
+          <label style={{
+            display: "flex", alignItems: "center", gap: "12px",
+            padding: "12px 14px", borderRadius: "10px", cursor: "pointer",
+            background: bgMode === "city" ? "rgba(255,140,60,0.10)" : "rgba(255,255,255,0.03)",
+            border: `1px solid ${bgMode === "city" ? "rgba(255,140,60,0.45)" : "rgba(255,255,255,0.08)"}`,
+            transition: "all 0.25s",
+          }}>
+            <input
+              type="radio" name="bgMode" value="city"
+              checked={bgMode === "city"}
+              onChange={() => setBgMode("city")}
+              style={{ display: "none" }}
+            />
+            {/* City mini preview */}
+            <div style={{
+              width: "52px", height: "34px", borderRadius: "6px", flexShrink: 0,
+              background: "linear-gradient(180deg, #0d0820 0%, #3d1a5c 55%, #c4562a 85%, #f0a855 100%)",
+              border: "1px solid rgba(255,255,255,0.12)", overflow: "hidden", position: "relative",
+            }}>
+              {/* Silhouette buildings */}
+              {[
+                { left:"4%",  width:"14%", height:"50%", bottom:0 },
+                { left:"18%", width:"10%", height:"38%", bottom:0 },
+                { left:"28%", width:"18%", height:"60%", bottom:0 },
+                { left:"46%", width:"12%", height:"42%", bottom:0 },
+                { left:"58%", width:"16%", height:"55%", bottom:0 },
+                { left:"74%", width:"10%", height:"35%", bottom:0 },
+                { left:"84%", width:"14%", height:"48%", bottom:0 },
+              ].map((b, i) => (
+                <div key={i} style={{
+                  position: "absolute", background: "rgba(8,5,18,0.95)",
+                  ...b, bottom: 0,
+                }} />
+              ))}
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: "13px", color: "rgba(220,235,255,0.9)", fontWeight: 500 }}>City Scrolling</p>
+              <p style={{ margin: "2px 0 0", fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Dusk cityscape with parallax buildings &amp; clouds</p>
+            </div>
+            {bgMode === "city" && (
+              <div style={{
+                marginLeft: "auto", width: "7px", height: "7px", borderRadius: "50%",
+                background: "rgba(255,140,60,0.9)", boxShadow: "0 0 6px rgba(255,140,60,0.7)",
+              }} />
+            )}
+          </label>
+        </div>
+      </div>
+
+      {/* ── Timer Background panel ──────────────────────────────────── */}
+      <div className="glass-panel" style={{ padding: "20px", marginTop: "16px", maxWidth: "500px" }}>
+        <h2>Timer Background</h2>
+        <hr />
+        <p style={{ margin: "0 0 14px", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+          Choose which background the floating timer window uses.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {[
+            { value: "starfield", label: "Starfield", desc: "Deep space parallax", color: "rgba(120,160,255,0.45)", activeBg: "rgba(120,160,255,0.10)", dot: "rgba(120,160,255,0.9)", dotGlow: "rgba(120,160,255,0.7)" },
+            { value: "city",      label: "City Scrolling", desc: "Dusk cityscape",       color: "rgba(255,140,60,0.45)",  activeBg: "rgba(255,140,60,0.10)",  dot: "rgba(255,140,60,0.9)",  dotGlow: "rgba(255,140,60,0.7)" },
+          ].map(opt => (
+            <label key={opt.value} style={{
+              display: "flex", alignItems: "center", gap: "12px",
+              padding: "12px 14px", borderRadius: "10px", cursor: "pointer",
+              background: timerBg === opt.value ? opt.activeBg : "rgba(255,255,255,0.03)",
+              border: `1px solid ${timerBg === opt.value ? opt.color : "rgba(255,255,255,0.08)"}`,
+              transition: "all 0.25s",
+            }}>
+              <input type="radio" name="timerBg" value={opt.value}
+                checked={timerBg === opt.value}
+                onChange={() => setTimerBg(opt.value)}
+                style={{ display: "none" }}
+              />
+              <div>
+                <p style={{ margin: 0, fontSize: "13px", color: "rgba(220,235,255,0.9)", fontWeight: 500 }}>{opt.label}</p>
+              </div>
+              {timerBg === opt.value && (
+                <div style={{
+                  marginLeft: "auto", width: "7px", height: "7px", borderRadius: "50%",
+                  background: opt.dot, boxShadow: `0 0 6px ${opt.dotGlow}`,
+                }} />
+              )}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Starfield panel — only shown in Starfield mode ───────────── */}
+      <div className="glass-panel" style={{ padding: "20px", marginTop: "16px", maxWidth: "500px", display: bgMode === "starfield" ? undefined : "none" }}>
         <h2>Starfield</h2>
         <hr />
 
@@ -241,11 +426,15 @@ export default function AppearancePage() {
                 Scroll Speed
               </p>
               <p style={{ margin: 0, fontSize: "11px", color: "rgba(200,220,255,0.8)" }}>
-                {parseFloat(scrollSpeed) > 0 ? `+${scrollSpeed}` : scrollSpeed}
+                {parseFloat(scrollSpeed) > 0
+                  ? `→ ${parseFloat(scrollSpeed).toFixed(0)} px/s`
+                  : parseFloat(scrollSpeed) < 0
+                    ? `← ${Math.abs(parseFloat(scrollSpeed)).toFixed(0)} px/s`
+                    : "0 px/s"}
               </p>
             </div>
             <input
-              type="range" min="-5" max="10" step="0.5"
+              type="range" min="-120" max="120" step="1"
               value={scrollSpeed}
               onChange={e => setScrollSpeed(e.target.value)}
               style={{ width: "100%", accentColor: "rgba(120,160,255,0.9)" }}
@@ -255,7 +444,7 @@ export default function AppearancePage() {
       </div>
 
       {/* ── Screen Color panel ───────────────────────────────────────── */}
-      <div className="glass-panel" style={{ padding: "20px", marginTop: "16px", maxWidth: "500px" }}>
+      <div className="glass-panel" style={{ padding: "20px", marginTop: "16px", maxWidth: "500px", display: bgMode === "starfield" ? undefined : "none" }}>
         <h2>Screen Color</h2>
         <hr />
         <p style={{ margin: "0 0 16px", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
@@ -298,6 +487,63 @@ export default function AppearancePage() {
         {MOODS.map(m => (
           <MoodTintRow key={m.key} moodKey={m.key} label={m.label} accent={m.accent} />
         ))}
+      </div>
+
+      {/* ── City Scrolling settings panel ────────────────────────────── */}
+      <div className="glass-panel" style={{ padding: "20px", marginTop: "16px", maxWidth: "500px", display: bgMode === "city" ? undefined : "none" }}>
+        <h2>City Scrolling</h2>
+        <hr />
+
+        {/* Scroll speed */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              Scroll Speed
+            </p>
+            <p style={{ margin: 0, fontSize: "11px", color: "rgba(200,220,255,0.8)" }}>
+              {parseFloat(cityScrollSpeed) > 0
+                ? `→ ${parseFloat(cityScrollSpeed).toFixed(0)} px/s`
+                : parseFloat(cityScrollSpeed) < 0
+                  ? `← ${Math.abs(parseFloat(cityScrollSpeed)).toFixed(0)} px/s`
+                  : "0 px/s"}
+            </p>
+          </div>
+          <input
+            type="range" min="-120" max="120" step="1"
+            value={cityScrollSpeed}
+            onChange={e => setCityScrollSpeed(e.target.value)}
+            style={{ width: "100%", accentColor: "rgba(255,140,60,0.9)" }}
+          />
+        </div>
+
+        {/* City screen tint */}
+        <p style={{ margin: "0 0 12px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          Screen Color
+        </p>
+        <div style={{ display: "flex", gap: "20px", alignItems: "center", flexWrap: "wrap" }}>
+          <HueRing hue={cHue} onChange={h => setCityTintHue(String(h))} size={140} />
+          <div style={{ flex: 1, minWidth: "130px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+              <p style={{ margin: 0, fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Strength</p>
+              <p style={{ margin: 0, fontSize: "11px", color: "rgba(200,220,255,0.8)" }}>{Math.round(cStr * 100)}%</p>
+            </div>
+            <input
+              type="range" min="0" max="1" step="0.01"
+              value={cityTintStr}
+              onChange={e => setCityTintStr(e.target.value)}
+              style={{ width: "100%", accentColor: `hsl(${cHue}, 80%, 55%)` }}
+            />
+            <div style={{
+              marginTop: "12px", height: "28px", borderRadius: "6px",
+              background: `hsl(${cHue}, 80%, 50%)`,
+              opacity: Math.min(0.35, cStr * 0.35) * 3 + 0.15,
+              border: "1px solid rgba(255,255,255,0.1)",
+            }} />
+            <p style={{ margin: "6px 0 0", fontSize: "10px", color: "rgba(255,255,255,0.3)", textAlign: "center" }}>
+              {cStr === 0 ? "Off" : `Hue ${cHue}°`}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
