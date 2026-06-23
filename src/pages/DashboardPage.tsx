@@ -28,6 +28,16 @@ export default function DashboardPage() {
           ]}
           pagePath="/task"
         />
+
+        <DashboardAccordion
+          title="Notebook"
+          preview="New notes "
+          expandedView={[
+            
+          ]}
+          pagePath="/notebook"
+        />
+        
       </div>
       <hr />
     </div>

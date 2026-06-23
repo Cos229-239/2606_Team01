@@ -1,3 +1,7 @@
+
+//shows tree from src
+tree src -L 5
+
 Git Branches — How We Work in This Course
 
 This document explains how Git branches are used in this course, where you are expected to push, and why this structure exists.

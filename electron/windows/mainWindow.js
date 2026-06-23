@@ -1,6 +1,12 @@
 //Imports
 import { BrowserWindow } from "electron";
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
     //Creates the primary window
         //loads react application
         export function createMainWindow()
@@ -8,7 +14,12 @@ import { BrowserWindow } from "electron";
             const mainWindow = new BrowserWindow(
                 {
                     width: 2200,
-                    height: 1300
+                    height: 1300,
+                    
+                    webPreferences:
+                         {
+                             preload: path.join(__dirname, "../preload.cjs")
+                         }
                 }
             );
 

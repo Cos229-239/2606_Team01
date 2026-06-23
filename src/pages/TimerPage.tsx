@@ -20,7 +20,7 @@ export default function TimerPage() {
 
     useEffect(() =>
 {
-    if (isRunning) return;
+    if (!isRunning) return;
     const interval = setInterval(() => 
     {
         setRemainingSeconds(prev =>
@@ -33,6 +33,7 @@ export default function TimerPage() {
             return prev - 1;
         });
     }, 1000);
+
     return () => clearInterval(interval);
 }, [isRunning]);
     // =========================
@@ -40,9 +41,14 @@ export default function TimerPage() {
     // =========================
 
     function updateFromInputs(newMinutes: number, newSeconds: number) {
+
+        const total = newMinutes * 60 + newSeconds;
+
         setMinutes(newMinutes);
         setSeconds(newSeconds);
-        setRemainingSeconds(newMinutes * 60 + newSeconds);
+
+        setRemainingSeconds(total);
+        setOriginalDuration(total);
     }
 
     function handleMinutesChange(value: number) {
@@ -54,10 +60,7 @@ export default function TimerPage() {
     }
 
     function handleStart() {
-        const total = minutes * 60 + seconds;
-
-        setOriginalDuration(total);
-        setRemainingSeconds(total);
+       
 
         setIsRunning(true);
     }
