@@ -192,7 +192,51 @@
     optMouseLook = localStorage.getItem('star-mouselook') !== 'false';
     scrollSpeed  = parseFloat(localStorage.getItem('star-scroll-speed') || '3');
     if (!optScroll) scrollX = 0;
+    applyScreenTint();
   });
+
+  // ── Screen tint overlay ──────────────────────────────────────────────────
+  // Reads tint settings from localStorage and applies them to #screen-tint div.
+  // Called on init, on starfield-update, and on mood-change.
+  //
+  // localStorage keys used:
+  //   tint-default-h      : default hue (0-360)
+  //   tint-default-s      : default strength/opacity (0-1)
+  //   tint-<mood>-h       : per-mood hue override
+  //   tint-<mood>-s       : per-mood strength override
+  //   tint-<mood>-enabled : "true" if per-mood override is active
+  function applyScreenTint() {
+    const tintEl = document.getElementById('screen-tint');
+    if (!tintEl) return;
+
+    const mood        = localStorage.getItem('active-mood') || 'default';
+    const moodEnabled = localStorage.getItem(`tint-${mood}-enabled`) === 'true';
+
+    let hue, strength;
+    if (moodEnabled && mood !== 'default') {
+      hue      = parseFloat(localStorage.getItem(`tint-${mood}-h`)   || '0');
+      strength = parseFloat(localStorage.getItem(`tint-${mood}-s`)   || '0');
+    } else {
+      hue      = parseFloat(localStorage.getItem('tint-default-h')   || '0');
+      strength = parseFloat(localStorage.getItem('tint-default-s')   || '0');
+    }
+
+    if (strength <= 0) {
+      tintEl.style.opacity = '0';
+    } else {
+      tintEl.style.backgroundColor = `hsl(${hue}, 80%, 50%)`;
+      tintEl.style.opacity          = String(Math.min(0.35, strength * 0.35));
+    }
+  }
+
+  // Apply tint when mood changes too
+  window.addEventListener('mood-change', () => {
+    // small delay so localStorage is updated before we read it
+    setTimeout(applyScreenTint, 50);
+  });
+
+  // Init tint on load
+  applyScreenTint();
 
   // ── Star layer config ─────────────────────────────────────────────────────
   // Each layer has different size, speed and brightness.

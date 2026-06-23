@@ -21,10 +21,20 @@
         width: 100vw;
         height: 100vh;
       }
+      /* Screen tint overlay — sits between canvas and root */
+      #screen-tint {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0;
+        transition: background-color 0.6s ease, opacity 0.6s ease;
+      }
     </style>
   </head>
   <body>
     <canvas id="star-canvas"></canvas>
+    <div id="screen-tint"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script src="/starfield.js"></script>
