@@ -48,11 +48,39 @@ export default function NotebookBrowser(
                 borderRight: "1px solid rgba(255,255,255,0.1)",
             }}
         >
+        {/* ================= New Notebook ================= */}
+            <button
+                onClick={onCreateNotebook}
+                style={{
+                    marginBottom: "16px",
+                    padding: "10px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                }}
+            >
+                + New Notebook
+            </button>
+
+         {notebooks.length === 0 && (
+
+                            <div
+                                style={{
+                                    marginTop: "20px",
+                                    opacity: 0.7,
+                                    fontSize: "0.9rem",
+                                }}
+                            >
+                                No notebooks yet. Create your first notebook.
+                            </div>
+             )}
+
+            {/* ================= Notebook List ================= */}
             {notebooks.map((notebook) => {
                 const isSelected =
                     selectedNotebookId === notebook.id;
 
-                // ✅ FIX: derive pages correctly
+                //  derive pages correctly
                 const notebookPages = pages.filter(
                     (page) => page.notebookId === notebook.id
                 );
@@ -110,6 +138,8 @@ export default function NotebookBrowser(
                         {/* ================= Pages ================= */}
                         {isSelected && (
                             <>
+
+                            
                                 {notebookPages.length > 0 && (
                                     <div
                                         style={{
