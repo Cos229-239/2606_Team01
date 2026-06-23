@@ -53,6 +53,26 @@ export default function NotesPage() {
         setSelectedPageId(null);
     }
 
+    function handleRenameNotebook(
+    notebookId: string,
+    title: string
+) {
+    const updatedNotebooks =
+        notebooks.map((notebook) => {
+            if (notebook.id !== notebookId) {
+                return notebook;
+            }
+
+            return {
+                ...notebook,
+                title,
+            };
+        });
+
+    setNotebooks(updatedNotebooks);
+    saveNotebooks(updatedNotebooks);
+}
+
     // ==================================================
     // Page Actions
     // ==================================================
@@ -83,9 +103,11 @@ export default function NotesPage() {
         setSelectedPageId(page.id);
     }
 
+
     function handleSelectedPage(pageId: string) {
         setSelectedPageId(pageId);
     }
+
 
     function handlePageTitleChange(title: string) {
         if (!selectedPageId) return;
@@ -133,133 +155,133 @@ export default function NotesPage() {
     // ==================================================
 // Create Block After
 // ==================================================
-function handleCreateBlockAfter(
-    blockId: string
-)
-{
-    if (!selectedPage)
-    {
-        return;
-    }
-
-    const newBlock = createEmptyBlock(selectedPage.id);
-    
-
-    const updatedBlocks = [
-        ...blocks,
-        newBlock, 
-    ];
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    const updatedPages =
-                    pages.map((page) =>
-        {
-            if (
-                page.id !== selectedPage.id
-            )
-            {
-                return page;
-            }
-
-            const index =
-                page.blockIds.indexOf(blockId);
-
-            const newBlockIds = [  ...page.blockIds,    ];
-
-            newBlockIds.splice(
-                index + 1,  0,   newBlock.id
-            );
-
-            return {
-                ...page,
-                blockIds: newBlockIds,
-            };
-        });
-
-    setPages(updatedPages);
-    savePages(updatedPages);
-    setFocusedBlockId(newBlock.id);
-}
-
-
-
-    function handleDeleteBlock(
-    blockId: string
-)
-{
-    if (!selectedPage)
-    {
-        return;
-    }
-
-    const page =
-        pages.find(
-            (page) =>
-                page.id === selectedPage.id
-        );
-
-    if (!page)
-    {
-        return;
-    }
-
-    // never allow 0 blocks
-
-    if (
-        page.blockIds.length <= 1
+    function handleCreateBlockAfter(
+        blockId: string
     )
     {
-        return;
+        if (!selectedPage)
+        {
+            return;
+        }
+
+        const newBlock = createEmptyBlock(selectedPage.id);
+        
+
+        const updatedBlocks = [
+            ...blocks,
+            newBlock, 
+        ];
+
+        setBlocks(updatedBlocks);
+        saveBlocks(updatedBlocks);
+
+        const updatedPages =
+                        pages.map((page) =>
+            {
+                if (
+                    page.id !== selectedPage.id
+                )
+                {
+                    return page;
+                }
+
+                const index =
+                    page.blockIds.indexOf(blockId);
+
+                const newBlockIds = [  ...page.blockIds,    ];
+
+                newBlockIds.splice(
+                    index + 1,  0,   newBlock.id
+                );
+
+                return {
+                    ...page,
+                    blockIds: newBlockIds,
+                };
+            });
+
+        setPages(updatedPages);
+        savePages(updatedPages);
+        setFocusedBlockId(newBlock.id);
     }
 
-    const deletedIndex =
-        page.blockIds.indexOf(
-            blockId
-        );
 
-    const previousBlockId =
-        page.blockIds[
-            deletedIndex - 1
-        ] ?? null;
 
-    const updatedBlocks =
-        blocks.filter(
-            (block) =>
-                block.id !== blockId
-        );
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    const updatedPages =
-        pages.map((page) =>
+        function handleDeleteBlock(
+        blockId: string
+    )
+    {
+        if (!selectedPage)
         {
-            if (
-                page.id !== selectedPage.id
-            )
+            return;
+        }
+
+        const page =
+            pages.find(
+                (page) =>
+                    page.id === selectedPage.id
+            );
+
+        if (!page)
+        {
+            return;
+        }
+
+        // never allow 0 blocks
+
+        if (
+            page.blockIds.length <= 1
+        )
+        {
+            return;
+        }
+
+        const deletedIndex =
+            page.blockIds.indexOf(
+                blockId
+            );
+
+        const previousBlockId =
+            page.blockIds[
+                deletedIndex - 1
+            ] ?? null;
+
+        const updatedBlocks =
+            blocks.filter(
+                (block) =>
+                    block.id !== blockId
+            );
+
+        setBlocks(updatedBlocks);
+        saveBlocks(updatedBlocks);
+
+        const updatedPages =
+            pages.map((page) =>
             {
-                return page;
-            }
+                if (
+                    page.id !== selectedPage.id
+                )
+                {
+                    return page;
+                }
 
-            return {
-                ...page,
-                blockIds:
-                    page.blockIds.filter(
-                        (id) =>
-                            id !== blockId
-                    ),
-            };
-        });
+                return {
+                    ...page,
+                    blockIds:
+                        page.blockIds.filter(
+                            (id) =>
+                                id !== blockId
+                        ),
+                };
+            });
 
-    setPages(updatedPages);
-    savePages(updatedPages);
+        setPages(updatedPages);
+        savePages(updatedPages);
 
-    setFocusedBlockId(
-        previousBlockId
-    );
-}
+        setFocusedBlockId(
+            previousBlockId
+        );
+    }
 
 
 function handleDeletePage(
@@ -461,7 +483,8 @@ function handleCanvasClick(
                 onCreatePage={handleCreatePage}
                 onSelectedPage={handleSelectedPage}
                 onDeletePage={handleDeletePage}
-                onDeleteNotebook={handleDeleteNotebook}
+                onDeleteNotebook={handleDeleteNotebook} 
+                onRenameNotebook={handleRenameNotebook}
             />
 
             {/* ==========================================

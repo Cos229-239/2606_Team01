@@ -8,6 +8,7 @@
 // ======================================================
 
 import type { Notebook, Page } from "../types";
+import { useState } from "react";
 
 interface NotebookBrowserProps
 {
@@ -23,7 +24,11 @@ interface NotebookBrowserProps
     onSelectedPage: (pageId: string) => void;
     onDeletePage: (  pageId: string ) => void;
     onDeleteNotebook: ( notebookId: string ) => void;
+    onRenameNotebook: (  notebookId: string, 
+                title: string ) => void;
 }
+
+
 
 export default function NotebookBrowser(
 {
@@ -38,8 +43,17 @@ export default function NotebookBrowser(
     onSelectedPage,
     onDeletePage,
     onDeleteNotebook,
+    onRenameNotebook,
 }: NotebookBrowserProps)
+
 {
+    
+const [editingNotebookId, setEditingNotebookId] =
+    useState<string | null>(null);
+
+const [editingTitle, setEditingTitle] =
+    useState("");
+
      return (
         <aside
             style={{
@@ -103,6 +117,15 @@ export default function NotebookBrowser(
                                 onClick={() =>
                                     onSelectedNotebook(notebook.id)
                                 }
+                                onDoubleClick={() => {
+                                    setEditingNotebookId(
+                                        notebook.id
+                                    );
+
+                                    setEditingTitle(
+                                        notebook.title
+                                    );
+                                }}
                                 style={{
                                     flex: 1,
                                     textAlign: "left",
@@ -117,7 +140,53 @@ export default function NotebookBrowser(
                                         : "transparent",
                                 }}
                             >
-                                {notebook.title}
+                                {editingNotebookId === notebook.id ? (
+                                    <input
+                                        autoFocus
+                                        onClick={(e) => e.stopPropagation()}
+                                        value={editingTitle}
+                                        onChange={(e) =>
+                                            setEditingTitle(
+                                                e.target.value
+                                            )
+                                        }
+                                        onBlur={() => {
+                                            onRenameNotebook(
+                                                notebook.id,
+                                                editingTitle.trim() ||
+                                                "Untitled Notebook"
+                                            );
+
+                                            setEditingNotebookId(
+                                                null
+                                            );
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter")
+                                            {
+                                                onRenameNotebook(
+                                                    notebook.id,
+                                                    editingTitle.trim() ||
+                                                    "Untitled Notebook"
+                                                );
+
+                                                setEditingNotebookId(
+                                                    null
+                                                );
+                                            }
+                                        }}
+                                        style={{
+                                            width: "100%",
+                                            border: "none",
+                                            outline: "none",
+                                            background: "transparent",
+                                            color: "inherit",
+                                            font: "inherit",
+                                        }}
+                                    />
+                                ) : (
+                                    notebook.title
+                                )}
                             </button>
 
                             <button
