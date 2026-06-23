@@ -60,7 +60,7 @@ export default function CongruencePage() {
   // Track which mood card is currently selected (highlighted)
   // Initialise from localStorage so the selection persists on re-visit
   const [activeMood, setActiveMood] = useState<string>(
-    () => localStorage.getItem("active-mood") || ""
+    () => localStorage.getItem("active-mood") || "Focused"
   );
 
   // ── handleMoodSelect ─────────────────────────────────────────────────

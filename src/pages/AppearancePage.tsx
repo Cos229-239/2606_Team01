@@ -22,6 +22,17 @@ function useTintSetting(key: string, defaultValue: string) {
   return [value, set] as const;
 }
 
+// ── Gradient setting hook (fires gradient-update so the gradient bg updates live) ─
+function useGradientSetting(key: string, defaultValue: string) {
+  const [value, setValue] = useState(() => localStorage.getItem(key) ?? defaultValue);
+  const set = useCallback((v: string) => {
+    setValue(v);
+    localStorage.setItem(key, v);
+    window.dispatchEvent(new CustomEvent("gradient-update"));
+  }, [key]);
+  return [value, set] as const;
+}
+
 // ── Mood config (must match stateCards in CongruencePage) ─────────────────
 const MOODS = [
   { key: "Focused",  label: "Focused",  accent: "rgba(100,160,255,0.8)" },
@@ -214,6 +225,143 @@ function useTimerBg() {
   return [timerBg, set] as const;
 }
 
+// ── Timer black hole hook (fires timer-blackhole-update) ─────────────────
+function useTimerBlackHoleSetting(key: string, defaultValue: string) {
+  const [value, setValue] = useState(() => localStorage.getItem(key) ?? defaultValue);
+  const set = useCallback((v: string) => {
+    setValue(v);
+    localStorage.setItem(key, v);
+    window.dispatchEvent(new CustomEvent("timer-blackhole-update"));
+  }, [key]);
+  return [value, set] as const;
+}
+
+// ── Per-mood city tint section ────────────────────────────────────────────
+// Fires cityscape-update so the canvas rebuilds with the new mood active
+function useCityMoodTint(key: string, defaultValue: string) {
+  const [value, setValue] = useState(() => localStorage.getItem(key) ?? defaultValue);
+  const set = useCallback((v: string) => {
+    setValue(v);
+    localStorage.setItem(key, v);
+    window.dispatchEvent(new CustomEvent("cityscape-update"));
+  }, [key]);
+  return [value, set] as const;
+}
+
+function CityMoodRow({ moodKey, label, accent }: {
+  moodKey: string;
+  label: string;
+  accent: string;
+}) {
+  const [enabled, setEnabled] = useCityMoodTint(`city-tint-${moodKey}-enabled`, "false");
+  const [hue,     setHue]     = useCityMoodTint(`city-tint-${moodKey}-h`,       "200");
+  const [strength, setStrength] = useCityMoodTint(`city-tint-${moodKey}-s`,     "0.5");
+
+  const isOn = enabled === "true";
+
+  return (
+    <div style={{
+      padding: "14px 16px",
+      borderRadius: "10px",
+      background: "rgba(255,255,255,0.04)",
+      border: `1px solid ${isOn ? accent : "rgba(255,255,255,0.08)"}`,
+      transition: "border-color 0.3s",
+      marginBottom: "10px",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isOn ? "14px" : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{
+            width: "8px", height: "8px", borderRadius: "50%",
+            background: accent, display: "inline-block",
+          }} />
+          <p style={{ margin: 0, color: "rgba(220,235,255,0.9)", fontSize: "13px" }}>{label}</p>
+        </div>
+        <label style={{ cursor: "pointer", flexShrink: 0 }}>
+          <input type="checkbox" checked={isOn} onChange={e => setEnabled(String(e.target.checked))} style={{ display: "none" }} />
+          <span style={{
+            display: "inline-flex", alignItems: "center",
+            width: "40px", height: "22px", borderRadius: "11px",
+            background: isOn ? "rgba(255,140,60,0.7)" : "rgba(255,255,255,0.12)",
+            transition: "background 0.2s", position: "relative",
+          }}>
+            <span style={{
+              position: "absolute", width: "18px", height: "18px", borderRadius: "50%",
+              background: "#fff", transition: "transform 0.2s",
+              transform: isOn ? "translateX(19px)" : "translateX(2px)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+            }} />
+          </span>
+        </label>
+      </div>
+
+      {isOn && (
+        <div style={{ display: "flex", gap: "20px", alignItems: "center", flexWrap: "wrap" }}>
+          <HueRing hue={parseInt(hue)} onChange={h => setHue(String(h))} size={130} />
+          <div style={{ flex: 1, minWidth: "120px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+              <p style={{ margin: 0, fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Strength</p>
+              <p style={{ margin: 0, fontSize: "11px", color: "rgba(200,220,255,0.8)" }}>{Math.round(parseFloat(strength) * 100)}%</p>
+            </div>
+            <input
+              type="range" min="0" max="1" step="0.01"
+              value={strength}
+              onChange={e => setStrength(e.target.value)}
+              style={{ width: "100%", accentColor: `hsl(${hue}, 80%, 55%)` }}
+            />
+            <div style={{
+              marginTop: "12px", height: "28px", borderRadius: "6px",
+              background: `hsl(${hue}, 80%, 50%)`,
+              opacity: Math.min(0.35, parseFloat(strength) * 0.35) * 3 + 0.15,
+              border: "1px solid rgba(255,255,255,0.1)",
+            }} />
+            <p style={{ margin: "6px 0 0", fontSize: "10px", color: "rgba(255,255,255,0.3)", textAlign: "center" }}>
+              Hue {hue}°
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Gradient colour stop row (hue ring + lightness slider) ───────────────
+function GradientStopRow({ label, hue, lightness, saturation, onHue, onLightness }: {
+  label: string;
+  hue: number;
+  lightness: number;
+  saturation: number;
+  onHue: (h: number) => void;
+  onLightness: (l: number) => void;
+}) {
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      <p style={{ margin: "0 0 10px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+        {label}
+      </p>
+      <div style={{ display: "flex", gap: "20px", alignItems: "center", flexWrap: "wrap" }}>
+        <HueRing hue={hue} onChange={onHue} size={130} />
+        <div style={{ flex: 1, minWidth: "120px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Lightness</p>
+            <p style={{ margin: 0, fontSize: "11px", color: "rgba(200,220,255,0.8)" }}>{Math.round(lightness)}%</p>
+          </div>
+          <input
+            type="range" min="0" max="100" step="1"
+            value={lightness}
+            onChange={e => onLightness(parseFloat(e.target.value))}
+            style={{ width: "100%", accentColor: `hsl(${hue}, ${saturation}%, 55%)` }}
+          />
+          <div style={{
+            marginTop: "12px", height: "28px", borderRadius: "6px",
+            background: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+            border: "1px solid rgba(255,255,255,0.1)",
+          }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────
 export default function AppearancePage() {
   const navigate = useNavigate();
@@ -238,12 +386,32 @@ export default function AppearancePage() {
   // Timer background
   const [timerBg, setTimerBg] = useTimerBg();
 
+  // Timer black hole effect
+  const [timerBlackHole,     setTimerBlackHole]     = useTimerBlackHoleSetting("timer-blackhole", "true");
+  const [timerBlackHoleJets, setTimerBlackHoleJets] = useTimerBlackHoleSetting("timer-blackhole-jets", "true");
+
+  // Gradient settings
+  const [gradH1,    setGradH1]    = useGradientSetting("gradient-h1", "220");
+  const [gradS1,     setGradS1]    = useGradientSetting("gradient-s1", "70");
+  const [gradL1,    setGradL1]    = useGradientSetting("gradient-l1", "18");
+  const [gradH2,    setGradH2]    = useGradientSetting("gradient-h2", "280");
+  const [gradS2,     setGradS2]    = useGradientSetting("gradient-s2", "60");
+  const [gradL2,    setGradL2]    = useGradientSetting("gradient-l2", "8");
+  const [gradAngle, setGradAngle] = useGradientSetting("gradient-angle", "160");
+
   const scrollOn    = scroll === "true";
   const mouseLookOn = mouseLook === "true";
   const dHue = parseInt(defaultHue);
   const dStr = parseFloat(defaultStrength);
   const cHue = parseInt(cityTintHue);
   const cStr = parseFloat(cityTintStr);
+  const gH1 = parseInt(gradH1);
+  const gS1 = parseFloat(gradS1);
+  const gL1 = parseFloat(gradL1);
+  const gH2 = parseInt(gradH2);
+  const gS2 = parseFloat(gradS2);
+  const gL2 = parseFloat(gradL2);
+  const gAngle = parseFloat(gradAngle);
 
   return (
     <div>
@@ -302,7 +470,6 @@ export default function AppearancePage() {
             </div>
             <div>
               <p style={{ margin: 0, fontSize: "13px", color: "rgba(220,235,255,0.9)", fontWeight: 500 }}>Starfield</p>
-              <p style={{ margin: "2px 0 0", fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Deep space parallax with mood themes</p>
             </div>
             {bgMode === "starfield" && (
               <div style={{
@@ -350,12 +517,42 @@ export default function AppearancePage() {
             </div>
             <div>
               <p style={{ margin: 0, fontSize: "13px", color: "rgba(220,235,255,0.9)", fontWeight: 500 }}>City Scrolling</p>
-              <p style={{ margin: "2px 0 0", fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Dusk cityscape with parallax buildings &amp; clouds</p>
             </div>
             {bgMode === "city" && (
               <div style={{
                 marginLeft: "auto", width: "7px", height: "7px", borderRadius: "50%",
                 background: "rgba(255,140,60,0.9)", boxShadow: "0 0 6px rgba(255,140,60,0.7)",
+              }} />
+            )}
+          </label>
+
+          {/* Gradient option */}
+          <label style={{
+            display: "flex", alignItems: "center", gap: "12px",
+            padding: "12px 14px", borderRadius: "10px", cursor: "pointer",
+            background: bgMode === "gradient" ? "rgba(170,120,255,0.10)" : "rgba(255,255,255,0.03)",
+            border: `1px solid ${bgMode === "gradient" ? "rgba(170,120,255,0.45)" : "rgba(255,255,255,0.08)"}`,
+            transition: "all 0.25s",
+          }}>
+            <input
+              type="radio" name="bgMode" value="gradient"
+              checked={bgMode === "gradient"}
+              onChange={() => setBgMode("gradient")}
+              style={{ display: "none" }}
+            />
+            {/* Gradient mini preview */}
+            <div style={{
+              width: "52px", height: "34px", borderRadius: "6px", flexShrink: 0,
+              background: `linear-gradient(${gAngle}deg, hsl(${gH1}, ${gS1}%, ${gL1}%), hsl(${gH2}, ${gS2}%, ${gL2}%))`,
+              border: "1px solid rgba(255,255,255,0.12)", overflow: "hidden", position: "relative",
+            }} />
+            <div>
+              <p style={{ margin: 0, fontSize: "13px", color: "rgba(220,235,255,0.9)", fontWeight: 500 }}>Gradient</p>
+            </div>
+            {bgMode === "gradient" && (
+              <div style={{
+                marginLeft: "auto", width: "7px", height: "7px", borderRadius: "50%",
+                background: "rgba(170,120,255,0.9)", boxShadow: "0 0 6px rgba(170,120,255,0.7)",
               }} />
             )}
           </label>
@@ -373,6 +570,7 @@ export default function AppearancePage() {
           {[
             { value: "starfield", label: "Starfield", desc: "Deep space parallax", color: "rgba(120,160,255,0.45)", activeBg: "rgba(120,160,255,0.10)", dot: "rgba(120,160,255,0.9)", dotGlow: "rgba(120,160,255,0.7)" },
             { value: "city",      label: "City Scrolling", desc: "Dusk cityscape",       color: "rgba(255,140,60,0.45)",  activeBg: "rgba(255,140,60,0.10)",  dot: "rgba(255,140,60,0.9)",  dotGlow: "rgba(255,140,60,0.7)" },
+            { value: "gradient",  label: "Gradient",      desc: "Simple colour gradient", color: "rgba(170,120,255,0.45)", activeBg: "rgba(170,120,255,0.10)", dot: "rgba(170,120,255,0.9)", dotGlow: "rgba(170,120,255,0.7)" },
           ].map(opt => (
             <label key={opt.value} style={{
               display: "flex", alignItems: "center", gap: "12px",
@@ -397,6 +595,26 @@ export default function AppearancePage() {
               )}
             </label>
           ))}
+        </div>
+
+        {/* Black hole effect — grows as the countdown nears zero */}
+        <div style={{ marginTop: "18px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <ToggleRow
+            label="Black Hole Effect"
+            description="A singularity grows on the timer screen as time runs out"
+            checked={timerBlackHole === "true"}
+            onChange={v => setTimerBlackHole(String(v))}
+          />
+          {timerBlackHole === "true" && (
+            <div style={{ marginTop: "14px" }}>
+              <ToggleRow
+                label="Relativistic Jets"
+                description="Particle jets fire from the black hole's poles"
+                checked={timerBlackHoleJets === "true"}
+                onChange={v => setTimerBlackHoleJets(String(v))}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -516,8 +734,19 @@ export default function AppearancePage() {
           />
         </div>
 
+        {/* City mood color overrides */}
+        <p style={{ margin: "0 0 10px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          Mood Color Overrides
+        </p>
+        <p style={{ margin: "0 0 12px", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+          Override the city palette when a mood is active.
+        </p>
+        {MOODS.map(m => (
+          <CityMoodRow key={m.key} moodKey={m.key} label={m.label} accent={m.accent} />
+        ))}
+
         {/* City screen tint */}
-        <p style={{ margin: "0 0 12px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+        <p style={{ margin: "16px 0 12px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
           Screen Color
         </p>
         <div style={{ display: "flex", gap: "20px", alignItems: "center", flexWrap: "wrap" }}>
@@ -544,6 +773,50 @@ export default function AppearancePage() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* ── Gradient settings panel — only shown in Gradient mode ───────── */}
+      <div className="glass-panel" style={{ padding: "20px", marginTop: "16px", maxWidth: "500px", display: bgMode === "gradient" ? undefined : "none" }}>
+        <h2>Gradient</h2>
+        <hr />
+        <p style={{ margin: "0 0 16px", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+          A simple two-colour gradient background. Pick the colours and the angle it flows at.
+        </p>
+
+        <GradientStopRow
+          label="Colour 1"
+          hue={gH1} lightness={gL1} saturation={gS1}
+          onHue={h => setGradH1(String(h))}
+          onLightness={l => setGradL1(String(l))}
+        />
+        <GradientStopRow
+          label="Colour 2"
+          hue={gH2} lightness={gL2} saturation={gS2}
+          onHue={h => setGradH2(String(h))}
+          onLightness={l => setGradL2(String(l))}
+        />
+
+        {/* Angle */}
+        <p style={{ margin: "0 0 10px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          Angle
+        </p>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+          <p style={{ margin: 0, fontSize: "11px", color: "rgba(180,205,255,0.6)" }} />
+          <p style={{ margin: 0, fontSize: "11px", color: "rgba(200,220,255,0.8)" }}>{Math.round(gAngle)}°</p>
+        </div>
+        <input
+          type="range" min="0" max="360" step="1"
+          value={gradAngle}
+          onChange={e => setGradAngle(e.target.value)}
+          style={{ width: "100%", accentColor: "rgba(170,120,255,0.9)" }}
+        />
+
+        {/* Preview */}
+        <div style={{
+          marginTop: "16px", height: "60px", borderRadius: "8px",
+          background: `linear-gradient(${gAngle}deg, hsl(${gH1}, ${gS1}%, ${gL1}%), hsl(${gH2}, ${gS2}%, ${gL2}%))`,
+          border: "1px solid rgba(255,255,255,0.1)",
+        }} />
       </div>
     </div>
   );

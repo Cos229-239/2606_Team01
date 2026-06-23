@@ -23,6 +23,15 @@
         display: none;
         pointer-events: none;
       }
+      /* Gradient background — same layer, hidden until mode is active */
+      #gradient-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        display: none;
+        pointer-events: none;
+        transition: background 0.6s ease;
+      }
       /* React root sits above canvas */
       #root {
         position: relative;
@@ -44,10 +53,12 @@
   <body>
     <canvas id="star-canvas"></canvas>
     <canvas id="city-canvas"></canvas>
+    <div id="gradient-bg"></div>
     <div id="screen-tint"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script src="/starfield.js"></script>
     <script src="/cityscape.js"></script>
+    <script src="/gradient-bg.js"></script>
   </body>
 </html>
