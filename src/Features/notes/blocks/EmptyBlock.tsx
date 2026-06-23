@@ -7,6 +7,7 @@ interface EmptyBlockProps {
     onUpdateBlock?: (blockId: string, content: string) => void;
 
     onCreateBlockAfter?: ( blockId: string  ) => void;
+    onDeleteBlock?: (  blockId: string  ) => void;
     focused?: boolean;
 }
 
@@ -24,6 +25,7 @@ export default function EmptyBlock({
     block,
     onUpdateBlock,
     onCreateBlockAfter,
+    onDeleteBlock,
     focused,
 
 }: EmptyBlockProps) {
@@ -54,6 +56,7 @@ export default function EmptyBlock({
         const newValue = event.target.value;
 
         setValue(newValue);
+        autoResize();
 
         onUpdateBlock?.(
             block.id,
@@ -68,6 +71,8 @@ export default function EmptyBlock({
     function handleKeyDown(
         event: React.KeyboardEvent<HTMLTextAreaElement>
     ) {
+
+        //create new blocks
         if (event.key === "Enter" &&  event.shiftKey) 
         {
             event.preventDefault();
@@ -76,13 +81,41 @@ export default function EmptyBlock({
                 block.id
             );
         }
+
+            //delete existing blocls
+        if (
+            event.key === "Backspace" &&
+            value === ""
+        )
+        {
+    event.preventDefault();
+
+    onDeleteBlock?.(
+        block.id
+    );
+        }
+
+    }
+
+    function autoResize()
+    {
+        if (!inputRef.current)
+        {
+            return;
+        }
+
+        inputRef.current.style.height = "0px";
+
+        inputRef.current.style.height =
+            `${inputRef.current.scrollHeight}px`;
     }
 
     // ==================================================
     // Focus Helpers
     // ==================================================
 
-    function handleClick() {
+    function handleClick() 
+    {
         inputRef.current?.focus();
     }
 
@@ -102,6 +135,13 @@ export default function EmptyBlock({
     }
 }, [focused]);
 
+
+    useEffect(() =>
+        {
+            autoResize();
+        }, [value]);
+
+
     return (
         <div
             onClick={handleClick}
@@ -119,7 +159,8 @@ export default function EmptyBlock({
                 placeholder="Click here to start writing..."
                 style={{
                     width: "100%",
-                    minHeight: "24px",
+                    minHeight: "30px",
+                    overflow: "hidden",
                     border: "none",
                     outline: "none",
                     resize: "none",

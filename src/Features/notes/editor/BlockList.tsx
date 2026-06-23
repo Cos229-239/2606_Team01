@@ -17,6 +17,7 @@ interface BlockListProps {
     blocks: Block[];
     onUpdateBlock: (blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string   ) => void;
+    onDeleteBlock: ( blockId: string ) => void,
     focusedBlockId: string | null;
 }
 
@@ -26,6 +27,7 @@ export default function BlockList({
     blocks,
     onUpdateBlock,
     onCreateBlockAfter,
+    onDeleteBlock,
     focusedBlockId,
         }: BlockListProps) {
     if (!page) return null;
@@ -60,7 +62,9 @@ export default function BlockList({
                     block={block}
                     onUpdateBlock={onUpdateBlock}
                     onCreateBlockAfter={   onCreateBlockAfter   }
+                    onDeleteBlock={onDeleteBlock}
                     focused={  block.id === focusedBlockId }
+
                 />
             ))}
         </div>

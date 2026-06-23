@@ -21,6 +21,8 @@ interface NotebookBrowserProps
 
     onCreatePage: (notebookId: string) => void;
     onSelectedPage: (pageId: string) => void;
+    onDeletePage: (  pageId: string ) => void;
+    onDeleteNotebook: ( notebookId: string ) => void;
 }
 
 export default function NotebookBrowser(
@@ -34,74 +36,23 @@ export default function NotebookBrowser(
 
     onCreatePage,
     onSelectedPage,
+    onDeletePage,
+    onDeleteNotebook,
 }: NotebookBrowserProps)
 {
-    return (
+     return (
         <aside
             style={{
                 width: "260px",
-                minWidth: "260px",
-                height: "100vh",
-
-                display: "flex",
-                flexDirection: "column",
-
-                padding: "20px",
-
-                borderRight: "1px solid #d8d8d8",
-                backgroundColor: "rgba(20, 12, 55, 0.38)",
-
-                boxSizing: "border-box",
-
-                overflowY: "auto",
+                padding: "12px",
+                borderRight: "1px solid rgba(255,255,255,0.1)",
             }}
         >
-            {/* ==========================================
-                Sidebar Header
-            ========================================== */}
-
-            <h1
-                style={{
-                    marginTop: 0,
-                    marginBottom: "20px",
-                    fontSize: "1.5rem",
-                }}
-            >
-                Notebook
-            </h1>
-
-            {/* ==========================================
-                New Notebook Button
-            ========================================== */}
-
-            <button
-                onClick={onCreateNotebook}
-                style={{
-                    marginBottom: "24px",
-                    padding: "10px",
-                    cursor: "pointer",
-                }}
-            >
-                + New Notebook
-            </button>
-
-            {/* ==========================================
-                Empty State
-            ========================================== */}
-
-            {notebooks.length === 0 && (
-                <p>No notebooks yet.</p>
-            )}
-
-            {/* ==========================================
-                Notebook List
-            ========================================== */}
-
-            {notebooks.map((notebook) =>
-            {
+            {notebooks.map((notebook) => {
                 const isSelected =
-                    notebook.id === selectedNotebookId;
+                    selectedNotebookId === notebook.id;
 
+                // ✅ FIX: derive pages correctly
                 const notebookPages = pages.filter(
                     (page) => page.notebookId === notebook.id
                 );
@@ -109,94 +60,125 @@ export default function NotebookBrowser(
                 return (
                     <div
                         key={notebook.id}
-                        style={{
-                            marginBottom: "18px",
-                        }}
+                        style={{ marginBottom: "18px" }}
                     >
-                        {/* ==============================
-                            Notebook Row
-                        ============================== */}
-
+                        {/* ================= Notebook Row ================= */}
                         <div
-                            onClick={() =>
-                                onSelectedNotebook(notebook.id)
-                            }
                             style={{
-                                cursor: "pointer",
-
-                                padding: "8px 10px",
-
-                                borderRadius: "6px",
-
-                                fontWeight:
-                                    isSelected
-                                        ? "bold"
-                                        : "normal",
-
-                                backgroundColor: 
-                                    isSelected ? "rgba(20, 12, 55, 0.38)" 
-                                                : "transparent",
-
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: "8px",
                             }}
                         >
-                            📒 {notebook.title}
-                        </div>
-
-                        {/* ==============================
-                            Notebook Actions
-                        ============================== */}
-
-                        {isSelected && (
                             <button
                                 onClick={() =>
-                                    onCreatePage(notebook.id)
+                                    onSelectedNotebook(notebook.id)
                                 }
                                 style={{
-                                    marginTop: "10px",
-                                    marginLeft: "10px",
-                                    padding: "6px 10px",
+                                    flex: 1,
+                                    textAlign: "left",
                                     cursor: "pointer",
+                                    padding: "8px 10px",
+                                    borderRadius: "6px",
+                                    fontWeight: isSelected
+                                        ? "bold"
+                                        : "normal",
+                                    backgroundColor: isSelected
+                                        ? "rgba(20, 12, 55, 0.38)"
+                                        : "transparent",
                                 }}
                             >
-                                + New Page
+                                {notebook.title}
                             </button>
-                        )}
 
-                        {/* ==============================
-                            Pages
-                        ============================== */}
-
-                        {notebookPages.length > 0 && (
-                            <div
+                            <button
+                                onClick={() =>
+                                    onDeleteNotebook(notebook.id)
+                                }
                                 style={{
-                                    marginTop: "12px",
-                                    marginLeft: "18px",
-
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "6px",
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                    opacity: 0.5,
                                 }}
                             >
-                                {notebookPages.map((page) => (
+                                X
+                            </button>
+                        </div>
+
+                        {/* ================= Pages ================= */}
+                        {isSelected && (
+                            <>
+                                {notebookPages.length > 0 && (
                                     <div
-                                        key={page.id}
-                                        onClick={() =>
-                                            onSelectedPage(page.id)
-                                        }
                                         style={{
-                                            cursor: "pointer",
-
-                                            padding: "6px 8px",
-
-                                            borderRadius: "4px",
-
-                                            userSelect: "none",
+                                            marginTop: "12px",
+                                            marginLeft: "18px",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: "6px",
                                         }}
                                     >
-                                        📄 {page.title}
+                                        {notebookPages.map((page) => (
+                                            <div
+                                                key={page.id}
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent:
+                                                        "space-between",
+                                                    alignItems: "center",
+                                                    gap: "8px",
+                                                }}
+                                            >
+                                                <button
+                                                    onClick={() =>
+                                                        onSelectedPage(page.id)
+                                                    }
+                                                    style={{
+                                                        flex: 1,
+                                                        textAlign: "left",
+                                                        cursor: "pointer",
+                                                        padding: "6px 8px",
+                                                        borderRadius: "4px",
+                                                    }}
+                                                >
+                                                    {page.title}
+                                                </button>
+
+                                                <button
+                                                    onClick={() =>
+                                                        onDeletePage(page.id)
+                                                    }
+                                                    style={{
+                                                        border: "none",
+                                                        background:
+                                                            "transparent",
+                                                        cursor: "pointer",
+                                                        opacity: 0.5,
+                                                    }}
+                                                >
+                                                    X
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                )}
+
+                                <button
+                                    onClick={() =>
+                                        onCreatePage(notebook.id)
+                                    }
+                                    style={{
+                                        marginTop: "10px",
+                                        marginLeft: "10px",
+                                        padding: "6px 10px",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    + New Page
+                                </button>
+                            </>
                         )}
                     </div>
                 );

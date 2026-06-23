@@ -11,6 +11,7 @@ interface BlockRendererProps {
     block: Block;
     onUpdateBlock: ( blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string  ) => void;
+    onDeleteBlock: ( blockId: string ) => void,
     focused?: boolean;
 }
 
@@ -25,6 +26,7 @@ export default function BlockRenderer({
     block,
     onUpdateBlock,
     onCreateBlockAfter,
+    onDeleteBlock,
     focused,
 }: BlockRendererProps) {
     switch (block.type) {
@@ -34,8 +36,8 @@ export default function BlockRenderer({
                     block={block}
                     onUpdateBlock={onUpdateBlock}
                     onCreateBlockAfter={  onCreateBlockAfter }
-                     focused={focused}
-                />
+                    onDeleteBlock={ onDeleteBlock}
+                    focused={focused}              />
             );
 
         case "text":

@@ -182,6 +182,265 @@ function handleCreateBlockAfter(
     savePages(updatedPages);
     setFocusedBlockId(newBlock.id);
 }
+
+
+
+    function handleDeleteBlock(
+    blockId: string
+)
+{
+    if (!selectedPage)
+    {
+        return;
+    }
+
+    const page =
+        pages.find(
+            (page) =>
+                page.id === selectedPage.id
+        );
+
+    if (!page)
+    {
+        return;
+    }
+
+    // never allow 0 blocks
+
+    if (
+        page.blockIds.length <= 1
+    )
+    {
+        return;
+    }
+
+    const deletedIndex =
+        page.blockIds.indexOf(
+            blockId
+        );
+
+    const previousBlockId =
+        page.blockIds[
+            deletedIndex - 1
+        ] ?? null;
+
+    const updatedBlocks =
+        blocks.filter(
+            (block) =>
+                block.id !== blockId
+        );
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    const updatedPages =
+        pages.map((page) =>
+        {
+            if (
+                page.id !== selectedPage.id
+            )
+            {
+                return page;
+            }
+
+            return {
+                ...page,
+                blockIds:
+                    page.blockIds.filter(
+                        (id) =>
+                            id !== blockId
+                    ),
+            };
+        });
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    setFocusedBlockId(
+        previousBlockId
+    );
+}
+
+
+function handleDeletePage(
+    pageId: string
+)
+{
+    // -------------------------
+    // Remove page
+    // -------------------------
+
+    const updatedPages =
+        pages.filter(
+            (page) =>
+                page.id !== pageId
+        );
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    // -------------------------
+    // Remove blocks
+    // -------------------------
+
+    const updatedBlocks =
+        blocks.filter(
+            (block) =>
+                block.pageId !== pageId
+        );
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    // -------------------------
+    // Remove pageId
+    // from notebook
+    // -------------------------
+
+    const updatedNotebooks =
+        notebooks.map(
+            (notebook) => ({
+                ...notebook,
+                pageIds:
+                    notebook.pageIds.filter(
+                        (id) =>
+                            id !== pageId
+                    ),
+            })
+        );
+
+    setNotebooks(updatedNotebooks);
+    saveNotebooks(updatedNotebooks);
+
+    // -------------------------
+    // Clear selection
+    // -------------------------
+
+    if (
+        selectedPageId === pageId
+    )
+    {
+        setSelectedPageId(null);
+    }
+}
+
+
+function handleDeleteNotebook(
+    notebookId: string
+)
+{
+    const pagesToDelete =
+        pages.filter(
+            page =>
+                page.notebookId === notebookId
+        );
+
+    const pageIds =
+        pagesToDelete.map(
+            page => page.id
+        );
+
+    const updatedNotebooks =
+        notebooks.filter(
+            notebook =>
+                notebook.id !== notebookId
+        );
+
+    const updatedPages =
+        pages.filter(
+            page =>
+                page.notebookId !== notebookId
+        );
+
+    const updatedBlocks =
+        blocks.filter(
+            block =>
+                !pageIds.includes(
+                    block.pageId
+                )
+        );
+
+    setNotebooks(updatedNotebooks);
+    saveNotebooks(updatedNotebooks);
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    if (
+        selectedNotebookId ===
+        notebookId
+    )
+    {
+        setSelectedNotebookId(null);
+        setSelectedPageId(null);
+        setFocusedBlockId(null);
+    }
+}
+
+
+function handleCreateBlockAtEnd()
+{
+    if (!selectedPage)
+    {
+        return;
+    }
+
+    const newBlock =
+        createEmptyBlock(
+            selectedPage.id
+        );
+
+    const updatedBlocks = [
+        ...blocks,
+        newBlock,
+    ];
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    const updatedPages =
+        pages.map((page) =>
+        {
+            if (
+                page.id !== selectedPage.id
+            )
+            {
+                return page;
+            }
+
+            return {
+                ...page,
+                blockIds: [
+                    ...page.blockIds,
+                    newBlock.id,
+                ],
+            };
+        });
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    setFocusedBlockId(
+        newBlock.id
+    );
+}
+
+
+function handleCanvasClick(
+    event: React.MouseEvent
+) {
+    if (
+        event.target !== event.currentTarget
+    ) {
+        return;
+    }
+
+    handleCreateBlockAtEnd();
+}
+
     return (
         <div
             style={{
@@ -201,6 +460,8 @@ function handleCreateBlockAfter(
                 onSelectedNotebook={handleSelectedNotebook}
                 onCreatePage={handleCreatePage}
                 onSelectedPage={handleSelectedPage}
+                onDeletePage={handleDeletePage}
+                onDeleteNotebook={handleDeleteNotebook}
             />
 
             {/* ==========================================
@@ -216,8 +477,8 @@ function handleCreateBlockAfter(
             >
                 {selectedPage ? (
                     <div  style={{
-                            width: "100%",
-                            maxWidth: "900px",
+                            width: "95%",
+                            maxWidth: "100%",
                             backgroundColor: "rgba(20, 12, 55, 0.38)",
                             borderRadius: "10px",
                             boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
@@ -265,13 +526,21 @@ function handleCreateBlockAfter(
                             DOCUMENT BODY (NOW LIVE EDITOR)
                         ====================================== */}
                         <div style={{ minHeight: "600px" }}>
+                            <div
+                                onClick={handleCanvasClick}
+                                style={{
+                                    minHeight: "600px",
+                                }}
+>
                             <BlockList
                                 page={selectedPage}
                                 blocks={blocks}
                                 onUpdateBlock={handleUpdateBlock}
                                 onCreateBlockAfter={ handleCreateBlockAfter }
+                                onDeleteBlock={ handleDeleteBlock }
                                 focusedBlockId={focusedBlockId}
                             />
+                            </div>
                         </div>
                     </div>
                 ) : (
