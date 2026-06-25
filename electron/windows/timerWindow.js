@@ -17,11 +17,13 @@ const __dirname = path.dirname(__filename);
                 height: 420,
 
                 alwaysOnTop: true,
+                skipTaskbar: true,
                 resizable: false,
                 maximizable: false,
                 fullscreenable: false,
 
                 autoHideMenuBar: true,
+                type: 'toolbar',
 
                 webPreferences:
                          {
@@ -32,7 +34,7 @@ const __dirname = path.dirname(__filename);
             }
         );
 
-        timerWindow.setAlwaysOnTop(true, "floating");
+        timerWindow.setAlwaysOnTop(true, "screen-saver");
 
         //Load timerWindow from reactr page
         timerWindow.loadURL("http://localhost:5173/timer");
