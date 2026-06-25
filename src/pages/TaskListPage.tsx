@@ -39,7 +39,7 @@ export default function TaskListPage() {
   }
 
   {/* Function to create new task  */}
-  function handleDeleteTask(taskId: number) {
+  function handleDeleteTask(taskId: string) {
 
     //refresh {age
     setTask(prevTask =>

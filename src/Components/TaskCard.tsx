@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 type TaskCardProps = {
-  id: number;
+  id: string;
   title: string;
   notes: string;
   completed: boolean;

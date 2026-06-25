@@ -1,7 +1,7 @@
 
 export type Task = {
 
-    id: number;
+    id: string;
     title: string;
     notes: string;
     completed: boolean;
@@ -14,7 +14,7 @@ export type Task = {
 
 export const defaultTask: Task[] = [
     {
-       id: 1,
+       id: "2",
             title: "Build TaskCard",
             notes: `Design from sketch Implement accordion
             Test preview lines Works great`,
@@ -26,7 +26,7 @@ export const defaultTask: Task[] = [
             updatedAt: "2026-05-18",
         },
         {
-            id: 2,
+            id: "2",
             title: "Refactor Layout System",
             notes: `Convert components to modular structure
             Improve spacing system

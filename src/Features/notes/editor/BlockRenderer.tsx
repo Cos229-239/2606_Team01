@@ -1,4 +1,5 @@
 import type { Block } from "../types";
+import type { Task } from "../../../Data/tasks";
 
 import EmptyBlock from "../blocks/EmptyBlock";
 import TextBlock from "../blocks/TextBlock";
@@ -9,6 +10,7 @@ import TaskBlock from "../blocks/TaskBlock";
 
 interface BlockRendererProps {
     block: Block;
+    tasks: Task[];
     onUpdateBlock: ( blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string  ) => void;
     onDeleteBlock: ( blockId: string ) => void,
@@ -24,6 +26,7 @@ interface BlockRendererProps {
  */
 export default function BlockRenderer({
     block,
+    tasks,
     onUpdateBlock,
     onCreateBlockAfter,
     onDeleteBlock,
@@ -53,7 +56,8 @@ export default function BlockRenderer({
             return <DividerBlock block={block} />;
 
         case "task":
-            return <TaskBlock block={block} />;
+            return <TaskBlock block={block}
+                    tasks ={tasks} />;
 
         default:
             return null;

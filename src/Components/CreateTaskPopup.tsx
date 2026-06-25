@@ -16,7 +16,7 @@ export default function CreateTaskPopup({ onClose, onCreate }: CreateTaskPopupPr
 
   function handleSubmit() {
     const newTask = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       title,
       notes,
       completed: false,

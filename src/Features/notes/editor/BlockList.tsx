@@ -11,10 +11,12 @@
 
 import type { Page, Block } from "../types";
 import BlockRenderer from "./BlockRenderer";
+import type { Task } from "../../../Data/tasks";
 
 interface BlockListProps {
     page: Page;
     blocks: Block[];
+    tasks: Task[];
     onUpdateBlock: (blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string   ) => void;
     onDeleteBlock: ( blockId: string ) => void,
@@ -25,6 +27,7 @@ interface BlockListProps {
 export default function BlockList({
     page,
     blocks,
+    tasks,
     onUpdateBlock,
     onCreateBlockAfter,
     onDeleteBlock,
@@ -60,6 +63,7 @@ export default function BlockList({
                 <BlockRenderer
                     key={block.id}
                     block={block}
+                    tasks ={tasks}
                     onUpdateBlock={onUpdateBlock}
                     onCreateBlockAfter={   onCreateBlockAfter   }
                     onDeleteBlock={onDeleteBlock}
