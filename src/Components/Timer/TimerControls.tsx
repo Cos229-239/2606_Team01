@@ -1,7 +1,14 @@
 // ======================================================
 // TimerControls.tsx
 // ------------------------------------------------------
-// Timer buttons and duration input.
+//  Timer controls split into:
+//
+// TimerTopControls
+//      ▲      ▲
+//
+// TimerBottomControls
+//      ▼      ▼
+//      Play Reset
 // ======================================================
 
 
@@ -19,61 +26,107 @@ type TimerControlProps =
     onReset: () => void;  
 };
 
-export default function TimerControls (
-    {
-        minutes,
-        seconds,
-        isRunning,
+export function TimerTopControls(
+{
+    minutes,
+    seconds,
 
-        onMinutesChange,
-        onSecondsChange,
-
-        onStart,
-        onPause,
-        onReset,
-    }: TimerControlProps)
-    {
-        return  (
+    onMinutesChange,
+    onSecondsChange,
+}: Pick<
+    TimerControlProps,
+    | "minutes"
+    | "seconds"
+    | "onMinutesChange"
+    | "onSecondsChange"
+>)
+{
+    return (
         <div className="timer-controls">
 
             <div className="arrow-row">
 
                 <div className="arrow-group">
-                    <button
-                        className="timer-btn"
-                        onClick={() => onMinutesChange(minutes + 1)}
-                    >
-                        ▲
-                    </button>
 
                     <button
                         className="timer-btn"
                         onClick={() =>
-                            onMinutesChange(Math.max(0, minutes - 1))
+                            onMinutesChange(minutes + 1)
                         }
                     >
-                        ▼
+                        ▲
                     </button>
+
                 </div>
 
                 <div className="arrow-group">
+
                     <button
                         className="timer-btn"
                         onClick={() =>
-                            onSecondsChange(Math.min(59, seconds + 1))
+                            onSecondsChange(
+                                Math.min(59, seconds + 1)
+                            )
                         }
                     >
                         ▲
                     </button>
 
+                </div>
+
+            </div>
+
+        </div>
+    );
+}
+export function TimerBottomControls(
+{
+    minutes,
+    seconds,
+
+    isRunning,
+
+    onMinutesChange,
+    onSecondsChange,
+
+    onStart,
+    onPause,
+    onReset,
+}: TimerControlProps)
+{
+    return (
+        <div className="timer-controls">
+
+            <div className="arrow-row">
+
+                <div className="arrow-group">
+
                     <button
                         className="timer-btn"
                         onClick={() =>
-                            onSecondsChange(Math.max(0, seconds - 1))
+                            onMinutesChange(
+                                Math.max(0, minutes - 1)
+                            )
                         }
                     >
                         ▼
                     </button>
+
+                </div>
+
+                <div className="arrow-group">
+
+                    <button
+                        className="timer-btn"
+                        onClick={() =>
+                            onSecondsChange(
+                                Math.max(0, seconds - 1)
+                            )
+                        }
+                    >
+                        ▼
+                    </button>
+
                 </div>
 
             </div>
@@ -82,7 +135,11 @@ export default function TimerControls (
 
                 <button
                     className="timer-btn"
-                    onClick={isRunning ? onPause : onStart}
+                    onClick={
+                        isRunning
+                            ? onPause
+                            : onStart
+                    }
                 >
                     {isRunning ? "Pause" : "Play"}
                 </button>

@@ -14,8 +14,9 @@
 //     timer is opened in its own Electron window
 // ======================================================
 import { useState, useEffect } from "react";
-import TimerControls from "../Components/Timer/TimerControls";
+import { TimerTopControls, TimerBottomControls } from "../Components/Timer/TimerControls";
 import TimerDisplay from "../Components/Timer/TimerDisplay";
+
 
 const DEFAULT_MINUTES = 25;
 
@@ -103,18 +104,34 @@ export default function TimerPage() {
 
     return (
         <div className="timer-page">
-            <TimerDisplay remainingSeconds={remainingSeconds} />
 
-            <TimerControls
-                minutes={minutes}
-                seconds={seconds}
-                isRunning={isRunning}
-                onMinutesChange={handleMinutesChange}
-                onSecondsChange={handleSecondsChange}
-                onStart={handleStart}
-                onPause={handlePause}
-                onReset={handleReset}
-            />
+            <div className="timer-top-controls">
+                <TimerTopControls
+                    minutes={minutes}
+                    seconds={seconds}
+                    onMinutesChange={handleMinutesChange}
+                    onSecondsChange={handleSecondsChange}
+                />
+                </div>
+
+                <TimerDisplay
+                    remainingSeconds={remainingSeconds}
+                />
+
+                <div className="timer-bottom-controls">
+                <TimerBottomControls
+                    minutes={minutes}
+                    seconds={seconds}
+                    isRunning={isRunning}
+                    onMinutesChange={handleMinutesChange}
+                    onSecondsChange={handleSecondsChange}
+                    onStart={handleStart}
+                    onPause={handlePause}
+                    onReset={handleReset}
+                />
+            
+            </div>
+
         </div>
     );
 }
