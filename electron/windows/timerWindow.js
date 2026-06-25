@@ -16,9 +16,12 @@ const __dirname = path.dirname(__filename);
                 width: 420,
                 height: 420,
 
+                minWidth: 200,
+                minHeight: 200,
+                
                 alwaysOnTop: true,
                 skipTaskbar: true,
-                resizable: false,
+                resizable: true,
                 maximizable: false,
                 fullscreenable: false,
 
