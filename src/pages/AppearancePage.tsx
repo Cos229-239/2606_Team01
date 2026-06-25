@@ -383,13 +383,6 @@ export default function AppearancePage() {
   const [cityTintHue,     setCityTintHue]     = useCitySetting("city-tint-h", "30");
   const [cityTintStr,     setCityTintStr]     = useCitySetting("city-tint-s", "0");
 
-  // Timer background
-  const [timerBg, setTimerBg] = useTimerBg();
-
-  // Timer black hole effect
-  const [timerBlackHole,     setTimerBlackHole]     = useTimerBlackHoleSetting("timer-blackhole", "true");
-  const [timerBlackHoleJets, setTimerBlackHoleJets] = useTimerBlackHoleSetting("timer-blackhole-jets", "true");
-
   // Gradient settings
   const [gradH1,    setGradH1]    = useGradientSetting("gradient-h1", "220");
   const [gradS1,     setGradS1]    = useGradientSetting("gradient-s1", "70");
@@ -556,65 +549,6 @@ export default function AppearancePage() {
               }} />
             )}
           </label>
-        </div>
-      </div>
-
-      {/* ── Timer Background panel ──────────────────────────────────── */}
-      <div className="glass-panel" style={{ padding: "20px", marginTop: "16px", maxWidth: "500px" }}>
-        <h2>Timer Background</h2>
-        <hr />
-        <p style={{ margin: "0 0 14px", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
-          Choose which background the floating timer window uses.
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          {[
-            { value: "starfield", label: "Starfield", desc: "Deep space parallax", color: "rgba(120,160,255,0.45)", activeBg: "rgba(120,160,255,0.10)", dot: "rgba(120,160,255,0.9)", dotGlow: "rgba(120,160,255,0.7)" },
-            { value: "city",      label: "City Scrolling", desc: "Dusk cityscape",       color: "rgba(255,140,60,0.45)",  activeBg: "rgba(255,140,60,0.10)",  dot: "rgba(255,140,60,0.9)",  dotGlow: "rgba(255,140,60,0.7)" },
-            { value: "gradient",  label: "Gradient",      desc: "Simple colour gradient", color: "rgba(170,120,255,0.45)", activeBg: "rgba(170,120,255,0.10)", dot: "rgba(170,120,255,0.9)", dotGlow: "rgba(170,120,255,0.7)" },
-          ].map(opt => (
-            <label key={opt.value} style={{
-              display: "flex", alignItems: "center", gap: "12px",
-              padding: "12px 14px", borderRadius: "10px", cursor: "pointer",
-              background: timerBg === opt.value ? opt.activeBg : "rgba(255,255,255,0.03)",
-              border: `1px solid ${timerBg === opt.value ? opt.color : "rgba(255,255,255,0.08)"}`,
-              transition: "all 0.25s",
-            }}>
-              <input type="radio" name="timerBg" value={opt.value}
-                checked={timerBg === opt.value}
-                onChange={() => setTimerBg(opt.value)}
-                style={{ display: "none" }}
-              />
-              <div>
-                <p style={{ margin: 0, fontSize: "13px", color: "rgba(220,235,255,0.9)", fontWeight: 500 }}>{opt.label}</p>
-              </div>
-              {timerBg === opt.value && (
-                <div style={{
-                  marginLeft: "auto", width: "7px", height: "7px", borderRadius: "50%",
-                  background: opt.dot, boxShadow: `0 0 6px ${opt.dotGlow}`,
-                }} />
-              )}
-            </label>
-          ))}
-        </div>
-
-        {/* Black hole effect — grows as the countdown nears zero */}
-        <div style={{ marginTop: "18px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <ToggleRow
-            label="Black Hole Effect"
-            description="A singularity grows on the timer screen as time runs out"
-            checked={timerBlackHole === "true"}
-            onChange={v => setTimerBlackHole(String(v))}
-          />
-          {timerBlackHole === "true" && (
-            <div style={{ marginTop: "14px" }}>
-              <ToggleRow
-                label="Relativistic Jets"
-                description="Particle jets fire from the black hole's poles"
-                checked={timerBlackHoleJets === "true"}
-                onChange={v => setTimerBlackHoleJets(String(v))}
-              />
-            </div>
-          )}
         </div>
       </div>
 

@@ -14,6 +14,13 @@
 //      with starfield.js / cityscape.js via "background-update"
 //      and "timer-background-update" events, plus storage events
 //      for cross-window sync (e.g. the floating timer window).
+//
+// BUG FIX: the timer window sets timer-background via its own
+// React state, which fires CustomEvents in that same window.
+// But when the gradient colours/angle change from the main
+// window, those arrive only as storage events — we must call
+// applyGradient() (not just syncVisibility) when gradient keys
+// change so the colours actually update live.
 // ============================================================
 
 (function () {
@@ -59,6 +66,8 @@
 
   window.addEventListener('background-update',       syncVisibility);
   window.addEventListener('timer-background-update', syncVisibility);
+
+  // In-window gradient colour/angle changes (from AppearancePage in same tab)
   window.addEventListener('gradient-update', () => {
     if (isActive()) applyGradient();
   });
@@ -66,15 +75,25 @@
   // Re-sync when window regains focus (cross-window, e.g. timer window)
   window.addEventListener('focus', syncVisibility);
 
-  // Cross-tab/window sync via storage events
+  // Cross-tab/window sync via storage events.
+  // Split into two cases so we can apply colours even if visibility hasn't changed.
+  const MODE_KEYS   = new Set(['background-mode', 'timer-background']);
+  const COLOUR_KEYS = new Set([
+    'gradient-h1', 'gradient-s1', 'gradient-l1',
+    'gradient-h2', 'gradient-s2', 'gradient-l2',
+    'gradient-angle',
+  ]);
+
   window.addEventListener('storage', (e) => {
-    const keys = [
-      'background-mode', 'timer-background',
-      'gradient-h1', 'gradient-s1', 'gradient-l1',
-      'gradient-h2', 'gradient-s2', 'gradient-l2',
-      'gradient-angle',
-    ];
-    if (keys.includes(e.key ?? '')) syncVisibility();
+    const k = e.key ?? '';
+    if (MODE_KEYS.has(k)) {
+      syncVisibility();
+    } else if (COLOUR_KEYS.has(k)) {
+      // Colour/angle changed; update the gradient if we're currently visible
+      // AND re-run syncVisibility in case mode also just became gradient
+      syncVisibility();
+      if (isActive()) applyGradient();
+    }
   });
 
   syncVisibility();
