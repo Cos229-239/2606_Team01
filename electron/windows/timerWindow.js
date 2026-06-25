@@ -17,11 +17,13 @@ const __dirname = path.dirname(__filename);
                 height: 420,
 
                 alwaysOnTop: true,
+                skipTaskbar: true,
                 resizable: false,
                 maximizable: false,
                 fullscreenable: false,
 
                 autoHideMenuBar: true,
+                type: 'toolbar',
 
                 webPreferences:
                          {
