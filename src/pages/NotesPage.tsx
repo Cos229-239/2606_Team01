@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import type  { Task } from "../Data/tasks";
+import { loadTasks } from "../Data/taskStorage";
 import type { Notebook, Page, Block } from "../Features/notes/types";
 
 import {   loadNotebooks, loadPages,  saveNotebooks,
@@ -11,10 +13,12 @@ import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";import
 } from "../Features/notes/utils/NotesFactory";
 import BlockList from "../Features/notes/editor/BlockList";
 
+
 export default function NotesPage() {
     const [notebooks, setNotebooks] = useState<Notebook[]>([]);
     const [pages, setPages] = useState<Page[]>([]);
     const [blocks, setBlocks] = useState<Block[]>([]);
+    const [tasks, setTasks] = useState<Task[]>([]);
 
     const [selectedNotebookId, setSelectedNotebookId] =
         useState<string | null>(null);
@@ -22,13 +26,18 @@ export default function NotesPage() {
     const [selectedPageId, setSelectedPageId] =
         useState<string | null>(null);
 
-    const [focusedBlockId, setFocusedBlockId] =
+    const [focusedBlockId, setFocusedBlockId] = 
     useState<string | null>(null);
+
+    const [showTaskPicker, setShowTaskPicker] = useState(false);
+    
+    
 
     useEffect(() => {
         setNotebooks(loadNotebooks());
         setPages(loadPages());
-        setBlocks(loadBlocks());
+        setBlocks(loadBlocks()); 
+        setTasks(loadTasks());
     }, []);
 
 
@@ -463,6 +472,40 @@ function handleCanvasClick(
     handleCreateBlockAtEnd();
 }
 
+function handleInsertTaskBlock(taskId: string) {
+    if (!selectedPage) return;
+
+     const taskBlockId = crypto.randomUUID();
+
+    const taskBlock: Block = {
+        id: taskBlockId,
+        pageId: selectedPage.id,
+        type: "task",
+        content: {
+            taskId: taskId,
+        },
+    };
+
+    const updatedBlocks = [...blocks, taskBlock];
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    const updatedPages = pages.map((page) => {
+        if (page.id !== selectedPage.id) return page;
+
+        return {
+            ...page,
+            blockIds: [...page.blockIds, taskBlock.id]
+        };
+    });
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    setShowTaskPicker(false);
+}
+
     return (
         <div
             style={{
@@ -498,6 +541,8 @@ function handleCanvasClick(
                     overflowY: "auto",
                 }}
             >
+                
+            
                 {selectedPage ? (
                     <div  style={{
                             width: "95%",
@@ -511,7 +556,8 @@ function handleCanvasClick(
                         }}
                     >
                         {/* Page Header */}
-                        <input  type="text"
+                        <input  
+                            type="text"
                             value={selectedPage.title}
                             onChange={(e) =>
                                 handlePageTitleChange(e.target.value)
@@ -537,50 +583,102 @@ function handleCanvasClick(
                         >
                             Last edited: Just now
                         </p>
+<button
+                        onClick={() => setShowTaskPicker(true)}
+                        style={{
+                            marginBottom: "24px",
+                        }}
+                    >
+                        + Add Task Block
+                    </button>
 
-                        <hr   style={{
-                                border: "none",
-                                borderTop: "1px solid #e5e5e5",
-                                marginBottom: "40px",
+                    {showTaskPicker && (
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: 160,
+                                right: 48,
+                                width: 300,
+                                background: "#1a1a2e",
+                                borderRadius: 8,
+                                padding: 12,
+                                zIndex: 1000,
                             }}
-                        />
+                        >
+                            <h4>Select Task</h4>
 
-                        {/* ======================================
-                            DOCUMENT BODY (NOW LIVE EDITOR)
-                        ====================================== */}
-                        <div style={{ minHeight: "600px" }}>
-                            <div
-                                onClick={handleCanvasClick}
+                            {tasks.map((task) => (
+                                <div
+                                    key={task.id}
+                                    onClick={() =>
+                                        handleInsertTaskBlock(task.id)
+                                    }
+                                    style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        borderBottom:
+                                            "1px solid rgba(255,255,255,.15)",
+                                    }}
+                                >
+                                    {task.title}
+                                </div>
+                            ))}
+
+                            <button
+                                onClick={() =>
+                                    setShowTaskPicker(false)
+                                }
                                 style={{
-                                    minHeight: "600px",
+                                    marginTop: "12px",
                                 }}
->
+                            >
+                                Close
+                            </button>
+                        </div>
+                    )}
+
+                    <hr
+                        style={{
+                            border: "none",
+                            borderTop: "1px solid #e5e5e5",
+                            marginBottom: "40px",
+                        }}
+                    />
+
+                    <div style={{ minHeight: "600px" }}>
+                        <div
+                            onClick={handleCanvasClick}
+                            style={{
+                                minHeight: "600px",
+                            }}
+                        >
                             <BlockList
                                 page={selectedPage}
                                 blocks={blocks}
+                                tasks={tasks}
                                 onUpdateBlock={handleUpdateBlock}
-                                onCreateBlockAfter={ handleCreateBlockAfter }
-                                onDeleteBlock={ handleDeleteBlock }
+                                onCreateBlockAfter={handleCreateBlockAfter}
+                                onDeleteBlock={handleDeleteBlock}
                                 focusedBlockId={focusedBlockId}
                             />
-                            </div>
                         </div>
                     </div>
-                ) : (
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            width: "100%",
-                            color: "#777",
-                            fontSize: "1.2rem",
-                        }}
-                    >
-                        Select or create a page to begin writing.
-                    </div>
-                )}
-            </main>
-        </div>
-    );
+                </div>
+            ) : (
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "100%",
+                        color: "#777",
+                        fontSize: "1.2rem",
+                    }}
+                >
+                    Select or create a page to begin writing.
+                </div>
+            )}
+        </main>
+    </div>
+);
 }
