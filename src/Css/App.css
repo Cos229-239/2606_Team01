@@ -561,3 +561,14 @@
     border-color:var(--border-panel-hover);
     color:white;
 }
+.timer-input {
+    width: 80px;
+    font-size: 80px;
+    text-align: center;
+
+    background: transparent;
+    border: none;
+    outline: none;
+
+    color: var(--text-primary);
+}
