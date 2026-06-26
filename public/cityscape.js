@@ -570,7 +570,9 @@
 
   function drawBuildingLayer(layerData, scrollX) {
     const { cfg, totalWidth, offscreen } = layerData;
-    const offset = -((scrollX * cfg.speed % totalWidth) + totalWidth) % totalWidth;
+    // Signed scroll: works correctly for both positive and negative cityScrollSpeed
+    const raw = scrollX * cfg.speed;
+    const offset = -((raw % totalWidth) + totalWidth) % totalWidth;
     ctx.drawImage(offscreen, offset, 0);
     ctx.drawImage(offscreen, offset + totalWidth, 0);
   }
@@ -639,7 +641,9 @@
     nextPlaneIn-=dt;
     if (nextPlaneIn<=0){spawnPlane();nextPlaneIn=30+Math.random()*60;}
     planes=planes.filter(p=>p.age<p.maxAge);
-    planes.forEach(p=>{p.x+=p.dir*p.speed*dt;p.age+=dt;});
+    // Planes move under their own power AND drift with the city scroll
+    // Scrolling right boosts rightward planes and slows leftward ones
+    planes.forEach(p=>{p.x+=p.dir*p.speed*dt + p.dir*cityScrollSpeed*dt*0.18;p.age+=dt;});
   }
   function drawPlanes() {
     for (let i = 0; i < planes.length; i++) {
@@ -663,7 +667,7 @@
       ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fill();
       const blinkT=(p.age+p.blinkPhase)%p.blinkPeriod;
       if (blinkT<p.blinkPeriod*0.35) {
-        const lx=p.x+p.dir*5, ly=p.y-3;
+        const lx=p.x, ly=p.y; // centered on plane dot
         const glow=ctx.createRadialGradient(lx,ly,0,lx,ly,7);
         glow.addColorStop(0,   `rgba(255,60,60,${alpha*0.9})`);
         glow.addColorStop(0.4, `rgba(255,30,30,${alpha*0.35})`);
@@ -705,12 +709,15 @@
 
     if (moodT < 1) moodT = Math.min(1, moodT + MOOD_SPEED);
 
-    scrollX+=cityScrollSpeed*dt;
+    // cityScrollSpeed is signed: positive = right, negative = left
+    scrollX += cityScrollSpeed * dt;
     updatePlanes(dt);
 
     drawSky();
     drawMoon();
     drawStars(t);
+    // Planes behind all building layers but in front of sky/clouds
+    drawPlanes();
     drawClouds(scrollX);
 
     drawBuildingLayer(builtLayers[0], scrollX);
@@ -724,7 +731,6 @@
 
     drawRoad(scrollX);
     drawBuildingLayer(builtLayers[2], scrollX);
-    drawPlanes();
 
     rafId = requestAnimationFrame(draw);
   }

@@ -435,68 +435,130 @@
 .timer-page{
     width:100%;
     height:100vh;
-    box-sizing:border-box;
-    
+    min-height:0;
 
     position:relative;
 
     display:flex;
+    justify-content:center;
+    align-items:center;
     flex-direction:column;
-    
+
     background:
         radial-gradient(circle at top,
         rgba(104,30,255,.15),
         transparent 65%);
 
     user-select:none;
-}
-
-
-.timer-top-controls,
-.timer-bottom-controls{
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    overflow:hidden;
 }
 
 
 /* ==========================================================
-   TOP CONTROLS
+   TIMER SETTINGS BAR (top of window)
 ========================================================== */
 
-.timer-top-controls{
-    height:20px;
+.timer-settings-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;       /* never wrap — stays one line */
+    overflow: hidden;        /* clips gracefully if very narrow */
 
-    flex-shrink:0;
+    padding: 7px 12px;
 
-    opacity:0;
-    transition:opacity .2s ease;
+    background: rgba(8, 5, 22, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+
+    /* hidden by default — appears on hover */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
+
+.timer-page:hover .timer-settings-bar {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.timer-settings-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.timer-settings-label {
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: rgba(160, 190, 255, 0.45);
+    white-space: nowrap;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+.timer-settings-sep {
+    width: 1px;
+    height: 14px;
+    background: rgba(255,255,255,0.10);
+    flex-shrink: 0;
+    margin: 0 2px;
+}
+
+.timer-pill {
+    padding: 3px 8px;
+    font-size: 10px;
+    color: rgba(200, 220, 255, 0.55);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.timer-pill:hover {
+    background: rgba(120,160,255,0.15);
+    border-color: rgba(120,160,255,0.35);
+    color: rgba(220,235,255,0.9);
+}
+
+.timer-pill--active {
+    background: rgba(120,160,255,0.20);
+    border-color: rgba(120,160,255,0.55);
+    color: rgba(220,235,255,1);
+}
+
 
 /* ==========================================================
    TIMER DISPLAY (CENTERED HERO ELEMENT)
 ========================================================== */
 
 .timer-display{
-    flex:1;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
 
     text-align:center;
-    
+    pointer-events:none;
 }
-
 
 .timer-display h1{
     margin:0;
 
-    font-size:120px;
+    /* Fluid font: big on wide windows, shrinks as window narrows */
+    font-size: clamp(48px, 18vw, 120px);
     font-weight:300;
 
     letter-spacing:4px;
@@ -504,39 +566,35 @@
     color:var(--text-primary);
 
     text-shadow:0 0 22px rgba(255,255,255,.08);
+
+    white-space: nowrap;
 }
 
+
 /* ==========================================================
-   BOTTOM CONTROLS
+   CONTROLS (HIDDEN UNTIL HOVER)
 ========================================================== */
 
-.timer-bottom-controls{
-    height:120px;
+.timer-controls{
+    position:absolute;
+    bottom: max(40px, 6vh);
+    left:50%;
+    transform:translateX(-50%);
 
     display:flex;
     flex-direction:column;
-    justify-content:center;
     align-items:center;
 
-    gap:8px;
-
-    flex-shrink:0;
+    gap:12px;
 
     opacity:0;
     transition:opacity .2s ease;
 }
 
-
-/* ==========================================================
-   SHOW CONTROLS ON HOVER
-========================================================== */
-
-.timer-page:hover .timer-top-controls,
-.timer-page:hover .timer-bottom-controls{
+/* show controls on hover */
+.timer-page:hover .timer-controls{
     opacity:1;
 }
-
-
 
 
 /* ==========================================================
@@ -545,22 +603,15 @@
 
 .arrow-row{
     display:flex;
-    justify-content:center;
-    align-items:center; 
-    gap:170px;
+    gap: clamp(40px, 12vw, 170px);
 }
-
-
-/* ==========================================================
-   ARROW GROUP (REMOVE LAYOUT WEIGHT ISSUES)
-========================================================== */
 
 .arrow-group{
     display:flex;
     flex-direction:column;
     align-items:center;
 
-    gap:10px;
+    gap: 8px;
 }
 
 
@@ -570,11 +621,7 @@
 
 .button-row{
     display:flex;
-
-    justify-content:center;
-    align-items:center;
-
-    gap:16px;
+    gap:12px;
 }
 
 
@@ -583,7 +630,7 @@
 ========================================================== */
 
 .timer-btn{
-    padding:6px 14px;
+    padding:8px 16px;
 
     font-size:14px;
 
@@ -608,20 +655,14 @@
     color:white;
 }
 
+.timer-input {
+    width: 80px;
+    font-size: 80px;
+    text-align: center;
 
-/* ==========================================================
-   TIME INPUT
-========================================================== */
+    background: transparent;
+    border: none;
+    outline: none;
 
-.timer-input{
-    width:80px;
-
-    font-size:80px;
-    text-align:center;
-
-    background:transparent;
-    border:none;
-    outline:none;
-
-    color:var(--text-primary);
+    color: var(--text-primary);
 }

@@ -11,6 +11,7 @@ type TaskCardProps = {
   updatedAt: string;
 
   onDelete: () => void;
+  onEdit: () => void;
 };
 
 export default function TaskCard({
@@ -22,6 +23,7 @@ export default function TaskCard({
   dueDate,
   updatedAt,
   onDelete,
+  onEdit,
 }: TaskCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const lines = notes.split("\n");
@@ -63,7 +65,8 @@ export default function TaskCard({
       {isOpen && (
         <div className="task-updated">
           Updated: {updatedAt}
-          <button onClick={onDelete} style={{ marginLeft: "10px" }}>Delete Task</button>
+          <button onClick={onEdit} style={{ marginLeft: "10px" }}>Edit Task</button>
+          <button onClick={onDelete} style={{ marginLeft: "8px" }}>Delete Task</button>
         </div>
       )}
     </div>
