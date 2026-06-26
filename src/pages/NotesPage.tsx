@@ -1,510 +1,39 @@
-import { useEffect, useState } from "react";
-import type  { Task } from "../Data/tasks";
-import { loadTasks } from "../Data/taskStorage";
-import type { Notebook, Page, Block } from "../Features/notes/types";
+import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
 
-import {   loadNotebooks, loadPages,  saveNotebooks,
-              savePages,   loadBlocks,    saveBlocks,
-        } from "../Features/notes/storage/notebookStorage";
-
-import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";import
- {
-    createNotebook,  createPage, createEmptyBlock,
-} from "../Features/notes/utils/NotesFactory";
+import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
 import BlockList from "../Features/notes/editor/BlockList";
 
+export default function NotesPage()
+{
+    const {
+        notebooks,
+        pages,
+        blocks,
+        tasks,
 
-export default function NotesPage() {
-    const [notebooks, setNotebooks] = useState<Notebook[]>([]);
-    const [pages, setPages] = useState<Page[]>([]);
-    const [blocks, setBlocks] = useState<Block[]>([]);
-    const [tasks, setTasks] = useState<Task[]>([]);
+        selectedNotebookId,
+        focusedBlockId,
+        showTaskPicker,
 
-    const [selectedNotebookId, setSelectedNotebookId] =
-        useState<string | null>(null);
+        setShowTaskPicker,
 
-    const [selectedPageId, setSelectedPageId] =
-        useState<string | null>(null);
+        selectedPage,
 
-    const [focusedBlockId, setFocusedBlockId] = 
-    useState<string | null>(null);
-
-    const [showTaskPicker, setShowTaskPicker] = useState(false);
+        handleCreateNotebook,
+        handleSelectedNotebook,
+        handleRenameNotebook,
+        handleCreatePage,
+        handleSelectedPage,
+        handlePageTitleChange,
+        handleUpdateBlock,
+        handleCreateBlockAfter,
+        handleDeleteBlock,
+        handleDeletePage,
+        handleDeleteNotebook,
+        handleCanvasClick,
+        handleInsertTaskBlock,
+    } = useNotesPageFunctions();
     
-    
-
-    useEffect(() => {
-        setNotebooks(loadNotebooks());
-        setPages(loadPages());
-        setBlocks(loadBlocks()); 
-        setTasks(loadTasks());
-    }, []);
-
-
-    // ==================================================
-    // Notebook Actions
-    // ==================================================
-
-    function handleCreateNotebook() {
-        const notebook = createNotebook();
-
-        const updatedNotebooks = [...notebooks, notebook];
-
-        setNotebooks(updatedNotebooks);
-        saveNotebooks(updatedNotebooks);
-
-        setSelectedNotebookId(notebook.id);
-        setSelectedPageId(null);
-    }
-
-    function handleSelectedNotebook(notebookId: string) {
-        setSelectedNotebookId(notebookId);
-        setSelectedPageId(null);
-    }
-
-    function handleRenameNotebook(
-    notebookId: string,
-    title: string
-) {
-    const updatedNotebooks =
-        notebooks.map((notebook) => {
-            if (notebook.id !== notebookId) {
-                return notebook;
-            }
-
-            return {
-                ...notebook,
-                title,
-            };
-        });
-
-    setNotebooks(updatedNotebooks);
-    saveNotebooks(updatedNotebooks);
-}
-
-    // ==================================================
-    // Page Actions
-    // ==================================================
-
-    function handleCreatePage(notebookId: string) {
-        const { page, block } = createPage(notebookId);
-
-        const updatedPages = [...pages, page];
-        setPages(updatedPages);
-        savePages(updatedPages);
-
-        const updatedBlocks = [...blocks, block];
-        setBlocks(updatedBlocks);
-        saveBlocks(updatedBlocks);
-
-        const updatedNotebooks = notebooks.map((notebook) => {
-            if (notebook.id !== notebookId) return notebook;
-
-            return {
-                ...notebook,
-                pageIds: [...notebook.pageIds, page.id],
-            };
-        });
-
-        setNotebooks(updatedNotebooks);
-        saveNotebooks(updatedNotebooks);
-
-        setSelectedPageId(page.id);
-    }
-
-
-    function handleSelectedPage(pageId: string) {
-        setSelectedPageId(pageId);
-    }
-
-
-    function handlePageTitleChange(title: string) {
-        if (!selectedPageId) return;
-
-        const updatedPages = pages.map((page) => {
-            if (page.id !== selectedPageId) return page;
-
-            return {
-                ...page,
-                title,
-            };
-        });
-
-        setPages(updatedPages);
-        savePages(updatedPages);
-    }
-
-    const selectedPage = pages.find(
-        (page) => page.id === selectedPageId
-    );
-
-    // ==================================================
-    // BLOCK UPDATE (STEP 3 CORE)
-    // ==================================================
-
-    function handleUpdateBlock(blockId: string, content: string) {
-        const updatedBlocks = blocks.map((block) => {
-            if (block.id !== blockId) return block;
-
-            if (block.type === "empty") {
-                return {
-                    ...block,
-                    content,
-                };
-            }
-
-            return block;
-        });
-
-        setBlocks(updatedBlocks);
-        saveBlocks(updatedBlocks);
-    }
-
-
-    // ==================================================
-// Create Block After
-// ==================================================
-    function handleCreateBlockAfter(
-        blockId: string
-    )
-    {
-        if (!selectedPage)
-        {
-            return;
-        }
-
-        const newBlock = createEmptyBlock(selectedPage.id);
-        
-
-        const updatedBlocks = [
-            ...blocks,
-            newBlock, 
-        ];
-
-        setBlocks(updatedBlocks);
-        saveBlocks(updatedBlocks);
-
-        const updatedPages =
-                        pages.map((page) =>
-            {
-                if (
-                    page.id !== selectedPage.id
-                )
-                {
-                    return page;
-                }
-
-                const index =
-                    page.blockIds.indexOf(blockId);
-
-                const newBlockIds = [  ...page.blockIds,    ];
-
-                newBlockIds.splice(
-                    index + 1,  0,   newBlock.id
-                );
-
-                return {
-                    ...page,
-                    blockIds: newBlockIds,
-                };
-            });
-
-        setPages(updatedPages);
-        savePages(updatedPages);
-        setFocusedBlockId(newBlock.id);
-    }
-
-
-
-        function handleDeleteBlock(
-        blockId: string
-    )
-    {
-        if (!selectedPage)
-        {
-            return;
-        }
-
-        const page =
-            pages.find(
-                (page) =>
-                    page.id === selectedPage.id
-            );
-
-        if (!page)
-        {
-            return;
-        }
-
-        // never allow 0 blocks
-
-        if (
-            page.blockIds.length <= 1
-        )
-        {
-            return;
-        }
-
-        const deletedIndex =
-            page.blockIds.indexOf(
-                blockId
-            );
-
-        const previousBlockId =
-            page.blockIds[
-                deletedIndex - 1
-            ] ?? null;
-
-        const updatedBlocks =
-            blocks.filter(
-                (block) =>
-                    block.id !== blockId
-            );
-
-        setBlocks(updatedBlocks);
-        saveBlocks(updatedBlocks);
-
-        const updatedPages =
-            pages.map((page) =>
-            {
-                if (
-                    page.id !== selectedPage.id
-                )
-                {
-                    return page;
-                }
-
-                return {
-                    ...page,
-                    blockIds:
-                        page.blockIds.filter(
-                            (id) =>
-                                id !== blockId
-                        ),
-                };
-            });
-
-        setPages(updatedPages);
-        savePages(updatedPages);
-
-        setFocusedBlockId(
-            previousBlockId
-        );
-    }
-
-
-function handleDeletePage(
-    pageId: string
-)
-{
-    // -------------------------
-    // Remove page
-    // -------------------------
-
-    const updatedPages =
-        pages.filter(
-            (page) =>
-                page.id !== pageId
-        );
-
-    setPages(updatedPages);
-    savePages(updatedPages);
-
-    // -------------------------
-    // Remove blocks
-    // -------------------------
-
-    const updatedBlocks =
-        blocks.filter(
-            (block) =>
-                block.pageId !== pageId
-        );
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    // -------------------------
-    // Remove pageId
-    // from notebook
-    // -------------------------
-
-    const updatedNotebooks =
-        notebooks.map(
-            (notebook) => ({
-                ...notebook,
-                pageIds:
-                    notebook.pageIds.filter(
-                        (id) =>
-                            id !== pageId
-                    ),
-            })
-        );
-
-    setNotebooks(updatedNotebooks);
-    saveNotebooks(updatedNotebooks);
-
-    // -------------------------
-    // Clear selection
-    // -------------------------
-
-    if (
-        selectedPageId === pageId
-    )
-    {
-        setSelectedPageId(null);
-    }
-}
-
-
-function handleDeleteNotebook(
-    notebookId: string
-)
-{
-    const pagesToDelete =
-        pages.filter(
-            page =>
-                page.notebookId === notebookId
-        );
-
-    const pageIds =
-        pagesToDelete.map(
-            page => page.id
-        );
-
-    const updatedNotebooks =
-        notebooks.filter(
-            notebook =>
-                notebook.id !== notebookId
-        );
-
-    const updatedPages =
-        pages.filter(
-            page =>
-                page.notebookId !== notebookId
-        );
-
-    const updatedBlocks =
-        blocks.filter(
-            block =>
-                !pageIds.includes(
-                    block.pageId
-                )
-        );
-
-    setNotebooks(updatedNotebooks);
-    saveNotebooks(updatedNotebooks);
-
-    setPages(updatedPages);
-    savePages(updatedPages);
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    if (
-        selectedNotebookId ===
-        notebookId
-    )
-    {
-        setSelectedNotebookId(null);
-        setSelectedPageId(null);
-        setFocusedBlockId(null);
-    }
-}
-
-
-function handleCreateBlockAtEnd()
-{
-    if (!selectedPage)
-    {
-        return;
-    }
-
-    const newBlock =
-        createEmptyBlock(
-            selectedPage.id
-        );
-
-    const updatedBlocks = [
-        ...blocks,
-        newBlock,
-    ];
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    const updatedPages =
-        pages.map((page) =>
-        {
-            if (
-                page.id !== selectedPage.id
-            )
-            {
-                return page;
-            }
-
-            return {
-                ...page,
-                blockIds: [
-                    ...page.blockIds,
-                    newBlock.id,
-                ],
-            };
-        });
-
-    setPages(updatedPages);
-    savePages(updatedPages);
-
-    setFocusedBlockId(
-        newBlock.id
-    );
-}
-
-
-function handleCanvasClick(
-    event: React.MouseEvent
-) {
-    if (
-        event.target !== event.currentTarget
-    ) {
-        return;
-    }
-
-    handleCreateBlockAtEnd();
-}
-
-function handleInsertTaskBlock(taskId: string) {
-    if (!selectedPage) return;
-
-     const taskBlockId = crypto.randomUUID();
-
-    const taskBlock: Block = {
-        id: taskBlockId,
-        pageId: selectedPage.id,
-        type: "task",
-        content: {
-            taskId: taskId,
-        },
-    };
-
-    const updatedBlocks = [...blocks, taskBlock];
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    const updatedPages = pages.map((page) => {
-        if (page.id !== selectedPage.id) return page;
-
-        return {
-            ...page,
-            blockIds: [...page.blockIds, taskBlock.id]
-        };
-    });
-
-    setPages(updatedPages);
-    savePages(updatedPages);
-
-    setShowTaskPicker(false);
-}
 
     return (
         <div
@@ -558,7 +87,7 @@ function handleInsertTaskBlock(taskId: string) {
                         {/* Page Header */}
                         <input  
                             type="text"
-                            value={selectedPage.title}
+                            value={selectedPage?.title ?? ""}
                             onChange={(e) =>
                                 handlePageTitleChange(e.target.value)
                             }
@@ -583,7 +112,7 @@ function handleInsertTaskBlock(taskId: string) {
                         >
                             Last edited: Just now
                         </p>
-<button
+                    <button
                         onClick={() => setShowTaskPicker(true)}
                         style={{
                             marginBottom: "24px",
