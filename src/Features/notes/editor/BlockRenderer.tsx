@@ -14,6 +14,12 @@ interface BlockRendererProps {
     onUpdateBlock: ( blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string  ) => void;
     onDeleteBlock: ( blockId: string ) => void,
+
+    // Task callbacks
+    // Passed straight through to TaskBlock.
+    // BlockRenderer does not use them itself.
+    onEditTask: (task: Task) => void;
+    onDeleteTask: (id: string) => void;
     focused?: boolean;
 }
 
@@ -30,6 +36,8 @@ export default function BlockRenderer({
     onUpdateBlock,
     onCreateBlockAfter,
     onDeleteBlock,
+    onEditTask,
+    onDeleteTask,
     focused,
 }: BlockRendererProps) {
     switch (block.type) {
@@ -57,7 +65,9 @@ export default function BlockRenderer({
 
         case "task":
             return <TaskBlock block={block}
-                    tasks ={tasks} />;
+                    tasks ={tasks}
+                    onEditTask={onEditTask}
+                    onDeleteTask={onDeleteTask} />;
 
         default:
             return null;

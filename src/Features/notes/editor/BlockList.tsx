@@ -17,9 +17,17 @@ interface BlockListProps {
     page: Page;
     blocks: Block[];
     tasks: Task[];
+
+      // Block callbacks
     onUpdateBlock: (blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string   ) => void;
     onDeleteBlock: ( blockId: string ) => void,
+    
+    // Task callbacks
+    // Forwarded to TaskBlock through BlockRenderer.
+    onEditTask: (task: Task) => void;
+    onDeleteTask: (id: string) => void;
+
     focusedBlockId: string | null;
 }
 
@@ -31,6 +39,8 @@ export default function BlockList({
     onUpdateBlock,
     onCreateBlockAfter,
     onDeleteBlock,
+    onEditTask,
+    onDeleteTask,
     focusedBlockId,
         }: BlockListProps) {
     if (!page) return null;
@@ -67,6 +77,8 @@ export default function BlockList({
                     onUpdateBlock={onUpdateBlock}
                     onCreateBlockAfter={   onCreateBlockAfter   }
                     onDeleteBlock={onDeleteBlock}
+                    onEditTask={onEditTask}
+                    onDeleteTask={onDeleteTask}
                     focused={  block.id === focusedBlockId }
 
                 />

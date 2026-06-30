@@ -7,7 +7,7 @@ import {
     savePages,  loadBlocks,  saveBlocks,
 } from "../storage/notebookStorage";
 
-import { loadTasks } from "../../../Data/taskStorage";
+import { loadTasks, saveTasks } from "../../../Data/taskStorage";
 
 import {
     createNotebook,  createPage,
@@ -444,7 +444,44 @@ export function useNotesPageFunctions()
 
     setPages(updatedPages);
     savePages(updatedPages);
+
+    // Focus the newly inserted task block
+    setFocusedBlockId(taskBlock.id);
+
+    // Close the picker
+    setShowTaskPicker(false);
+    }
+
+// ==================================================
+// Task Actions
+// ==================================================
+
+function handleEditTask(updatedTask: Task)
+{
+    const updatedTasks = tasks.map((task) =>
+    {
+        if (task.id !== updatedTask.id)
+        {
+            return task;
+        }
+
+        return updatedTask;
+    });
+
+    setTasks(updatedTasks);
+    saveTasks(updatedTasks);
 }
+
+function handleDeleteTask(taskId: string)
+{
+    const updatedTasks = tasks.filter(
+        (task) => task.id !== taskId
+    );
+
+    setTasks(updatedTasks);
+    saveTasks(updatedTasks);
+}
+
 
 
      // ==================================================
@@ -480,5 +517,7 @@ export function useNotesPageFunctions()
         handleCreateBlockAtEnd,
         handleCanvasClick,
         handleInsertTaskBlock,
+        handleEditTask,
+        handleDeleteTask,
     };
 }

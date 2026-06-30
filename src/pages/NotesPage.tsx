@@ -5,34 +5,42 @@ import BlockList from "../Features/notes/editor/BlockList";
 
 export default function NotesPage()
 {
-    const {
-        notebooks,
-        pages,
-        blocks,
-        tasks,
+   const {
+    notebooks,
+    pages,
+    blocks,
+    tasks,
 
-        selectedNotebookId,
-        focusedBlockId,
-        showTaskPicker,
+    selectedNotebookId,
+    focusedBlockId,
+    showTaskPicker,
 
-        setShowTaskPicker,
+    setShowTaskPicker,
 
-        selectedPage,
+    selectedPage,
 
-        handleCreateNotebook,
-        handleSelectedNotebook,
-        handleRenameNotebook,
-        handleCreatePage,
-        handleSelectedPage,
-        handlePageTitleChange,
-        handleUpdateBlock,
-        handleCreateBlockAfter,
-        handleDeleteBlock,
-        handleDeletePage,
-        handleDeleteNotebook,
-        handleCanvasClick,
-        handleInsertTaskBlock,
-    } = useNotesPageFunctions();
+    handleCreateNotebook,
+    handleSelectedNotebook,
+    handleRenameNotebook,
+    handleCreatePage,
+    handleSelectedPage,
+    handlePageTitleChange,
+    handleUpdateBlock,
+    handleCreateBlockAfter,
+    handleDeleteBlock,
+    handleDeletePage,
+    handleDeleteNotebook,
+
+    // ==========================================
+    // Task Actions
+    // ==========================================
+
+    handleEditTask,
+    handleDeleteTask,
+
+    handleCanvasClick,
+    handleInsertTaskBlock,
+} = useNotesPageFunctions();
     
 
     return (
@@ -188,6 +196,8 @@ export default function NotesPage()
                                 onUpdateBlock={handleUpdateBlock}
                                 onCreateBlockAfter={handleCreateBlockAfter}
                                 onDeleteBlock={handleDeleteBlock}
+                                onEditTask={handleEditTask}
+                                onDeleteTask={handleDeleteTask}
                                 focusedBlockId={focusedBlockId}
                             />
                         </div>
