@@ -14,7 +14,7 @@
 // the user picks a different one.
 // ============================================================
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getTaskCountByMood, getTasksByMood, getUpcomingTaskTitle } from "../Data/taskStorage";
 
