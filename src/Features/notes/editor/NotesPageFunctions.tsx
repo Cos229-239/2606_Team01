@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Notebook, Page, Block } from "../types";
+import type { Notebook, Page, Block, BlockType } from "../types";
 import type { Task } from "../../../Data/tasks";
 
 import {
@@ -111,6 +111,42 @@ export function useNotesPageFunctions()
         setNotebooks(updatedNotebooks);
         saveNotebooks(updatedNotebooks);
     }
+    
+    function handleDeleteNotebook(notebookId: string)
+{
+    const pagesToDelete = pages.filter(
+        (page) => page.notebookId === notebookId
+    );
+
+    const pageIds = pagesToDelete.map((page) => page.id);
+
+    const updatedNotebooks = notebooks.filter(
+        (notebook) => notebook.id !== notebookId
+    );
+
+    const updatedPages = pages.filter(
+        (page) => page.notebookId !== notebookId
+    );
+
+    const updatedBlocks = blocks.filter(
+        (block) => !pageIds.includes(block.pageId)
+    );
+
+    setNotebooks(updatedNotebooks);
+    saveNotebooks(updatedNotebooks);
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    if (selectedNotebookId === notebookId)
+    {
+        setSelectedNotebookId(null);
+        setSelectedPageId(null);
+    }
+}
 
     // ==================================================
     // Page Actions
@@ -198,6 +234,38 @@ export function useNotesPageFunctions()
 
         setPages(updatedPages);
         savePages(updatedPages);
+    }
+
+    function handleDeletePage(
+        pageId: string
+    )
+    {
+    const updatedPages = pages.filter(
+        (page) => page.id !== pageId
+    );
+
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    const updatedBlocks = blocks.filter(
+        (block) => block.pageId !== pageId
+    );
+
+    setBlocks(updatedBlocks);
+    saveBlocks(updatedBlocks);
+
+    const updatedNotebooks = notebooks.map((notebook) => ({
+        ...notebook,
+        pageIds: notebook.pageIds.filter((id) => id !== pageId),
+    }));
+
+    setNotebooks(updatedNotebooks);
+    saveNotebooks(updatedNotebooks);
+
+    if (selectedPageId === pageId)
+    {
+        setSelectedPageId(null);
+    }
     }
 
     // ==================================================
@@ -297,74 +365,29 @@ export function useNotesPageFunctions()
     setFocusedBlockId(previousBlockId);
     }
 
+    function handleConvertBlock(
+        blockId: string, type: BlockType,
+        content: any
+    ){
+        const updatedBlocks = blocks.map((block) =>
+        {
+            if (block.id !== blockId)
+            {
+                return block;
+            }
 
-    function handleDeletePage(
-        pageId: string
-    )
-    {
-    const updatedPages = pages.filter(
-        (page) => page.id !== pageId
-    );
+            return  {
+                ...block, type, content,
+            };
+        });
 
-    setPages(updatedPages);
-    savePages(updatedPages);
+        setBlocks(updatedBlocks);
+        saveBlocks(updatedBlocks);
+            }
+        
+    
+    
 
-    const updatedBlocks = blocks.filter(
-        (block) => block.pageId !== pageId
-    );
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    const updatedNotebooks = notebooks.map((notebook) => ({
-        ...notebook,
-        pageIds: notebook.pageIds.filter((id) => id !== pageId),
-    }));
-
-    setNotebooks(updatedNotebooks);
-    saveNotebooks(updatedNotebooks);
-
-    if (selectedPageId === pageId)
-    {
-        setSelectedPageId(null);
-    }
-    }
-
-    function handleDeleteNotebook(notebookId: string)
-{
-    const pagesToDelete = pages.filter(
-        (page) => page.notebookId === notebookId
-    );
-
-    const pageIds = pagesToDelete.map((page) => page.id);
-
-    const updatedNotebooks = notebooks.filter(
-        (notebook) => notebook.id !== notebookId
-    );
-
-    const updatedPages = pages.filter(
-        (page) => page.notebookId !== notebookId
-    );
-
-    const updatedBlocks = blocks.filter(
-        (block) => !pageIds.includes(block.pageId)
-    );
-
-    setNotebooks(updatedNotebooks);
-    saveNotebooks(updatedNotebooks);
-
-    setPages(updatedPages);
-    savePages(updatedPages);
-
-    setBlocks(updatedBlocks);
-    saveBlocks(updatedBlocks);
-
-    if (selectedNotebookId === notebookId)
-    {
-        setSelectedNotebookId(null);
-        setSelectedPageId(null);
-    }
-}
 
 
     function handleCreateBlockAtEnd()
@@ -519,5 +542,6 @@ function handleDeleteTask(taskId: string)
         handleInsertTaskBlock,
         handleEditTask,
         handleDeleteTask,
+        handleConvertBlock,
     };
 }

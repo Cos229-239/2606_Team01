@@ -1,4 +1,4 @@
-import type { Block } from "../types";
+import type { Block, BlockType } from "../types";
 import type { Task } from "../../../Data/tasks";
 
 import EmptyBlock from "../blocks/EmptyBlock";
@@ -14,6 +14,8 @@ interface BlockRendererProps {
     onUpdateBlock: ( blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string  ) => void;
     onDeleteBlock: ( blockId: string ) => void,
+    onConvertBlock: (  blockId: string, type: BlockType, 
+            content: any ) => void;
 
     // Task callbacks
     // Passed straight through to TaskBlock.
@@ -38,6 +40,7 @@ export default function BlockRenderer({
     onDeleteBlock,
     onEditTask,
     onDeleteTask,
+    onConvertBlock,
     focused,
 }: BlockRendererProps) {
     switch (block.type) {
@@ -52,7 +55,11 @@ export default function BlockRenderer({
             );
 
         case "text":
-            return <TextBlock block={block} />;
+            return <TextBlock block={block}
+                    onUpdateBlock={onUpdateBlock}
+                    onConvertBlock={onConvertBlock}
+                    focused={focused}
+                />;
 
         case "heading":
             return <HeadingBlock block={block} />;

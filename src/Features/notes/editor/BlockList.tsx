@@ -9,7 +9,7 @@
 // - Act as the document rendering layer
 // ======================================================
 
-import type { Page, Block } from "../types";
+import type { Page, Block, BlockType } from "../types";
 import BlockRenderer from "./BlockRenderer";
 import type { Task } from "../../../Data/tasks";
 
@@ -22,7 +22,9 @@ interface BlockListProps {
     onUpdateBlock: (blockId: string, content: string) => void;
     onCreateBlockAfter: (  blockId: string   ) => void;
     onDeleteBlock: ( blockId: string ) => void,
-    
+    onConvertBlock: (  blockId: string, type: BlockType, 
+        content: any ) => void;
+
     // Task callbacks
     // Forwarded to TaskBlock through BlockRenderer.
     onEditTask: (task: Task) => void;
@@ -39,6 +41,7 @@ export default function BlockList({
     onUpdateBlock,
     onCreateBlockAfter,
     onDeleteBlock,
+    onConvertBlock,
     onEditTask,
     onDeleteTask,
     focusedBlockId,
@@ -79,6 +82,7 @@ export default function BlockList({
                     onDeleteBlock={onDeleteBlock}
                     onEditTask={onEditTask}
                     onDeleteTask={onDeleteTask}
+                    onConvertBlock={onConvertBlock}
                     focused={  block.id === focusedBlockId }
 
                 />

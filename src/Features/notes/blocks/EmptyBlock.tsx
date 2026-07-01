@@ -11,16 +11,7 @@ interface EmptyBlockProps {
     focused?: boolean;
 }
 
-/**
- * EmptyBlock
- * ------------------------------------------------------
- * First interactive editor surface in the Notes system.
- *
- * Responsibility:
- * - Provide an editable input area for empty blocks
- * - Capture user typing
- * - Optionally notify parent of updates
- */
+
 export default function EmptyBlock({
     block,
     onUpdateBlock,
@@ -29,147 +20,65 @@ export default function EmptyBlock({
     focused,
 
 }: EmptyBlockProps) {
+
+
      const [value, setValue] = useState<string>(
         block.type === "empty"
             ? String(block.content ?? "")
             : ""
     );
 
-    const inputRef = useRef<HTMLTextAreaElement | null>(null);
+    const ref = useRef<HTMLTextAreaElement | null>(null);
 
-    // Sync with external updates
     useEffect(() => {
-        if (block.type === "empty") {
-              setValue(
-                String(block.content ?? "")
-            );
-        }
-    }, [block]);
-    
-    // ==================================================
-    // Text Updates
-    // ==================================================
+        setValue(typeof block.content === "string" ? block.content : "");
+    }, [block.content]);
 
-    function handleChange(
-        event: React.ChangeEvent<HTMLTextAreaElement>
-    ) {
-        const newValue = event.target.value;
+    useEffect(() => {
+        if (focused) ref.current?.focus();
+    }, [focused]);
 
-        setValue(newValue);
-        autoResize();
-
-        onUpdateBlock?.(
-            block.id,
-            newValue
-        );
+    function resize() {
+        if (!ref.current) return;
+        ref.current.style.height = "0px";
+        ref.current.style.height = ref.current.scrollHeight + "px";
     }
 
-    // ==================================================
-    // Keyboard Controls
-    // ==================================================
+    function change(e: React.ChangeEvent<HTMLTextAreaElement>) {
+        setValue(e.target.value);
+        resize();
+        onUpdateBlock?.(block.id, e.target.value);
+    }
 
-    function handleKeyDown(
-        event: React.KeyboardEvent<HTMLTextAreaElement>
-    ) {
-
-        //create new blocks
-        if (event.key === "Enter" &&  event.shiftKey) 
-        {
-            event.preventDefault();
-
-            onCreateBlockAfter?.(
-                block.id
-            );
+    function keyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+        if (e.key === "Enter" && e.shiftKey) {
+            e.preventDefault();
+            onCreateBlockAfter?.(block.id);
         }
 
-            //delete existing blocls
-        if (
-            event.key === "Backspace" &&
-            value === ""
-        )
-        {
-    event.preventDefault();
-
-    onDeleteBlock?.(
-        block.id
-    );
+        if (e.key === "Backspace" && value === "") {
+            e.preventDefault();
+            onDeleteBlock?.(block.id);
         }
-
     }
-
-    function autoResize()
-    {
-        if (!inputRef.current)
-        {
-            return;
-        }
-
-        inputRef.current.style.height = "0px";
-
-        inputRef.current.style.height =
-            `${inputRef.current.scrollHeight}px`;
-    }
-
-    // ==================================================
-    // Focus Helpers
-    // ==================================================
-
-    function handleClick() 
-    {
-        inputRef.current?.focus();
-    }
-
-    // ==================================================
-    // Render
-    // ==================================================
-
-
-    useEffect(() =>
-{
-    if (
-        focused &&
-        inputRef.current
-    )
-    {
-        inputRef.current.focus();
-    }
-}, [focused]);
-
-
-    useEffect(() =>
-        {
-            autoResize();
-        }, [value]);
-
 
     return (
-        <div
-            onClick={handleClick}
-            style={{
-                width: "100%",
-                padding: "8px 0",
-                cursor: "text",
-            }}
-        >
+        <div style={{ width: "100%", padding: "8px 0" }}>
             <textarea
-                ref={inputRef}
+                ref={ref}
                 value={value}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                placeholder="Click here to start writing..."
+                onChange={change}
+                onKeyDown={keyDown}
                 style={{
                     width: "100%",
-                    minHeight: "30px",
-                    overflow: "hidden",
+                    minHeight: 30,
                     border: "none",
                     outline: "none",
                     resize: "none",
                     fontSize: "1rem",
-                    lineHeight: "1.5",
                     background: "transparent",
-                    color: "inherit",
-                    fontFamily: "inherit",
                 }}
+                placeholder="Click here to start writing..."
             />
         </div>
     );

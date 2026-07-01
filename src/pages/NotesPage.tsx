@@ -30,6 +30,7 @@ export default function NotesPage()
     handleDeleteBlock,
     handleDeletePage,
     handleDeleteNotebook,
+    handleConvertBlock,
 
     // ==========================================
     // Task Actions
@@ -194,6 +195,7 @@ export default function NotesPage()
                                 blocks={blocks}
                                 tasks={tasks}
                                 onUpdateBlock={handleUpdateBlock}
+                                onConvertBlock={handleConvertBlock}
                                 onCreateBlockAfter={handleCreateBlockAfter}
                                 onDeleteBlock={handleDeleteBlock}
                                 onEditTask={handleEditTask}
