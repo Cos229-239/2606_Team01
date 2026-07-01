@@ -15,7 +15,6 @@
 // ======================================================
 import { useState, useEffect, useCallback } from "react";
 import TimerControls from "../Components/Timer/TimerControls";
-import TimerDisplay from "../Components/Timer/TimerDisplay";
 
 const DEFAULT_MINUTES = 25;
 
@@ -50,9 +49,6 @@ function useTimerBlackHoleSetting(key: string, defaultValue: string) {
 }
 
 export default function TimerPage() {
-    const [minutes, setMinutes] = useState(DEFAULT_MINUTES);
-    const [seconds, setSeconds] = useState(0);
-
     const [remainingSeconds, setRemainingSeconds] = useState(DEFAULT_MINUTES * 60);
     const [originalDuration, setOriginalDuration] = useState(DEFAULT_MINUTES * 60);
 
@@ -61,7 +57,7 @@ export default function TimerPage() {
     // Timer background & effects settings
     const [timerBg, setTimerBg] = useTimerBg();
     const [timerBlackHole, setTimerBlackHole] = useTimerBlackHoleSetting("timer-blackhole", "true");
-    const [timerBlackHoleJets, setTimerBlackHoleJets] = useTimerBlackHoleSetting("timer-blackhole-jets", "true");
+    const [timerBlackHoleParticles, setTimerBlackHoleParticles] = useTimerBlackHoleSetting("timer-blackhole-particles", "true");
 
     // Countdown tick
     useEffect(() => {
@@ -96,20 +92,9 @@ export default function TimerPage() {
     // =========================
     // SYNC HELPERS
     // =========================
-    function updateFromInputs(newMinutes: number, newSeconds: number) {
-        const total = newMinutes * 60 + newSeconds;
-        setMinutes(newMinutes);
-        setSeconds(newSeconds);
-        setRemainingSeconds(total);
-        setOriginalDuration(total);
-    }
-
-    function handleMinutesChange(value: number) {
-        updateFromInputs(value, seconds);
-    }
-
-    function handleSecondsChange(value: number) {
-        updateFromInputs(minutes, value);
+    function handleTimeChange(newTotalSeconds: number) {
+        setRemainingSeconds(newTotalSeconds);
+        setOriginalDuration(newTotalSeconds);
     }
 
     function handleStart() { setIsRunning(true); }
@@ -145,7 +130,7 @@ export default function TimerPage() {
                     </div>
                 </div>
 
-                {/* Black hole + jets — only relevant for starfield */}
+                {/* Black hole + particles — only relevant for starfield */}
                 {timerBg === "starfield" && (
                     <>
                         <div className="timer-settings-sep" />
@@ -164,12 +149,12 @@ export default function TimerPage() {
                             <>
                                 <div className="timer-settings-sep" />
                                 <div className="timer-settings-group">
-                                    <span className="timer-settings-label">Jets</span>
+                                    <span className="timer-settings-label">Particles</span>
                                     <button
-                                        className={`timer-pill${timerBlackHoleJets === "true" ? " timer-pill--active" : ""}`}
-                                        onClick={() => setTimerBlackHoleJets(timerBlackHoleJets === "true" ? "false" : "true")}
+                                        className={`timer-pill${timerBlackHoleParticles === "true" ? " timer-pill--active" : ""}`}
+                                        onClick={() => setTimerBlackHoleParticles(timerBlackHoleParticles === "true" ? "false" : "true")}
                                     >
-                                        {timerBlackHoleJets === "true" ? "On" : "Off"}
+                                        {timerBlackHoleParticles === "true" ? "On" : "Off"}
                                     </button>
                                 </div>
                             </>
@@ -178,14 +163,10 @@ export default function TimerPage() {
                 )}
             </div>
 
-            <TimerDisplay remainingSeconds={remainingSeconds} />
-
             <TimerControls
-                minutes={minutes}
-                seconds={seconds}
+                totalSeconds={remainingSeconds}
                 isRunning={isRunning}
-                onMinutesChange={handleMinutesChange}
-                onSecondsChange={handleSecondsChange}
+                onTimeChange={handleTimeChange}
                 onStart={handleStart}
                 onPause={handlePause}
                 onReset={handleReset}
