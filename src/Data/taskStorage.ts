@@ -63,7 +63,7 @@ export function updateTask(updatedTask: Task): void
 // ------------------------------------------------------
 // Removes a task by ID.*/}
 
-export function deleteTask(taskId: number): void
+export function deleteTask(taskId: string): void
 {
     const tasks = loadTasks();
 

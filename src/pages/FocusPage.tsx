@@ -4,24 +4,51 @@ import { statesData } from "../statesData";
 import ActivityPage from "../pages/ActivityPage";
 import TaskCard from "../Components/TaskCard";
 import type { Task } from "../Data/tasks";
-import { getTaskCountByMood, getTasksByMood } from "../Data/taskStorage";
+import EditTaskPopup from "../Components/EditTaskPopup";
+import {addTask, deleteTask, updateTask, getTasksByMood } from "../Data/taskStorage";
+import CreateTaskPopup from "../Components/CreateTaskPopup";
 
 //This is where:components state rendering buttons activities will live.
 
 export default function FocusPage() {
 
   const focusedState = statesData.focused;
+  
+  const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
   const [selectedFocus, setSelectedFocus] = useState("");
   const [selectedActivity, setSelectedActivity] = useState("");
   const [focusedTasks, setFocusedTasks] = useState<Task[]>([]);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // ======================================================
   // Load Focused Tasks
   // ======================================================
 
   useEffect(() => {
-    setFocusedTasks(getTasksByMood("Focused"));
+    refreshTasks();
   }, []);
+
+  function refreshTasks() {
+  setFocusedTasks(getTasksByMood("Focused"));
+}
+
+
+  function handleEditTask(updatedTask: Task) {
+  updateTask(updatedTask);
+  refreshTasks();
+}
+
+    function handleDeleteTask(taskId: string) {
+
+  deleteTask(taskId);
+  refreshTasks();
+}
+
+function handleCreateTask(newTask: Task) {
+    addTask(newTask);
+    refreshTasks();
+    setShowCreateTaskPopup(false);
+}
 
   let currentActivities: string[] = [];
 
@@ -59,15 +86,24 @@ export default function FocusPage() {
 
           <h2>Focused Tasks</h2>
 
+          <button onClick={() => setShowCreateTaskPopup(true)}>+ Create New Task</button>
+                      
+                
+                      {showCreateTaskPopup &&
+                        <CreateTaskPopup onCreate={handleCreateTask}
+                          onClose={() => setShowCreateTaskPopup(false)} />
+                      }
+
           {/*if no focused task show   */}
-          {getTaskCountByMood("Focused") == 0 ? (
+          { focusedTasks.length == 0 ? (
             <p>No Focused Task Avaliable.</p>
           ) : (
             //else show this
             focusedTasks.map((task) => (
               <TaskCard key={task.id}
                 {...task}
-                onDelete={() => { }}
+                onEdit={() => setEditingTask(task)}
+                onDelete={() => handleDeleteTask(task.id)}
               />
             ))
           )}
@@ -103,6 +139,20 @@ export default function FocusPage() {
       {selectedActivity && (
         <ActivityPage activityName={selectedActivity} />
       )}
+
+       {editingTask && (
+                <EditTaskPopup
+                    task={editingTask}
+                    onSave={(updatedTask) =>
+                    {
+                        handleEditTask(updatedTask);
+                        setEditingTask(null);
+                    }}
+                    onClose={() =>
+                        setEditingTask(null)
+                    }
+                />
+            )}
     </div>
   );
 }
