@@ -67,7 +67,8 @@ export default function BlockRenderer({
             return <TaskBlock block={block}
                     tasks ={tasks}
                     onEditTask={onEditTask}
-                    onDeleteTask={onDeleteTask} />;
+                    onDeleteTask={onDeleteTask}
+                    onDeleteBlock={onDeleteBlock} />;
 
         default:
             return null;

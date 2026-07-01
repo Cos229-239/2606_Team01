@@ -10,13 +10,14 @@ interface Props {
 
     onEditTask: (task: Task) => void;
     onDeleteTask: (id: string) => void;
+    onDeleteBlock:(blockId: string) => void;
 }
 
 
 
 export default function TaskBlock(
     { block, tasks,
-      onEditTask, onDeleteTask,
+      onEditTask, onDeleteTask, onDeleteBlock,
      }: Props) {
 
     // Only render task blocks
@@ -49,7 +50,9 @@ export default function TaskBlock(
         <TaskCard
             {...matchedTask}
             onEdit={() => setEditingTask(matchedTask)}
-            onDelete={() => onDeleteTask(matchedTask.id)}
+            onDelete={() => {onDeleteTask(matchedTask.id);
+                            onDeleteBlock(block.id);}
+            }
         />
 
         {/* Edit Popup */}
