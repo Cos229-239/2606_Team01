@@ -69,7 +69,12 @@ export default function BlockRenderer({
             return <HeadingBlock block={block} />;
 
         case "list":
-            return <ListBlock block={block} />;
+            return <ListBlock block={block} 
+                    onUpdateBlock={onUpdateBlock}
+                    onConvertBlock={onConvertBlock}
+                    onCreateBlockAfter={onCreateBlockAfter}
+                    onDeleteBlock={onDeleteBlock}
+                    focused={focused}/>;
 
         case "divider":
             return <DividerBlock block={block} />;

@@ -85,10 +85,7 @@ export interface HeadingBlock extends BaseBlock {
 export interface ListBlock extends BaseBlock {
     type: "list";
 
-    content: {
-        ordered: boolean;
-        items: ListItem[];
-    };
+    content: string;
 }
 
 export interface DividerBlock extends BaseBlock {

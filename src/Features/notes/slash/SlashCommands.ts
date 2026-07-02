@@ -14,4 +14,10 @@ export const SLASH_COMMANDS: SlashCommand[] =
         command: "divider",
         label: "Divider",
     },
+    {
+        id: "list",
+        command: "list",
+        label: "List",
+    },
 ];
+

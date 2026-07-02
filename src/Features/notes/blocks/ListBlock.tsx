@@ -1,17 +1,282 @@
-import type { Block } from "../types";
+import type { Block, BlockType } from "../types";
+import SlashMenu from "../slash/SlashMenu";
+import { useEffect, useRef, useState } from "react";
+
 
 interface Props {
     block: Block;
+
+    onUpdateBlock: (blockId: string, content: string) => void;
+    onConvertBlock: (  blockId: string,  type: BlockType,
+                             content: any  ) => void;
+    onCreateBlockAfter?: (  blockId: string  ) => void;
+    onDeleteBlock?: (  blockId: string  ) => void;
+    
+    focused?: boolean;
 }
 
-export default function ListBlock({ block }: Props) {
+export default function ListBlock({ block, onUpdateBlock, 
+    onConvertBlock, onCreateBlockAfter, onDeleteBlock, 
+    focused }: Props) {
+
     if (block.type !== "list") return null;
+const [value, setValue] = useState<string>(
+        typeof block.content === "string"
+            ? block.content
+            : ""
+    );
+
+    const inputRef =
+        useRef<HTMLTextAreaElement | null>(null);
+
+    const [showSlashMenu, setShowSlashMenu] =
+        useState(false);
+
+    const [slashQuery, setSlashQuery] =
+        useState("");
+
+    // ==========================================
+    // Sync External Updates
+    // ==========================================
+
+    useEffect(() => {
+        if (typeof block.content === "string") {
+            setValue(block.content);
+        }
+    }, [block.content]);
+
+    // ==========================================
+    // Focus
+    // ==========================================
+ useEffect(() => {
+        if (focused && inputRef.current) {
+
+            inputRef.current.focus();
+
+            // Place cursor at end of list
+            const length =
+                inputRef.current.value.length;
+
+            inputRef.current.setSelectionRange(
+                length,
+                length
+            );
+        }
+    }, [focused]);
+
+    // ==========================================
+    // Auto Resize
+    // ==========================================
+
+    useEffect(() => {
+        autoResize();
+    }, [value]);
+
+    function autoResize() {
+
+        if (!inputRef.current) {
+            return;
+        }
+
+        inputRef.current.style.height = "0px";
+
+        inputRef.current.style.height =
+            `${inputRef.current.scrollHeight}px`;
+    }
+
+    // ==========================================
+    // Slash Menu
+    // ==========================================
+
+    function updateSlashMenu(
+        input: string
+    ) {
+
+        if (!input.startsWith("/")) {
+
+            setShowSlashMenu(false);
+            setSlashQuery("");
+
+            return;
+        }
+
+        setShowSlashMenu(true);
+
+        setSlashQuery(
+            input.substring(1).toLowerCase()
+        );
+    }
+
+    function handleSlashCommand(
+        command: string
+    ) {
+
+        switch (command) {
+
+            case "divider":
+
+                onConvertBlock(
+                    block.id,
+                    "divider",
+                    null
+                );
+
+                break;
+
+            case "text":
+
+                onConvertBlock(
+                    block.id,
+                    "text",
+                    value
+                );
+
+                break;
+        }
+
+        setShowSlashMenu(false);
+        setSlashQuery("");
+    }
+
+    // ==========================================
+    // Change
+    // ==========================================
+
+    function handleChange(
+        event: React.ChangeEvent<HTMLTextAreaElement>
+    ) {
+
+        const newValue =
+            event.target.value;
+
+        updateSlashMenu(newValue);
+
+        setValue(newValue);
+
+        autoResize();
+
+        onUpdateBlock(
+            block.id,
+            newValue
+        );
+    }
+
+    // ==========================================
+    // Keyboard
+    // ==========================================
+
+    function handleKeyDown(
+        event: React.KeyboardEvent<HTMLTextAreaElement>
+    ) {
+
+        if (
+            event.key === "Enter" &&
+            event.shiftKey
+        ) {
+
+            event.preventDefault();
+
+            onCreateBlockAfter?.(
+                block.id
+            );
+        }
+
+        if (
+            event.key === "Backspace" &&
+            value === ""
+        ) {
+
+            event.preventDefault();
+
+            onDeleteBlock?.(
+                block.id
+            );
+        }
+    }
+
+    // ==========================================
+    // Bullet Count
+    // ==========================================
+
+    const lines =
+        value === ""
+            ? [""]
+            : value.split("\n");
 
     return (
-        <ul>
-            {block.content.items.map((item) => (
-                <li key={item.id}>{item.text}</li>
-            ))}
-        </ul>
+
+        <div
+            style={{
+                position: "relative",
+                padding: "6px 0",
+            }}
+        >
+
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                }}
+            >
+
+                {/* Bullet Column */}
+
+                <div
+                    style={{
+                        width: 20,
+                        paddingTop: 6,
+                        userSelect: "none",
+                    }}
+                >
+                    {lines.map((_, index) => (
+
+                        <div
+                            key={index}
+                            style={{
+                                lineHeight: "1.5rem",
+                            }}
+                        >
+                            •
+                        </div>
+
+                    ))}
+                </div>
+
+                {/* Text Editor */}
+
+                <textarea
+                    ref={inputRef}
+                    value={value}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="List item..."
+                    style={{
+                        flex: 1,
+                        minHeight: "30px",
+                        overflow: "hidden",
+                        border: "none",
+                        outline: "none",
+                        resize: "none",
+                        fontSize: "1rem",
+                        lineHeight: "1.5",
+                        background: "transparent",
+                        color: "inherit",
+                        fontFamily: "inherit",
+                    }}
+                />
+
+            </div>
+
+            {showSlashMenu && (
+
+                <SlashMenu
+                    query={slashQuery}
+                    onSelect={handleSlashCommand}
+                />
+
+            )}
+
+        </div>
+
     );
 }

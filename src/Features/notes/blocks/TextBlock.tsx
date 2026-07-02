@@ -135,11 +135,23 @@ export default function TextBlock({ block, onUpdateBlock,
                 null
             );
 
+          
+
+            break;
+
+            case "list":
+
+            onConvertBlock(
+                block.id,
+                "list",
+                null
+            );
+
+            break;
+        }
             setShowSlashMenu(false);
             setSlashQuery("");
 
-            break;
-    }
 }
 
 

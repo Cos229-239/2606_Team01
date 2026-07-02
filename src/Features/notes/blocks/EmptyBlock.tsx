@@ -76,6 +76,10 @@ export default function EmptyBlock({
                 
                 setShowMenu(false);
                 break;
+
+
+                case "list":
+                onConvertBlock?.(block.id, "list", null);
         }
     }
 
