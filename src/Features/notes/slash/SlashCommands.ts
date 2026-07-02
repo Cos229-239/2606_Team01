@@ -19,5 +19,15 @@ export const SLASH_COMMANDS: SlashCommand[] =
         command: "list",
         label: "List",
     },
+    {
+        id: "heading",
+        command: "heading",
+        label: "Heading",
+    },
+    {
+        id: "text",
+        command: "text",
+        label: "Text",
+    },
 ];
 

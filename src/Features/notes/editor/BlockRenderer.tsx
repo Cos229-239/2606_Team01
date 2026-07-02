@@ -66,7 +66,12 @@ export default function BlockRenderer({
                 />;
 
         case "heading":
-            return <HeadingBlock block={block} />;
+            return <HeadingBlock block={block}
+                    onUpdateBlock={onUpdateBlock}
+                    onConvertBlock={onConvertBlock}
+                    onCreateBlockAfter={onCreateBlockAfter}
+                    onDeleteBlock={onDeleteBlock}
+                    focused={focused} />;
 
         case "list":
             return <ListBlock block={block} 

@@ -123,36 +123,31 @@ export default function TextBlock({ block, onUpdateBlock,
             `${inputRef.current.scrollHeight}px`;
     }
 
-    function handleSlashCommand(command: string)
-{
-    switch (command)
-    {
-        case "divider":
+     function handleSlashCommand(command: string) {
 
-            onConvertBlock(
-                block.id,
-                "divider",
-                null
-            );
+        
+        setShowSlashMenu(false);
+        setSlashQuery("");
 
-          
-
-            break;
+        switch (command) {
+            case "divider":
+                onConvertBlock(block.id, "divider", null);
+                break;
 
             case "list":
+                onConvertBlock(block.id, "list", null);
+                break;
 
-            onConvertBlock(
-                block.id,
-                "list",
-                null
-            );
+            case "text":
+                onConvertBlock(block.id, "text", null);
+                break;
 
-            break;
+                case "heading":
+                onConvertBlock(block.id, "heading", null);
+                break;
         }
-            setShowSlashMenu(false);
-            setSlashQuery("");
 
-}
+    }
 
 
     // Focus
@@ -169,6 +164,19 @@ export default function TextBlock({ block, onUpdateBlock,
     return (
          <div style={{ position: "relative",
                     padding: "6px 0" }}>
+
+        <div style={{
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 8,
+                    }}
+            >
+                <button
+                    onClick={() => setShowSlashMenu(true)}
+                >
+                    +
+                </button>
 
         <textarea
                 ref={inputRef}
@@ -191,6 +199,7 @@ export default function TextBlock({ block, onUpdateBlock,
                 }}
             />
 
+                </div>
             {showSlashMenu && (
                 <SlashMenu
                     query={slashQuery}

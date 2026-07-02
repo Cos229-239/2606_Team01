@@ -107,35 +107,29 @@ const [value, setValue] = useState<string>(
         );
     }
 
-    function handleSlashCommand(
-        command: string
-    ) {
-
+    function handleSlashCommand(command: string) {
+        
+        setShowSlashMenu(false);
+        setSlashQuery("");
+        
         switch (command) {
-
             case "divider":
+                onConvertBlock(block.id, "divider", null);
+                break;
 
-                onConvertBlock(
-                    block.id,
-                    "divider",
-                    null
-                );
-
+            case "list":
+                onConvertBlock(block.id, "list", null);
                 break;
 
             case "text":
+                onConvertBlock(block.id, "text", null);
+                break;
 
-                onConvertBlock(
-                    block.id,
-                    "text",
-                    value
-                );
-
+                case "heading":
+                onConvertBlock(block.id, "heading", null);
                 break;
         }
 
-        setShowSlashMenu(false);
-        setSlashQuery("");
     }
 
     // ==========================================
@@ -218,6 +212,18 @@ const [value, setValue] = useState<string>(
                     alignItems: "flex-start",
                 }}
             >
+                 <div style={{
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 8,
+                    }}
+            >
+                <button
+                    onClick={() => setShowSlashMenu(true)}
+                >
+                    +
+                </button>
 
                 {/* Bullet Column */}
 
@@ -242,6 +248,7 @@ const [value, setValue] = useState<string>(
                     ))}
                 </div>
 
+                   
                 {/* Text Editor */}
 
                 <textarea
@@ -264,6 +271,7 @@ const [value, setValue] = useState<string>(
                         fontFamily: "inherit",
                     }}
                 />
+                </div>
 
             </div>
 
