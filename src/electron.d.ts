@@ -15,6 +15,7 @@ declare global
         electron:
         {
             openTimer: () => void;
+            notifyTimerComplete: (payload: { title?: string; body?: string }) => void;
         };
     }
 }

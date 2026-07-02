@@ -221,7 +221,10 @@
       tintEl.style.opacity = '0';
     } else {
       tintEl.style.backgroundColor = `hsl(${hue}, 80%, 50%)`;
-      tintEl.style.opacity          = String(Math.min(0.35, strength * 0.35));
+      // Slider still runs 0–1 (0–100%) end to end; the cap here is what
+      // determines how strong the tint gets at full strength. Halved
+      // from 0.35 -> 0.175 so max brightness/opacity is ~50% of before.
+      tintEl.style.opacity          = String(Math.min(0.175, strength * 0.175));
     }
   }
   applyScreenTint();
@@ -306,7 +309,7 @@
   //   - Position: centered on the timer screen (no mouse-follow here).
   //   - Scale:    driven by countdown progress — bigger as time runs out.
   //   - Lensing:  stars near the hole are displaced/swallowed for the
-  //               gravitational-lens look; jets + accretion disk render
+  //               gravitational-lens look; particles + accretion disk render
   //               on top.
   let optBlackHole = false;
 
@@ -317,56 +320,93 @@
   let bhDespawning = false;
   let bhScale      = 0; // 0→1 visual scale, driven by timer progress
 
-  const BH_STRENGTH   = 18000;
-  const BH_RADIUS     = 38;
-  const BH_INNER_MASK = 34;
-  const BH_ACCRETION  = 72;
-  const BH_LENS_OUTER = 260;
+  const BH_STRENGTH   = 26000;
+  const BH_RADIUS     = 40;
+  const BH_INNER_MASK = 36;
+  const BH_LENS_OUTER = 560;
   const BH_SMOOTH     = 0.09;
   const BH_MIN_SCALE  = 0.18; // smallest the hole gets once the timer starts
   const BH_MAX_GROW   = 1.6;  // extra scale multiplier reached at 0:00
 
-  let bhDiskAngle = 0;
-  const BH_DISK_SPIN = 0.8;
+  // The ring system's ORIENTATION is fixed (Interstellar-style tilt) — it
+  // never spins around like a record. Only a slow angular "flow phase"
+  // sweeps brightness around the rings (Doppler-beaming / light-warp look),
+  // plus a gentle wobble in the tilt for a living, breathing feel.
+  const BH_TILT       = -0.36;  // fixed disk tilt, radians
+  const BH_FLOW_SPEED = 0.22;   // speed of the brightness sweep — not a spin
+  let   bhFlowPhase   = 0;
+  let   bhWobble      = 0;
 
-  const bhJets = [];
-  const BH_JET_COUNT = 60;
+  // Layered, separated rings (instead of one solid spinning disk) —
+  // closer to the reference art's lavender/white "Saturn ring" look.
+  // Each is drawn as a static, partial arc; only its colour sweeps.
+  const BH_RINGS = [
+    { rMul: 2.35, squash: 0.300, width: 0.15, alpha: 0.70 },
+    { rMul: 2.95, squash: 0.305, width: 0.11, alpha: 0.55 },
+    { rMul: 3.55, squash: 0.310, width: 0.085,alpha: 0.42 },
+    { rMul: 4.25, squash: 0.315, width: 0.07, alpha: 0.32 },
+    { rMul: 5.00, squash: 0.320, width: 0.055,alpha: 0.22 },
+  ];
 
-  function spawnBHJetParticle() {
-    const side = Math.random() < 0.5 ? 1 : -1;
-    const spread = rng(-0.18, 0.18);
-    const jetAngle = bhDiskAngle + Math.PI * 0.5 * side + spread;
+  // Particles — faint star-like motes that fade in out at the edge of the
+  // lens, spiral inward along the disk's tilted plane, and fade out as
+  // they're swallowed at the event horizon. (Replaces the old polar jets.)
+  const bhParticles = [];
+  const BH_PARTICLE_COUNT = 70;
+
+  function spawnBHParticle() {
     return {
-      x: bhX, y: bhY,
-      vx: Math.cos(jetAngle) * rng(60, 160),
-      vy: Math.sin(jetAngle) * rng(60, 160),
-      age: 0,
-      life: rng(0.6, 1.4),
-      alpha: rng(0.4, 0.8),
-      r: rng(0.8, 2.2),
-      hue: rng(180, 260),
+      angle:     rng(0, Math.PI * 2),
+      dist:      0, // set from startDist below; kept for clarity
+      startDist: rng(BH_LENS_OUTER * 0.45, BH_LENS_OUTER * 0.95),
+      age:       0,
+      life:      rng(2.6, 4.4),
+      maxAlpha:  rng(0.45, 0.9),
+      r:         rng(0.6, 1.8),
+      hue:       rng(255, 285),
+      spin:      rng(0.2, 0.6) * (Math.random() < 0.5 ? 1 : -1),
     };
   }
 
-  function tickBHJets(dt) {
-    if (bhActive && bhScale > 0.5 && optBlackHoleJetsOn) {
-      const toSpawn = Math.floor(rng(0, 3));
+  function tickBHParticles(dt) {
+    if (bhActive && bhScale > 0.35 && optBlackHoleParticlesOn) {
+      const toSpawn = Math.floor(rng(0, 2));
       for (let i = 0; i < toSpawn; i++) {
-        if (bhJets.length < BH_JET_COUNT) bhJets.push(spawnBHJetParticle());
+        if (bhParticles.length < BH_PARTICLE_COUNT) bhParticles.push(spawnBHParticle());
       }
     }
-    for (let i = bhJets.length - 1; i >= 0; i--) {
-      const p = bhJets[i];
+
+    const innerCut = BH_RADIUS * bhScale * 1.08;
+    const cosT = Math.cos(BH_TILT), sinT = Math.sin(BH_TILT);
+
+    for (let i = bhParticles.length - 1; i >= 0; i--) {
+      const p = bhParticles[i];
       p.age += dt;
-      if (p.age >= p.life) { bhJets.splice(i, 1); continue; }
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      const f = 1 - p.age / p.life;
+      const tn = Math.min(1, p.age / p.life);
+
+      // Accelerating infall — slow drift at first, fast plunge near the end.
+      const dist = p.startDist * Math.pow(1 - tn, 1.7);
+      p.angle += p.spin * dt * (1 + (1 - tn) * 0.5);
+
+      if (p.age >= p.life || dist <= innerCut) { bhParticles.splice(i, 1); continue; }
+
+      // Fade in, hold, then fade out right as it's swallowed.
+      let alphaT;
+      if (tn < 0.15)      alphaT = tn / 0.15;
+      else if (tn > 0.82) alphaT = Math.max(0, 1 - (tn - 0.82) / 0.18);
+      else                alphaT = 1;
+
+      // Flatten onto, and tilt to match, the same plane the rings sit on.
+      const lx = Math.cos(p.angle) * dist;
+      const ly = Math.sin(p.angle) * dist * 0.55;
+      const px = bhX + (lx * cosT - ly * sinT);
+      const py = bhY + (lx * sinT + ly * cosT);
+
       ctx.save();
-      ctx.globalAlpha = f * f * p.alpha * bhScale;
-      ctx.fillStyle = `hsl(${p.hue}, 100%, ${60 + f * 30}%)`;
+      ctx.globalAlpha = alphaT * p.maxAlpha * bhScale;
+      ctx.fillStyle = `hsl(${p.hue}, 55%, 90%)`;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * (0.5 + f * 0.5), 0, Math.PI * 2);
+      ctx.arc(px, py, p.r * (0.6 + tn * 0.5), 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -391,15 +431,19 @@
     const nx = dx / dist;
     const ny = dy / dist;
 
-    const swirlStrength = deflect * 0.35;
+    // A slow ripple riding on top of the bend gives the lensing a living,
+    // "warping" feel rather than a fixed static displacement.
+    const ripple = 1 + 0.22 * Math.sin(t * 1.4 - dist * 0.05);
+
+    const swirlStrength = deflect * 0.55 * ripple;
     const tx = -ny;
     const ty =  nx;
 
-    const ringBoost = dist < BH_RADIUS * 3 * bhScale
-      ? (1 + (BH_RADIUS * 3 * bhScale - dist) / (BH_RADIUS * 2 * bhScale)) * 2.5
+    const ringBoost = dist < BH_RADIUS * 3.4 * bhScale
+      ? (1 + (BH_RADIUS * 3.4 * bhScale - dist) / (BH_RADIUS * 2.2 * bhScale)) * 2.8
       : 1;
 
-    const totalDeflect = deflect * ringBoost;
+    const totalDeflect = deflect * ringBoost * ripple;
 
     return {
       x: px + nx * totalDeflect + tx * swirlStrength,
@@ -428,88 +472,205 @@
 
     if (bhScale < 0.005) return;
 
-    bhDiskAngle += BH_DISK_SPIN * dt;
-    const s = bhScale;
-    const r = BH_RADIUS * s;
-    const cx = bhX, cy = bhY;
+    // The rings never fully rotate — only the light-flow phase advances,
+    // sweeping brightness around the fixed ring geometry (Doppler-beaming
+    // style), plus a small organic wobble in the tilt.
+    bhFlowPhase += BH_FLOW_SPEED * dt;
+    bhWobble = Math.sin(t * 0.15) * 0.025;
 
-    const ringR = r * 1.15;
-    const ringOuter = r * 2.8;
+    const s    = bhScale;
+    const sa   = Math.min(1, s); // clamp for alpha math
+    const r    = BH_RADIUS * s;
+    const cx   = bhX, cy = bhY;
+    const tilt = BH_TILT + bhWobble;
+
+    // ── Outer ambient lensing glow ──────────────────────────────────────
     ctx.save();
-    const lensGlow = ctx.createRadialGradient(cx, cy, ringR * 0.9, cx, cy, ringOuter);
-    lensGlow.addColorStop(0,   `rgba(255,255,255,${0.28 * s})`);
-    lensGlow.addColorStop(0.2, `rgba(200,230,255,${0.18 * s})`);
-    lensGlow.addColorStop(0.5, `rgba(140,190,255,${0.08 * s})`);
-    lensGlow.addColorStop(1,   `rgba(100,150,255,0)`);
+    const lensGlow = ctx.createRadialGradient(cx, cy, r * 1.1, cx, cy, BH_LENS_OUTER * 0.78 * s);
+    lensGlow.addColorStop(0,    `rgba(235,225,255,${0.16 * sa})`);
+    lensGlow.addColorStop(0.35, `rgba(195,175,235,${0.09 * sa})`);
+    lensGlow.addColorStop(0.7,  `rgba(140,115,190,${0.04 * sa})`);
+    lensGlow.addColorStop(1,    `rgba(90,75,140,0)`);
     ctx.fillStyle = lensGlow;
-    ctx.beginPath(); ctx.arc(cx, cy, ringOuter, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, BH_LENS_OUTER * 0.78 * s, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
+    // ── Event horizon — solid, with a faint ambient-lit rim ─────────────
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(bhDiskAngle);
-
-    const diskOuter = BH_ACCRETION * s;
-    const diskGrad = ctx.createRadialGradient(0, 0, r * 0.9, 0, 0, diskOuter);
-    diskGrad.addColorStop(0,   `rgba(255,160,40,${0.55 * s})`);
-    diskGrad.addColorStop(0.2, `rgba(255,100,20,${0.35 * s})`);
-    diskGrad.addColorStop(0.45,`rgba(200,60,10,${0.18 * s})`);
-    diskGrad.addColorStop(0.7, `rgba(120,20,60,${0.08 * s})`);
-    diskGrad.addColorStop(1,   `rgba(60,0,40,0)`);
-
-    ctx.scale(1, 0.28);
-    ctx.fillStyle = diskGrad;
-    ctx.beginPath(); ctx.arc(0, 0, diskOuter, 0, Math.PI * 2); ctx.fill();
-
-    const isco = ctx.createRadialGradient(0, 0, r * 0.95, 0, 0, r * 1.35);
-    isco.addColorStop(0,   `rgba(255,255,200,${0.9 * s})`);
-    isco.addColorStop(0.4, `rgba(255,200,80,${0.6 * s})`);
-    isco.addColorStop(1,   `rgba(255,100,10,0)`);
-    ctx.fillStyle = isco;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.35, 0, Math.PI * 2); ctx.fill();
-
+    const sphereGrad = ctx.createRadialGradient(
+      cx - r * 0.18, cy - r * 0.18, r * 0.05,
+      cx, cy, r * 1.04
+    );
+    sphereGrad.addColorStop(0,    `rgba(22,16,36,${sa})`);
+    sphereGrad.addColorStop(0.55, `rgba(10,7,21,${sa})`);
+    sphereGrad.addColorStop(1,    `rgba(2,1,8,${sa})`);
+    ctx.fillStyle = sphereGrad;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
+    // ── Photon ring — thin bright Einstein ring hugging the horizon.
+    //    Brightness no longer pulses unevenly — kept steady so it reads as
+    //    consistent, ambient rim light rather than a one-sided highlight. ──
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(bhDiskAngle + Math.PI);
-    ctx.scale(1, 0.28);
-    const diskBack = ctx.createRadialGradient(0, 0, r, 0, 0, diskOuter * 0.75);
-    diskBack.addColorStop(0,   `rgba(255,80,10,${0.25 * s})`);
-    diskBack.addColorStop(0.5, `rgba(160,20,30,${0.12 * s})`);
-    diskBack.addColorStop(1,   `rgba(80,0,20,0)`);
-    ctx.fillStyle = diskBack;
-    ctx.beginPath(); ctx.arc(0, 0, diskOuter * 0.75, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = `rgba(235,225,255,${0.42 * sa})`;
+    ctx.lineWidth = 1.7 * s;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 1.06, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = `rgba(255,255,255,${0.20 * sa})`;
+    ctx.lineWidth = 0.8 * s;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 1.1, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
 
+    // ── Collar glow — a soft, even halo bridging the gap between the
+    //    sphere's edge and where the rings fade in. Purely additive ambient
+    //    light sitting outside the sphere (never overlaps it), so the rings
+    //    feel like they're melting out of the planet rather than just
+    //    appearing out of empty space. ───────────────────────────────────
     ctx.save();
-    const shadowGrad = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r * 1.05);
-    shadowGrad.addColorStop(0,   `rgba(0,0,0,1)`);
-    shadowGrad.addColorStop(0.7, `rgba(0,0,0,0.97)`);
-    shadowGrad.addColorStop(1,   `rgba(0,0,0,0)`);
-    ctx.fillStyle = shadowGrad;
-    ctx.beginPath(); ctx.arc(cx, cy, r * 1.05, 0, Math.PI * 2); ctx.fill();
+    const collarGlow = ctx.createRadialGradient(cx, cy, r * 1.0, cx, cy, r * 1.9);
+    collarGlow.addColorStop(0,    `rgba(225,210,255,0)`);
+    collarGlow.addColorStop(0.3,  `rgba(225,210,255,${0.10 * sa})`);
+    collarGlow.addColorStop(0.6,  `rgba(200,185,240,${0.05 * sa})`);
+    collarGlow.addColorStop(1,    `rgba(200,185,240,0)`);
+    ctx.fillStyle = collarGlow;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 1.9, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
-    const photonR = r * 1.5;
-    ctx.save();
-    ctx.strokeStyle = `rgba(200,230,255,${0.22 * s * (0.7 + 0.3 * Math.sin(t * 3.1))})`;
-    ctx.lineWidth = 1.5 * s;
-    ctx.beginPath(); ctx.arc(cx, cy, photonR, 0, Math.PI * 2); ctx.stroke();
-    ctx.strokeStyle = `rgba(255,255,255,${0.10 * s * (0.6 + 0.4 * Math.sin(t * 2.3 + 1))})`;
-    ctx.lineWidth = 3 * s;
-    ctx.beginPath(); ctx.arc(cx, cy, photonR * 1.08, 0, Math.PI * 2); ctx.stroke();
-    ctx.restore();
+    // ── Layered "Saturn ring" arcs — each ring is built point-by-point in
+    //    screen space, and only the segments that fall OUTSIDE the sphere's
+    //    radius are ever added to the path. This guarantees the stroke can
+    //    never visually cross the planet — it doesn't rely on ctx.clip(),
+    //    so there's no risk of a clip region silently failing to apply.
+    //    Near that boundary, segments fade smoothly in (alpha ramps 0→1)
+    //    rather than cutting off abruptly, so each ring reads as gently
+    //    emerging from behind the planet instead of snapping into view.
+    //    The far-side half is simply never drawn, and the near-side half
+    //    passes in front, reading as one ring that wraps naturally over
+    //    the top. Only the brightness sweep (conic gradient driven by
+    //    bhFlowPhase) animates, never the shape. ─────────────────────────
+    BH_RINGS.forEach(ring => drawBHRing(cx, cy, r, tilt, ring, sa));
 
-    tickBHJets(dt);
+    tickBHParticles(dt);
 
     ctx.save();
-    const warpGrad = ctx.createRadialGradient(cx, cy, r * 1.5, cx, cy, BH_LENS_OUTER * 0.65 * s);
-    warpGrad.addColorStop(0,   `rgba(80,60,180,${0.07 * s})`);
-    warpGrad.addColorStop(0.4, `rgba(40,30,120,${0.04 * s})`);
-    warpGrad.addColorStop(1,   `rgba(20,10,60,0)`);
+    const warpGrad = ctx.createRadialGradient(cx, cy, r * 1.7, cx, cy, BH_LENS_OUTER * 0.62 * s);
+    warpGrad.addColorStop(0,   `rgba(150,120,220,${0.06 * sa})`);
+    warpGrad.addColorStop(0.4, `rgba(90,70,160,${0.035 * sa})`);
+    warpGrad.addColorStop(1,   `rgba(40,30,90,0)`);
     ctx.fillStyle = warpGrad;
-    ctx.beginPath(); ctx.arc(cx, cy, BH_LENS_OUTER * 0.65 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, BH_LENS_OUTER * 0.62 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // Draws one ring of the layered ring system. Builds the ellipse in
+  // SCREEN space point-by-point (tilt + squash applied by hand, since
+  // rotation preserves distance-from-center this is just trig, no ctx
+  // transform needed). Points inside `hardSafeDist` are NEVER added to
+  // the path — that's the hard geometric guarantee that the stroke can't
+  // render over the planet. Points between `hardSafeDist` and the end of
+  // the fade band are drawn with a smoothstep-eased alpha ramp (0 → 1),
+  // so the ring visually melts out of the sphere rather than snapping
+  // into view. A soft shadow blur adds a gentle glow for a fancier,
+  // less flat look.
+  // Performance note: this used to stroke each of the ~220 segments
+  // individually (so the fade-in alpha could vary smoothly), with
+  // shadowBlur turned on for a glow. That's ~220 stroke() calls per ring
+  // ×5 rings = ~1100 draw calls/frame, and shadowBlur is one of the most
+  // expensive canvas operations — paying it on every single tiny segment
+  // made it dramatically worse. That combination was the main source of
+  // animation lag.
+  //
+  // Instead: quantize the fade-in alpha into BUCKETS discrete tiers, walk
+  // the point set once per tier to build a single Path2D covering every
+  // segment at-or-above that tier (handling gaps via moveTo), and stroke
+  // it once. That's at most BUCKETS stroke() calls per pass instead of
+  // ~220. The old shadowBlur glow is faked with a second, wider/fainter
+  // pass underneath the crisp core pass — no shadowBlur needed at all.
+  // Total: 10 buckets × 2 passes × 5 rings = ~100 draw calls/frame.
+  const RING_ALPHA_BUCKETS = 10;
+
+  function drawBHRing(cx, cy, r, tilt, ring, sa) {
+    const radius      = r * ring.rMul;
+    const lineWidth    = Math.max(0.6, r * ring.width);
+    const hardSafeDist = r + lineWidth * 0.5 + 1; // never draw inside this — guarantees no overlap
+    const fadeWidth     = Math.max(lineWidth * 2.5, r * 0.22); // distance over which alpha ramps in
+    const segments      = 220;
+    const cosT = Math.cos(tilt), sinT = Math.sin(tilt);
+
+    // Softened, more even brightness sweep — narrower contrast between the
+    // brightest and dimmest point on the ring, so no single spot reads as
+    // dramatically over- or under-lit relative to the rest.
+    let strokeStyle;
+    try {
+      const a = ring.alpha * sa;
+      const grad = ctx.createConicGradient(bhFlowPhase, cx, cy);
+      grad.addColorStop(0.00, `hsla(266, 48%, 87%, ${a})`);
+      grad.addColorStop(0.16, `hsla(264, 45%, 80%, ${a * 0.92})`);
+      grad.addColorStop(0.38, `hsla(260, 40%, 70%, ${a * 0.82})`);
+      grad.addColorStop(0.55, `hsla(257, 36%, 60%, ${a * 0.72})`);
+      grad.addColorStop(0.72, `hsla(260, 40%, 70%, ${a * 0.82})`);
+      grad.addColorStop(0.90, `hsla(264, 45%, 81%, ${a * 0.92})`);
+      grad.addColorStop(1.00, `hsla(266, 48%, 87%, ${a})`);
+      strokeStyle = grad;
+    } catch {
+      // Fallback for environments without conic-gradient support.
+      strokeStyle = `hsla(262, 45%, 76%, ${ring.alpha * sa * 0.8})`;
+    }
+
+    // Precompute the point set once, bucketing each point's fade-in alpha
+    // into one of RING_ALPHA_BUCKETS tiers. Bucket 0 = inside hardSafeDist,
+    // i.e. never drawn — same hard geometric guarantee as before.
+    const pts = new Array(segments + 1);
+    for (let i = 0; i <= segments; i++) {
+      const a  = (i / segments) * Math.PI * 2;
+      const lx = radius * Math.cos(a);
+      const ly = radius * ring.squash * Math.sin(a);
+      const sx = cx + (lx * cosT - ly * sinT);
+      const sy = cy + (lx * sinT + ly * cosT);
+      const dist = Math.hypot(sx - cx, sy - cy);
+
+      let bucket = 0;
+      if (dist >= hardSafeDist) {
+        const fadeT = Math.min(1, (dist - hardSafeDist) / fadeWidth);
+        const eased = fadeT * fadeT * (3 - 2 * fadeT); // smoothstep
+        bucket = eased <= 0.01 ? 0 : Math.max(1, Math.round(eased * RING_ALPHA_BUCKETS));
+      }
+      pts[i] = { x: sx, y: sy, bucket };
+    }
+
+    // Two batched passes fake the old shadowBlur glow: a wide, faint
+    // "halo" pass underneath a slim, full-strength "core" pass — both
+    // plain strokes, no shadowBlur.
+    const passes = [
+      { widthMul: 2.4, alphaMul: 0.28 }, // halo
+      { widthMul: 1.0, alphaMul: 1.0 },  // core
+    ];
+
+    ctx.save();
+    ctx.strokeStyle = strokeStyle;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (const pass of passes) {
+      ctx.lineWidth = lineWidth * pass.widthMul;
+
+      for (let bucket = 1; bucket <= RING_ALPHA_BUCKETS; bucket++) {
+        const path = new Path2D();
+        let open = false;
+
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          if (p.bucket >= bucket) {
+            if (!open) { path.moveTo(p.x, p.y); open = true; }
+            else path.lineTo(p.x, p.y);
+          } else {
+            open = false;
+          }
+        }
+
+        ctx.globalAlpha = (bucket / RING_ALPHA_BUCKETS) * pass.alphaMul;
+        ctx.stroke(path);
+      }
+    }
     ctx.restore();
   }
 
@@ -529,7 +690,7 @@
   // The timer countdown reports its progress (0 = just started, 1 = done)
   // via localStorage + a "timer-progress" event so it works across windows.
   let optBlackHoleEnabled = localStorage.getItem('timer-blackhole') !== 'false';
-  let optBlackHoleJetsOn  = localStorage.getItem('timer-blackhole-jets') !== 'false';
+  let optBlackHoleParticlesOn  = localStorage.getItem('timer-blackhole-particles') !== 'false';
   let bhTimerRunning      = false;
   let bhTimerProgress     = 0; // 0..1, 1 = nearly finished
 
@@ -542,7 +703,7 @@
 
   function reloadBHSettings() {
     optBlackHoleEnabled = localStorage.getItem('timer-blackhole') !== 'false';
-    optBlackHoleJetsOn  = localStorage.getItem('timer-blackhole-jets') !== 'false';
+    optBlackHoleParticlesOn  = localStorage.getItem('timer-blackhole-particles') !== 'false';
   }
 
   function applyTimerProgress(running, progress) {
@@ -579,7 +740,7 @@
       const progress = parseFloat(localStorage.getItem('timer-progress-value') || '0');
       applyTimerProgress(running, progress);
     }
-    if (e.key === 'timer-blackhole' || e.key === 'timer-blackhole-jets') {
+    if (e.key === 'timer-blackhole' || e.key === 'timer-blackhole-particles') {
       reloadBHSettings();
     }
   });

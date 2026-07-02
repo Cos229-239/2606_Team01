@@ -455,6 +455,49 @@
 
 
 /* ==========================================================
+   TIMER COMPLETE (brief flash when the countdown hits 0)
+   A few soft pulses, then it settles back to normal on its
+   own -- meant to be noticeable out of the corner of your
+   eye, not a blocking alert. The lasting record that the
+   timer finished is the native OS notification, not this.
+========================================================== */
+
+.timer-page.timer-complete {
+    animation: timer-complete-bg 1.4s ease-in-out 3;
+}
+
+.timer-complete .timer-display h1 {
+    animation: timer-complete-glow 1.4s ease-in-out 3;
+}
+
+@keyframes timer-complete-bg {
+    0%, 100% {
+        background:
+            radial-gradient(circle at top,
+            rgba(104,30,255,.15),
+            transparent 65%);
+    }
+    50% {
+        background:
+            radial-gradient(circle at top,
+            rgba(120,255,190,.28),
+            transparent 65%);
+    }
+}
+
+@keyframes timer-complete-glow {
+    0%, 100% {
+        color: var(--text-primary);
+        text-shadow: 0 0 22px rgba(255,255,255,.08);
+    }
+    50% {
+        color: #baffd9;
+        text-shadow: 0 0 34px rgba(120,255,190,.6);
+    }
+}
+
+
+/* ==========================================================
    TIMER SETTINGS BAR (top of window)
 ========================================================== */
 
@@ -572,38 +615,42 @@
 
 
 /* ==========================================================
-   CONTROLS (HIDDEN UNTIL HOVER)
+   CONTROLS
+   The digits are always visible at full size. Everything
+   else (arrows, labels, presets, Play/Reset) is "chrome"
+   that fades in on hover — see .timer-chrome below.
 ========================================================== */
 
 .timer-controls{
-    position:absolute;
-    bottom: max(40px, 6vh);
-    left:50%;
-    transform:translateX(-50%);
+    position:relative;
 
     display:flex;
     flex-direction:column;
     align-items:center;
 
-    gap:12px;
+    gap:14px;
+}
 
+.timer-chrome{
     opacity:0;
+    pointer-events:none;
     transition:opacity .2s ease;
 }
 
-/* show controls on hover */
-.timer-page:hover .timer-controls{
+.timer-page:hover .timer-chrome{
     opacity:1;
+    pointer-events:auto;
 }
 
 
 /* ==========================================================
-   ARROWS ROW
+   ARROWS ROW (the big clock face)
 ========================================================== */
 
 .arrow-row{
     display:flex;
-    gap: clamp(40px, 12vw, 170px);
+    align-items:center;
+    gap: clamp(2px, 1vw, 10px);
 }
 
 .arrow-group{
@@ -611,6 +658,87 @@
     flex-direction:column;
     align-items:center;
 
+    gap: 6px;
+}
+
+.timer-unit-value,
+.timer-unit-input{
+    display:block;
+
+    /* Previously this clamp sized ONE string ("25:00") as a single text
+       node. Now the same string is split across up to 5 separate boxes
+       (H, :, M, :, S), so the scale is tightened to land on roughly the
+       same overall width instead of multiplying out wider per box. */
+    font-size: clamp(40px, 10vw, 96px);
+    font-weight:300;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    text-align:center;
+    line-height: 1;
+
+    color:var(--text-primary);
+    text-shadow:0 0 22px rgba(255,255,255,.08);
+
+    border-radius:12px;
+    padding: 0 4px;
+}
+
+.timer-unit-value{
+    cursor:pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.timer-unit-value:hover{
+    background: rgba(255,255,255,0.08);
+}
+
+.timer-unit-input{
+    width: 1.5em;
+
+    background: rgba(255,255,255,0.10);
+    border: 1px solid var(--border-panel-hover, rgba(255,255,255,0.3));
+    outline:none;
+}
+
+.timer-unit-label{
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: rgba(200, 220, 255, 0.45);
+}
+
+.timer-btn--arrow{
+    padding: 4px 14px;
+    font-size: 13px;
+    line-height: 1;
+}
+
+/* Colon columns mirror a real unit column's stack so the ":" lands at
+   exactly the same vertical position as the digits beside it. */
+.timer-colon-group{
+    gap: 6px;
+}
+
+.timer-colon{
+    cursor:default;
+    padding: 0 2px;
+}
+
+.timer-colon:hover{
+    background:none;
+}
+
+.timer-ghost{
+    visibility:hidden;
+}
+
+
+/* ==========================================================
+   TIMER PRESETS
+========================================================== */
+
+.timer-presets{
+    display:flex;
     gap: 8px;
 }
 
