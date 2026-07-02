@@ -101,6 +101,13 @@ export default function TimerPage() {
     // (e.g. under React StrictMode double-invoke in dev).
     const hasNotifiedRef = useRef(false);
 
+    // Tracks whether the countdown has actually been started at least
+    // once for the current duration. Without this, simply dialing the
+    // timer to 00:00 (or landing on 0 via a reset) makes remainingSeconds
+    // hit 0 with nothing having run, which would otherwise fire a
+    // "timer finished" notification for a timer that never started.
+    const hasStartedRef = useRef(false);
+
     // Timer background & effects settings
     const [timerBg, setTimerBg] = useTimerBg();
     const [timerBlackHole, setTimerBlackHole] = useTimerBlackHoleSetting("timer-blackhole", "true");
@@ -129,7 +136,7 @@ export default function TimerPage() {
     // to 0.
     useEffect(() => {
         if (remainingSeconds === 0) {
-            if (!hasNotifiedRef.current) {
+            if (hasStartedRef.current && !hasNotifiedRef.current) {
                 hasNotifiedRef.current = true;
                 setJustCompleted(true);
                 notifyTimerFinished(originalDuration);
@@ -159,14 +166,19 @@ export default function TimerPage() {
         setJustCompleted(false);
         setRemainingSeconds(newTotalSeconds);
         setOriginalDuration(newTotalSeconds);
+        // Picking a new duration (including 00:00) means nothing has
+        // run yet for it -- don't let a stale "started" flag from a
+        // previous run trigger a notification.
+        hasStartedRef.current = false;
     }
 
-    function handleStart() { setJustCompleted(false); setIsRunning(true); }
+    function handleStart() { setJustCompleted(false); setIsRunning(true); hasStartedRef.current = true; }
     function handlePause() { setIsRunning(false); }
     function handleReset() {
         setJustCompleted(false);
         setRemainingSeconds(originalDuration);
         setIsRunning(false);
+        hasStartedRef.current = false;
     }
 
     const bgOptions = [

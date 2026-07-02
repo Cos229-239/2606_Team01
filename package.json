@@ -1,5 +1,6 @@
 {
   "name": "better-every-day",
+  "productName": "BetterEveryDay",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +11,19 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:dev": "wait-on http://localhost:5173 && electron .",
-    "dashboard": "concurrently \"npm run dev\" \"npm run electron:dev\""
+    "dashboard": "concurrently \"npm run dev\" \"npm run electron:dev\"",
+    "package": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.bettereveryday.app",
+    "productName": "BetterEveryDay",
+    "files": [
+      "electron/**/*",
+      "dist/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    }
   },
   "dependencies": {
     "react": "^19.2.6",
@@ -26,6 +39,7 @@
     "concurrently": "^9.2.0",
     "cross-env": "^10.1.0",
     "electron": "^42.4.1",
+    "electron-builder": "^26.0.12",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",

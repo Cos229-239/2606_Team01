@@ -162,7 +162,10 @@
     if (tintStrength <= 0) return [r, g, b];
     if (_tintDirty) { _tintRGB = hslToRgb(tintHue, 80, 50); _tintDirty = false; }
     const [tr, tg, tb] = _tintRGB;
-    const s = Math.min(1, tintStrength * 0.6);
+    // Slider still runs 0–1 (0–100%) end to end; the cap here is what
+    // determines how strong the tint mix gets at full strength. Halved
+    // from 0.6 -> 0.3 so max brightness/opacity is ~50% of before.
+    const s = Math.min(0.3, tintStrength * 0.3);
     return [
       Math.round(r + (tr - r) * s),
       Math.round(g + (tg - g) * s),

@@ -221,7 +221,10 @@
       tintEl.style.opacity = '0';
     } else {
       tintEl.style.backgroundColor = `hsl(${hue}, 80%, 50%)`;
-      tintEl.style.opacity          = String(Math.min(0.35, strength * 0.35));
+      // Slider still runs 0–1 (0–100%) end to end; the cap here is what
+      // determines how strong the tint gets at full strength. Halved
+      // from 0.35 -> 0.175 so max brightness/opacity is ~50% of before.
+      tintEl.style.opacity          = String(Math.min(0.175, strength * 0.175));
     }
   }
   applyScreenTint();
