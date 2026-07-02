@@ -13,10 +13,46 @@
 //   - localStorage keys, so the effect also syncs if the
 //     timer is opened in its own Electron window
 // ======================================================
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import TimerControls from "../Components/Timer/TimerControls";
+import { formatTime } from "../Components/Timer/FormatTime";
 
 const DEFAULT_MINUTES = 25;
+
+// Fires the "timer finished" notification. Goes through the Electron
+// bridge when it's available (real desktop popup, no sound yet — see
+// preload.cjs / main.js). Falls back to the browser Notification API
+// so this still does something sensible when the timer page is opened
+// in a plain browser tab during development.
+function notifyTimerFinished(originalDuration: number)
+{
+    const body = originalDuration > 0
+        ? `Your ${formatTime(originalDuration)} timer is up.`
+        : "Time's up.";
+
+    console.log("[renderer] notifyTimerFinished fired. window.electron present:", !!window.electron);
+
+    if (window.electron?.notifyTimerComplete)
+    {
+        window.electron.notifyTimerComplete({ title: "Timer finished", body });
+        return;
+    }
+
+    console.log("[renderer] falling back to browser Notification API. permission:", typeof Notification !== "undefined" ? Notification.permission : "Notification unavailable");
+
+    if (typeof Notification === "undefined") return;
+
+    if (Notification.permission === "granted")
+    {
+        new Notification("Timer finished", { body });
+    }
+    else if (Notification.permission !== "denied")
+    {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") new Notification("Timer finished", { body });
+        });
+    }
+}
 
 function broadcastTimerProgress(running: boolean, progress: number) {
     localStorage.setItem("timer-running", String(running));
@@ -54,6 +90,17 @@ export default function TimerPage() {
 
     const [isRunning, setIsRunning] = useState(false);
 
+    // Brief "just finished" visual state -- drives a few seconds of
+    // flash/glow on the display, then settles back down on its own
+    // (see .timer-complete in App.css). Not a persistent banner; the
+    // OS notification is what sticks around.
+    const [justCompleted, setJustCompleted] = useState(false);
+
+    // Guards against notifying more than once for the same run --
+    // without this, the completion effect below could double-fire
+    // (e.g. under React StrictMode double-invoke in dev).
+    const hasNotifiedRef = useRef(false);
+
     // Timer background & effects settings
     const [timerBg, setTimerBg] = useTimerBg();
     const [timerBlackHole, setTimerBlackHole] = useTimerBlackHoleSetting("timer-blackhole", "true");
@@ -76,6 +123,22 @@ export default function TimerPage() {
         return () => clearInterval(interval);
     }, [isRunning]);
 
+    // Fire the completion notification + visual flash the moment the
+    // countdown reaches zero. Separate from the tick effect above so it
+    // only ever runs once per completion, however remainingSeconds got
+    // to 0.
+    useEffect(() => {
+        if (remainingSeconds === 0) {
+            if (!hasNotifiedRef.current) {
+                hasNotifiedRef.current = true;
+                setJustCompleted(true);
+                notifyTimerFinished(originalDuration);
+            }
+        } else {
+            hasNotifiedRef.current = false;
+        }
+    }, [remainingSeconds, originalDuration]);
+
     // Broadcast progress whenever running state or remaining time changes
     useEffect(() => {
         const progress = originalDuration > 0
@@ -93,13 +156,15 @@ export default function TimerPage() {
     // SYNC HELPERS
     // =========================
     function handleTimeChange(newTotalSeconds: number) {
+        setJustCompleted(false);
         setRemainingSeconds(newTotalSeconds);
         setOriginalDuration(newTotalSeconds);
     }
 
-    function handleStart() { setIsRunning(true); }
+    function handleStart() { setJustCompleted(false); setIsRunning(true); }
     function handlePause() { setIsRunning(false); }
     function handleReset() {
+        setJustCompleted(false);
         setRemainingSeconds(originalDuration);
         setIsRunning(false);
     }
@@ -111,7 +176,7 @@ export default function TimerPage() {
     ];
 
     return (
-        <div className="timer-page">
+        <div className={`timer-page${justCompleted ? " timer-complete" : ""}`}>
             {/* ── Settings top bar ── */}
             <div className="timer-settings-bar">
                 {/* Background selector */}

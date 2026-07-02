@@ -455,6 +455,49 @@
 
 
 /* ==========================================================
+   TIMER COMPLETE (brief flash when the countdown hits 0)
+   A few soft pulses, then it settles back to normal on its
+   own -- meant to be noticeable out of the corner of your
+   eye, not a blocking alert. The lasting record that the
+   timer finished is the native OS notification, not this.
+========================================================== */
+
+.timer-page.timer-complete {
+    animation: timer-complete-bg 1.4s ease-in-out 3;
+}
+
+.timer-complete .timer-display h1 {
+    animation: timer-complete-glow 1.4s ease-in-out 3;
+}
+
+@keyframes timer-complete-bg {
+    0%, 100% {
+        background:
+            radial-gradient(circle at top,
+            rgba(104,30,255,.15),
+            transparent 65%);
+    }
+    50% {
+        background:
+            radial-gradient(circle at top,
+            rgba(120,255,190,.28),
+            transparent 65%);
+    }
+}
+
+@keyframes timer-complete-glow {
+    0%, 100% {
+        color: var(--text-primary);
+        text-shadow: 0 0 22px rgba(255,255,255,.08);
+    }
+    50% {
+        color: #baffd9;
+        text-shadow: 0 0 34px rgba(120,255,190,.6);
+    }
+}
+
+
+/* ==========================================================
    TIMER SETTINGS BAR (top of window)
 ========================================================== */
 
