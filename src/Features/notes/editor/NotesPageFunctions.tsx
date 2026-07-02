@@ -376,6 +376,11 @@ export function useNotesPageFunctions()
                 return block;
             }
 
+             if (block.type === type && block.content === content) 
+            {
+                return block;
+            }
+
             return  {
                 ...block, type, content,
             };

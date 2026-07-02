@@ -190,6 +190,7 @@ export default function NotesPage()
                                 minHeight: "600px",
                             }}
                         >
+
                             <BlockList
                                 page={selectedPage}
                                 blocks={blocks}

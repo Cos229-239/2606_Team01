@@ -51,13 +51,17 @@ export default function BlockRenderer({
                     onUpdateBlock={onUpdateBlock}
                     onCreateBlockAfter={  onCreateBlockAfter }
                     onDeleteBlock={ onDeleteBlock}
-                    focused={focused}              />
+                    focused={focused}
+                    onConvertBlock={onConvertBlock}
+                />
             );
 
         case "text":
             return <TextBlock block={block}
                     onUpdateBlock={onUpdateBlock}
                     onConvertBlock={onConvertBlock}
+                    onCreateBlockAfter={onCreateBlockAfter}
+                    onDeleteBlock={onDeleteBlock}
                     focused={focused}
                 />;
 

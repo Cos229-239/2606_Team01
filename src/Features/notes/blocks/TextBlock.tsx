@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Block, BlockType } from "../types";
+import SlashMenu from "../slash/SlashMenu";
 
 interface Props {
     block: Block;
@@ -28,17 +29,46 @@ export default function TextBlock({ block, onUpdateBlock,
 
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
+    const [showSlashMenu, setShowSlashMenu] =
+    useState(false);
+
+    const [slashQuery, setSlashQuery] =
+    useState("");
+
     // sync external updates
     useEffect(() => {
         if (typeof block.content === "string") {
             setValue(block.content);
         }
     }, [block.content]);
-                
+     
+
+      function updateSlashMenu(
+    input: string
+    )
+    {
+        if (!input.startsWith("/"))
+        {
+            setShowSlashMenu(false);
+            setSlashQuery("");
+            return;
+        }
+
+        setShowSlashMenu(true);
+
+        setSlashQuery(
+            input.substring(1).toLowerCase()
+        );
+    }
+
+     // Text Changes
     function handleChange(
         event: React.ChangeEvent<HTMLTextAreaElement>
     ) {
+        console.log("handleChange");
         const newValue = event.target.value;
+
+        updateSlashMenu(newValue);
 
         setValue(newValue);
         autoResize();
@@ -78,6 +108,8 @@ export default function TextBlock({ block, onUpdateBlock,
                  //  SLASH SYSTEM WILL GO HERE LATER
     }
 
+
+   // Auto Resize
     function autoResize()
     {
         if (!inputRef.current)
@@ -91,6 +123,27 @@ export default function TextBlock({ block, onUpdateBlock,
             `${inputRef.current.scrollHeight}px`;
     }
 
+    function handleSlashCommand(command: string)
+{
+    switch (command)
+    {
+        case "divider":
+
+            onConvertBlock(
+                block.id,
+                "divider",
+                null
+            );
+
+            setShowSlashMenu(false);
+            setSlashQuery("");
+
+            break;
+    }
+}
+
+
+    // Focus
      useEffect(() => {
         if (focused && inputRef.current) {
             inputRef.current.focus();
@@ -102,7 +155,8 @@ export default function TextBlock({ block, onUpdateBlock,
         }, [value]);
 
     return (
-         <div style={{ padding: "6px 0" }}>
+         <div style={{ position: "relative",
+                    padding: "6px 0" }}>
 
         <textarea
                 ref={inputRef}
@@ -124,6 +178,13 @@ export default function TextBlock({ block, onUpdateBlock,
                     fontFamily: "inherit",
                 }}
             />
+
+            {showSlashMenu && (
+                <SlashMenu
+                    query={slashQuery}
+                    onSelect={handleSlashCommand}
+                />
+            )}
 
     </div>
 );
