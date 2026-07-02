@@ -510,6 +510,17 @@ function handleDeleteTask(taskId: string)
     saveTasks(updatedTasks);
 }
 
+function handleCreateTask(task: Task) 
+{
+    setTasks(prev => {
+        const updated = [...prev, task];
+
+        saveTasks(updated);
+
+        return updated;
+    });
+}
+
 
 
      // ==================================================
@@ -548,5 +559,6 @@ function handleDeleteTask(taskId: string)
         handleEditTask,
         handleDeleteTask,
         handleConvertBlock,
+        handleCreateTask, // Added this line to return the handleCreateTask function
     };
 }

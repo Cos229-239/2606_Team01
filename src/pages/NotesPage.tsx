@@ -1,7 +1,8 @@
 import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
-
+import { useState } from "react";   
 import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
 import BlockList from "../Features/notes/editor/BlockList";
+import CreateTaskPopup from "../Components/CreateTaskPopup"
 
 export default function NotesPage()
 {
@@ -41,9 +42,11 @@ export default function NotesPage()
 
     handleCanvasClick,
     handleInsertTaskBlock,
+    handleCreateTask,
 } = useNotesPageFunctions();
     
-
+const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
+  
     return (
         <div
             style={{
@@ -121,6 +124,18 @@ export default function NotesPage()
                         >
                             Last edited: Just now
                         </p>
+                         <button onClick={() => setShowCreateTaskPopup(true)}>+ Create New Task</button>
+                              
+                        
+                             {showCreateTaskPopup && (
+                    <CreateTaskPopup
+                        onClose={() => setShowCreateTaskPopup(false)}
+                        onCreate={(task) => {
+                            handleCreateTask(task); // or your create function
+                            setShowCreateTaskPopup(false);
+                        }}
+                    />
+                )}
                     <button
                         onClick={() => setShowTaskPicker(true)}
                         style={{
