@@ -3,13 +3,14 @@ import type { Block, BlockType } from "../types";
 import SlashMenu from "../slash/SlashMenu";
 
 
+
 interface EmptyBlockProps {
     block: Block;
     onUpdateBlock?: (blockId: string, content: string) => void;
 
     onCreateBlockAfter?: ( blockId: string  ) => void;
     onDeleteBlock?: (  blockId: string  ) => void;
-    onConvertBlock?: (  blockId: string, type: BlockType,
+    onConvertBlock: (  blockId: string, type: BlockType,
                         content: any  ) => void;
     focused?: boolean;
 }
@@ -31,7 +32,12 @@ export default function EmptyBlock({
             ? String(block.content ?? "") : ""
     );
 
-    const [showMenu, setShowMenu] = useState(false);
+     const [showSlashMenu, setShowSlashMenu] =
+        useState(false);
+
+    const [slashQuery, setSlashQuery] =
+        useState("");
+
 
     const ref = useRef<HTMLTextAreaElement | null>(null);
 
@@ -67,21 +73,32 @@ export default function EmptyBlock({
         }
     }
 
-    function handleSlashCommand(command: string) 
-    {
-        switch (command)
-        {
+  
+     function handleSlashCommand(command: string) {
+        
+        setShowSlashMenu(false);
+        setSlashQuery("");
+        
+        switch (command) {
             case "divider":
-                onConvertBlock?.(block.id, "divider", null);
-                
-                setShowMenu(false);
+                onConvertBlock(block.id, "divider", null);
                 break;
 
+            case "list":
+                onConvertBlock(block.id, "list", null);
+                break;
 
-                case "list":
-                onConvertBlock?.(block.id, "list", null);
+            case "text":
+                onConvertBlock(block.id, "text", null);
+                break;
+
+                case "heading":
+                onConvertBlock(block.id, "heading", null);
+                break;
         }
+
     }
+
 
     return (
         <div style={{ width: "100%", padding: "8px 0" }}>
@@ -94,7 +111,7 @@ export default function EmptyBlock({
                     }}
             >
                 <button
-                    onClick={() => setShowMenu(true)}
+                    onClick={() => setShowSlashMenu(true)}
                 >
                     +
                 </button>
@@ -115,7 +132,7 @@ export default function EmptyBlock({
                         placeholder="Click here to start writing..."
                     />
 
-                    {showMenu && (
+                    {showSlashMenu && (
                         <SlashMenu
                             query=""
                             onSelect={handleSlashCommand}
