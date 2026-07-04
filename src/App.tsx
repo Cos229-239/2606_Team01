@@ -9,6 +9,7 @@ import PlanningPage from "./pages/PlanningPage";
 import RechargePage from "./pages/RechargePage";
 import SettingsPage from "./pages/SettingsPage";
 import AppearancePage from "./pages/AppearancePage";
+import NotificationsPage from "./pages/NotificationsPage";
 import TimerPage from "./pages/TimerPage";
 import NotesPage from "./pages/NotesPage";
 import "./Css/App.css";
@@ -47,6 +48,7 @@ function App() {
             <Route path="/congruence" element={<CongruencePage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/appearance" element={<AppearancePage />} />
+            <Route path="/settings/notifications" element={<NotificationsPage />} />
             <Route path="/notebook" element={<NotesPage />} />
           </Route>
 
