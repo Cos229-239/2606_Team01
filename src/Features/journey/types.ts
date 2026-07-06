@@ -1,0 +1,58 @@
+// ======================================================
+// types.ts
+// ------------------------------------------------------
+// Defines the Journey data model.
+//
+// A Journey represents a long-term pursuit and owns
+// exactly one Notebook.
+// ======================================================
+
+export interface JourneyStatistics
+{
+    totalHours: number;
+    totalSessions: number;
+    lastWorked: string | null;
+}
+
+export interface Journey
+{
+    id: string;
+
+    // Linked Notebook
+    notebookId: string;
+
+    // Identity
+    name: string;
+    goal: string;
+    mantra: string;
+    currentFocus: string;
+
+    // Configuration
+    preferredSessionLength: number;
+    plannedDays: string[];
+
+    // Metadata
+    createdDate: string;
+
+    // Placeholder statistics
+    statistics: JourneyStatistics;
+}
+
+export interface Session
+{
+    id: string;
+
+    journeyId: string;
+
+    type: string;
+
+    duration: number;
+
+    mood: string;
+
+    notebookPageId: string;
+
+    createdAt: string;
+
+    completedAt: string | null;
+}

@@ -11,6 +11,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AppearancePage from "./pages/AppearancePage";
 import TimerPage from "./pages/TimerPage";
 import NotesPage from "./pages/NotesPage";
+import JourneyPage from "./pages/JourneyPage";
 import "./Css/App.css";
 
 function MainLayout()
@@ -48,6 +49,7 @@ function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/appearance" element={<AppearancePage />} />
             <Route path="/notebook" element={<NotesPage />} />
+            <Route path="/journey" element={<JourneyPage />} />
           </Route>
 
          

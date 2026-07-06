@@ -37,6 +37,15 @@ export default function DashboardPage() {
           ]}
           pagePath="/notebook"
         />
+
+        <DashboardAccordion
+          title="Journey"
+          preview="Build habits over time"
+          expandedView={[
+            
+          ]}
+          pagePath="/journey"
+        />
         
       </div>
       <hr />

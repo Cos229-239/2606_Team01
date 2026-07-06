@@ -1,52 +1,56 @@
 import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
-import { useState } from "react";   
+import { useState } from "react";
 import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
 import BlockList from "../Features/notes/editor/BlockList";
-import CreateTaskPopup from "../Components/CreateTaskPopup"
+import CreateTaskPopup from "../Components/CreateTaskPopup";
 
-export default function NotesPage()
-{
-   const {
-    notebooks,
-    pages,
-    blocks,
-    tasks,
+interface NotesPageProps {
+    initialNotebookId?: string;
+    initialPageId?: string;
+}
 
-    selectedNotebookId,
-    focusedBlockId,
-    showTaskPicker,
+export default function NotesPage({
+    initialNotebookId: _initialNotebookId,
+    initialPageId: _initialPageId,
+}: NotesPageProps) {
 
-    setShowTaskPicker,
+    const {
+        notebooks,
+        pages,
+        blocks,
+        tasks,
 
-    selectedPage,
+        selectedNotebookId,
+        focusedBlockId,
+        showTaskPicker,
 
-    handleCreateNotebook,
-    handleSelectedNotebook,
-    handleRenameNotebook,
-    handleCreatePage,
-    handleSelectedPage,
-    handlePageTitleChange,
-    handleUpdateBlock,
-    handleCreateBlockAfter,
-    handleDeleteBlock,
-    handleDeletePage,
-    handleDeleteNotebook,
-    handleConvertBlock,
+        setShowTaskPicker,
 
-    // ==========================================
-    // Task Actions
-    // ==========================================
+        selectedPage,
 
-    handleEditTask,
-    handleDeleteTask,
+        handleCreateNotebook,
+        handleSelectedNotebook,
+        handleRenameNotebook,
+        handleCreatePage,
+        handleSelectedPage,
+        handlePageTitleChange,
+        handleUpdateBlock,
+        handleCreateBlockAfter,
+        handleDeleteBlock,
+        handleDeletePage,
+        handleDeleteNotebook,
+        handleConvertBlock,
 
-    handleCanvasClick,
-    handleInsertTaskBlock,
-    handleCreateTask,
-} = useNotesPageFunctions();
-    
-const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
-  
+        handleEditTask,
+        handleDeleteTask,
+
+        handleCanvasClick,
+        handleInsertTaskBlock,
+        handleCreateTask,
+    } = useNotesPageFunctions();
+
+    const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
+
     return (
         <div
             style={{
@@ -55,9 +59,7 @@ const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
                 backgroundColor: "rgba(20, 12, 55, 0.38)",
             }}
         >
-            {/* ==========================================
-                Notebook Sidebar
-            ========================================== */}
+            {/* ================= SIDEBAR ================= */}
             <NotebookBrowser
                 notebooks={notebooks}
                 pages={pages}
@@ -67,14 +69,13 @@ const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
                 onCreatePage={handleCreatePage}
                 onSelectedPage={handleSelectedPage}
                 onDeletePage={handleDeletePage}
-                onDeleteNotebook={handleDeleteNotebook} 
+                onDeleteNotebook={handleDeleteNotebook}
                 onRenameNotebook={handleRenameNotebook}
             />
 
-            {/* ==========================================
-                Document Workspace
-            ========================================== */}
-            <main style={{
+            {/* ================= MAIN EDITOR ================= */}
+            <main
+                style={{
                     flex: 1,
                     display: "flex",
                     justifyContent: "center",
@@ -82,22 +83,19 @@ const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
                     overflowY: "auto",
                 }}
             >
-                
-            
                 {selectedPage ? (
-                    <div  style={{
+                    <div
+                        style={{
                             width: "95%",
                             maxWidth: "100%",
                             backgroundColor: "rgba(20, 12, 55, 0.38)",
                             borderRadius: "10px",
-                            boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
                             padding: "48px",
                             minHeight: "900px",
-                            boxSizing: "border-box",
                         }}
                     >
-                        {/* Page Header */}
-                        <input  
+                        {/* PAGE TITLE */}
+                        <input
                             type="text"
                             value={selectedPage?.title ?? ""}
                             onChange={(e) =>
@@ -115,97 +113,82 @@ const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
                             }}
                         />
 
-                        {/* Metadata */}
-                        <p  style={{
-                                color: "#777",
-                                fontSize: ".9rem",
-                                marginBottom: "24px",
-                            }}
-                        >
+                        {/* META */}
+                        <p style={{ color: "#777", marginBottom: "24px" }}>
                             Last edited: Just now
                         </p>
-                         <button onClick={() => setShowCreateTaskPopup(true)}>+ Create New Task</button>
-                              
-                        
-                             {showCreateTaskPopup && (
-                    <CreateTaskPopup
-                        onClose={() => setShowCreateTaskPopup(false)}
-                        onCreate={(task) => {
-                            handleCreateTask(task); // or your create function
-                            setShowCreateTaskPopup(false);
-                        }}
-                    />
-                )}
-                    <button
-                        onClick={() => setShowTaskPicker(true)}
-                        style={{
-                            marginBottom: "24px",
-                        }}
-                    >
-                        + Add Task Block
-                    </button>
 
-                    {showTaskPicker && (
-                        <div
-                            style={{
-                                position: "absolute",
-                                top: 160,
-                                right: 48,
-                                width: 300,
-                                background: "#1a1a2e",
-                                borderRadius: 8,
-                                padding: 12,
-                                zIndex: 1000,
-                            }}
+                        {/* TASK CREATION */}
+                        <button
+                            onClick={() => setShowCreateTaskPopup(true)}
                         >
-                            <h4>Select Task</h4>
+                            + Create New Task
+                        </button>
 
-                            {tasks.map((task) => (
-                                <div
-                                    key={task.id}
-                                    onClick={() =>
-                                        handleInsertTaskBlock(task.id)
-                                    }
-                                    style={{
-                                        padding: "10px",
-                                        cursor: "pointer",
-                                        borderBottom:
-                                            "1px solid rgba(255,255,255,.15)",
-                                    }}
-                                >
-                                    {task.title}
-                                </div>
-                            ))}
-
-                            <button
-                                onClick={() =>
-                                    setShowTaskPicker(false)
+                        {showCreateTaskPopup && (
+                            <CreateTaskPopup
+                                onClose={() =>
+                                    setShowCreateTaskPopup(false)
                                 }
+                                onCreate={(task) => {
+                                    handleCreateTask(task);
+                                    setShowCreateTaskPopup(false);
+                                }}
+                            />
+                        )}
+
+                        {/* TASK PICKER */}
+                        <button
+                            onClick={() => setShowTaskPicker(true)}
+                            style={{ marginBottom: "24px" }}
+                        >
+                            + Add Task Block
+                        </button>
+
+                        {showTaskPicker && (
+                            <div
                                 style={{
-                                    marginTop: "12px",
+                                    position: "absolute",
+                                    top: 160,
+                                    right: 48,
+                                    width: 300,
+                                    background: "#1a1a2e",
+                                    borderRadius: 8,
+                                    padding: 12,
+                                    zIndex: 1000,
                                 }}
                             >
-                                Close
-                            </button>
-                        </div>
-                    )}
+                                <h4>Select Task</h4>
 
-                    <hr
-                        style={{
-                            border: "none",
-                            borderTop: "1px solid #e5e5e5",
-                            marginBottom: "40px",
-                        }}
-                    />
+                                {tasks.map((task) => (
+                                    <div
+                                        key={task.id}
+                                        onClick={() =>
+                                            handleInsertTaskBlock(task.id)
+                                        }
+                                        style={{
+                                            padding: "10px",
+                                            cursor: "pointer",
+                                            borderBottom:
+                                                "1px solid rgba(255,255,255,.15)",
+                                        }}
+                                    >
+                                        {task.title}
+                                    </div>
+                                ))}
 
-                    <div style={{ minHeight: "600px" }}>
-                        <div
-                            onClick={handleCanvasClick}
-                            style={{
-                                minHeight: "600px",
-                            }}
-                        >
+                                <button
+                                    onClick={() => setShowTaskPicker(false)}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        )}
 
+                        <hr style={{ margin: "40px 0" }} />
+
+                        {/* BLOCK EDITOR */}
+                        <div onClick={handleCanvasClick}>
                             <BlockList
                                 page={selectedPage}
                                 blocks={blocks}
@@ -220,22 +203,21 @@ const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
                             />
                         </div>
                     </div>
-                </div>
-            ) : (
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "100%",
-                        color: "#777",
-                        fontSize: "1.2rem",
-                    }}
-                >
-                    Select or create a page to begin writing.
-                </div>
-            )}
-        </main>
-    </div>
-);
+                ) : (
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%",
+                            color: "#777",
+                            fontSize: "1.2rem",
+                        }}
+                    >
+                        Select or create a page to begin writing.
+                    </div>
+                )}
+            </main>
+        </div>
+    );
 }
