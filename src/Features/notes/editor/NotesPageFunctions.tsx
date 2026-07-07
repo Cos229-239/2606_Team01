@@ -13,8 +13,18 @@ import {
     createNotebook,  createPage,
 } from "../utils/NotesFactory";
 
-export function useNotesPageFunctions()
-{
+interface NotesPageOptions {
+    initialNotebookId?: string;
+    initialPageId?: string;
+}
+
+export function useNotesPageFunctions({
+    selectedPageId,
+}: {
+    selectedPageId: string | null;
+}){
+
+
     // ==================================================
     // State
     // ==================================================
@@ -26,10 +36,7 @@ export function useNotesPageFunctions()
 
     const [selectedNotebookId, setSelectedNotebookId] =
         useState<string | null>(null);
-
-    const [selectedPageId, setSelectedPageId] =
-        useState<string | null>(null);
-
+ 
     const [focusedBlockId, setFocusedBlockId] =
         useState<string | null>(null);
 
@@ -75,8 +82,7 @@ export function useNotesPageFunctions()
         setNotebooks(updatedNotebooks);
         saveNotebooks(updatedNotebooks);
 
-        setSelectedNotebookId(notebook.id);
-        setSelectedPageId(null);
+        setSelectedNotebookId(notebook.id);;
     }
 
     function handleSelectedNotebook(
@@ -84,7 +90,6 @@ export function useNotesPageFunctions()
     )
     {
         setSelectedNotebookId(notebookId);
-        setSelectedPageId(null);
     }
 
     function handleRenameNotebook(
@@ -144,7 +149,6 @@ export function useNotesPageFunctions()
     if (selectedNotebookId === notebookId)
     {
         setSelectedNotebookId(null);
-        setSelectedPageId(null);
     }
 }
 
@@ -197,15 +201,12 @@ export function useNotesPageFunctions()
         setNotebooks(updatedNotebooks);
         saveNotebooks(updatedNotebooks);
 
-        setSelectedPageId(page.id);
     }
 
     function handleSelectedPage(
         pageId: string
     )
-    {
-        setSelectedPageId(pageId);
-    }
+    {}
 
     function handlePageTitleChange(
         title: string
@@ -264,7 +265,6 @@ export function useNotesPageFunctions()
 
     if (selectedPageId === pageId)
     {
-        setSelectedPageId(null);
     }
     }
 

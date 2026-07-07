@@ -12,44 +12,52 @@ interface NotesPageProps {
 export default function NotesPage({
     initialNotebookId: _initialNotebookId,
     initialPageId: _initialPageId,
-}: NotesPageProps) {
+}: NotesPageProps) 
+{
+    const [selectedPageId, setSelectedPageId] =
+        useState<string | null>(null);
 
-    const {
-        notebooks,
-        pages,
-        blocks,
-        tasks,
+    const [showCreateTaskPopup, setShowCreateTaskPopup] =
+        useState(false);
 
-        selectedNotebookId,
-        focusedBlockId,
-        showTaskPicker,
+const {
+    notebooks,
+    pages,
+    blocks,
+    tasks,
 
-        setShowTaskPicker,
+    selectedNotebookId,
+    focusedBlockId,
+    showTaskPicker,
 
-        selectedPage,
+    setShowTaskPicker,
 
-        handleCreateNotebook,
-        handleSelectedNotebook,
-        handleRenameNotebook,
-        handleCreatePage,
-        handleSelectedPage,
-        handlePageTitleChange,
-        handleUpdateBlock,
-        handleCreateBlockAfter,
-        handleDeleteBlock,
-        handleDeletePage,
-        handleDeleteNotebook,
-        handleConvertBlock,
+    handleCreateNotebook,
+    handleSelectedNotebook,
+    handleRenameNotebook,
+    handleCreatePage,
+    handlePageTitleChange,
+    handleUpdateBlock,
+    handleCreateBlockAfter,
+    handleDeleteBlock,
+    handleDeletePage,
+    handleDeleteNotebook,
+    handleConvertBlock,
 
-        handleEditTask,
-        handleDeleteTask,
+    handleEditTask,
+    handleDeleteTask,
 
-        handleCanvasClick,
-        handleInsertTaskBlock,
-        handleCreateTask,
-    } = useNotesPageFunctions();
+    handleCanvasClick,
+    handleInsertTaskBlock,
+    handleCreateTask,
+} = useNotesPageFunctions({
+    selectedPageId,
+});
 
-    const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
+const selectedPage =
+    pages.find((page) => page.id === selectedPageId);
+
+    
 
     return (
         <div
@@ -67,7 +75,7 @@ export default function NotesPage({
                 onCreateNotebook={handleCreateNotebook}
                 onSelectedNotebook={handleSelectedNotebook}
                 onCreatePage={handleCreatePage}
-                onSelectedPage={handleSelectedPage}
+                onSelectedPage={setSelectedPageId}
                 onDeletePage={handleDeletePage}
                 onDeleteNotebook={handleDeleteNotebook}
                 onRenameNotebook={handleRenameNotebook}

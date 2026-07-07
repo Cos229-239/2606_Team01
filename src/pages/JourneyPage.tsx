@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
 
 import type { Journey } from "../Features/journey/types";
 
@@ -10,13 +11,27 @@ import {
 import { createJourney } from "../Features/journey/Utils/JourneyFactory";
 
 import JourneyBrowser from "../Features/journey/Browser/JourneyBrowser";
+
 import StartSessionPopup from "../Features/journey/Session/StartSessionPopup";
 
-import { createPage } from "../Features/notes/utils/NotesFactory";
-import { loadPages, savePages } from "../Features/notes/storage/notebookStorage";
+import CreateTaskPopup from "../Components/CreateTaskPopup";
 
-import { loadBlocks, saveBlocks, loadNotebooks, saveNotebooks } from "../Features/notes/storage/notebookStorage";
-import NotesPage from "./NotesPage";
+import BlockList from "../Features/notes/editor/BlockList";
+
+import {
+    createPage,
+} from "../Features/notes/utils/NotesFactory";
+
+import {
+    loadPages,
+    savePages,
+    loadBlocks,
+    saveBlocks,
+    loadNotebooks,
+    saveNotebooks,
+} from "../Features/notes/storage/notebookStorage";
+
+
 export default function JourneyPage()
 {
     // ======================================================
@@ -26,23 +41,47 @@ export default function JourneyPage()
     const [selectedJourneyId, setSelectedJourneyId] =
         useState<string | null>(null);
 
-    const [showSessionPopup, setShowSessionPopup] =
+    const [selectedPageId, setSelectedPageId] =
+    useState<string | null>(null);    
+    
+    const [startSessionPopup, setShowSessionPopup] =
         useState(false);
-   
-    const [pages, setPages] = useState(loadPages());
 
-    const [activePageId, setActivePageId] = useState<string | null>(null);
-
-   const selectedPage = pages.find(
-    (page) =>
-        page.id === activePageId &&
-        selectedJourney?.notebookId === page.notebookId
-);
     
     // Derived selected journey
     const selectedJourney =
         journeys.find((j) => j.id === selectedJourneyId);
 
+
+   const {
+    pages,
+    blocks,
+    tasks,
+    focusedBlockId,
+
+    showTaskPicker,
+    setShowTaskPicker,
+
+    handlePageTitleChange,
+    handleUpdateBlock,
+    handleConvertBlock,
+    handleCreateBlockAfter,
+    handleDeleteBlock,
+    handleCanvasClick,
+    handleInsertTaskBlock,
+    handleCreateTask,
+    handleEditTask,
+    handleDeleteTask,
+} = useNotesPageFunctions({
+    selectedPageId,
+})
+
+
+   const selectedPage = pages.find(
+    (page) =>
+        page.id === selectedPageId &&
+        selectedJourney?.notebookId === page.notebookId
+);
 
 
     // ======================================================
@@ -54,145 +93,50 @@ export default function JourneyPage()
         setJourneys(loadedJourneys);
     }, []);
 
-    function handleSelectPage(pageId: string)
-{
-    setActivePageId(pageId);
+    function handleCreateJourney() {
+    const { journey } = createJourney();
+
+    const updated = [...journeys, journey];
+
+    setJourneys(updated);
+
+    saveJourneys(updated);
+
+    setSelectedJourneyId(journey.id);
 }
 
-    // ======================================================
-    // CREATE JOURNEY
-    // ======================================================
-    function handleCreateJourney()
-    {
-        const { journey } = createJourney();
+function handleSelectJourney(journeyId: string) {
+    setSelectedJourneyId(journeyId);
 
-        const updatedJourneys = [...journeys, journey];
+    setSelectedPageId(null);
+}
 
-        setJourneys(updatedJourneys);
-        saveJourneys(updatedJourneys);
-
-        setSelectedJourneyId(journey.id);
-    }
-
-
-    // ======================================================
-    // SELECT JOURNEY
-    // ======================================================
-    function handleSelectJourney(journeyId: string)
-    {
-        setSelectedJourneyId(journeyId);
-    }
-
-    // ======================================================
-    // START SESSION (CORE FLOW)
-    // Journey → Notes Page Creation Bridge
-    // ======================================================
-
-
-    function handleStartSession(sessionData: 
-        {  type: string;
-            duration: number;  mood: string;
-        })
-        {
-            if (!selectedJourney)
-            {
-                return;
-            }
-
-            // ======================================================
-            // Journey -> Notes Bridge
-            // Create the Notebook page that this session will own.
-            // ======================================================
-
-            const {
-                page,
-                block,
-            } = createPage(selectedJourney.notebookId);
-
-            const existingPages = loadPages();
-
-            const updatedPages = [
-    ...existingPages.filter(p => p.id !== page.id),
-    page,
-];
-            
-            setPages(updatedPages);
-            savePages(updatedPages);
-
-
-            setActivePageId(page.id);
-
-            
-
-            // ======================================================
-            // Every page begins with its initial empty block.
-            // ======================================================
-
-            const existingBlocks = loadBlocks();
-
-            const updatedBlocks = [
-                ...existingBlocks,
-                block,
-            ];
-
-            saveBlocks(updatedBlocks);
-
-            // ======================================================
-            // Update the Journey Notebook so it knows it owns
-            // this new Session page.
-            // ======================================================
-
-            const notebooks = loadNotebooks();
-
-            const updatedNotebooks =
-                notebooks.map((notebook) =>
-                {
-                    if (notebook.id !== selectedJourney.notebookId)
-                    {
-                        return notebook;
-                    }
-
-                    return {
-                        ...notebook,
-                        pageIds: [
-                            ...notebook.pageIds,
-                            page.id,
-                        ],
-                    };
-                });
-
-            saveNotebooks(updatedNotebooks);
-
-            // ======================================================
-            // Session persistence comes next sprint.
-            // For now we simply create the workspace.
-            // ======================================================
-
-            setShowSessionPopup(false);
-
-        }
-
-// ======================================================
-// OPEN SESSION CREATION
-// Browser requests a new Session.
-// ======================================================
-function handleCreateSession(journeyId: string)
-{
+function handleCreateSession(journeyId: string) {
     setSelectedJourneyId(journeyId);
 
     setShowSessionPopup(true);
 }
 
+function handleSelectPage(pageId: string)
+{
+    setSelectedPageId(pageId);
+}
+
+
     // ======================================================
     // RENDER
     // ======================================================
-    return (
-        <div
-            style={{
-                display: "flex",
-                height: "100vh",
-            }}
-        >
+    
+
+          return (
+                 <div
+                     style={{
+                         display: "flex",
+                         height: "100vh",
+                         backgroundColor: "rgba(20, 12, 55, 0.38)",
+                     }}
+                 >
+                    
             {/* ======================================================
                 LEFT: JOURNEY BROWSER
                 (mirrors NotebookBrowser structure intentionally)
@@ -200,7 +144,7 @@ function handleCreateSession(journeyId: string)
             <JourneyBrowser
                 journeys={journeys}
                 pages={pages}
-                selectedPageId={activePageId}
+                selectedPageId={selectedPageId}
                 selectedJourneyId={selectedJourneyId}
 
                 onCreateJourney={handleCreateJourney}
@@ -209,95 +153,135 @@ function handleCreateSession(journeyId: string)
                 onSelectedPage={handleSelectPage}
                 onCreateSession={handleCreateSession}
             />
-
-            {/* ======================================================
-                RIGHT: JOURNEY HOME
-                This is NOT a session yet — just configuration view
-            ====================================================== */}
-            <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-    
-    {/* ======================================================
-        NO JOURNEY SELECTED
-    ====================================================== */}
-    {!selectedJourney && (
-        <div style={{ opacity: 0.6, padding: "40px" }}>
-            Select a Journey
-        </div>
-    )}
-
-    {/* ======================================================
-        JOURNEY CONFIG (before session)
-    ====================================================== */}
-    {selectedJourney && !activePageId && (
-        <div style={{ padding: "40px", maxWidth: "700px" }}>
-            
-            <input
-                value={selectedJourney.name}
-                onChange={(e) => {
-                    const updated = {
-                        ...selectedJourney,
-                        name: e.target.value,
-                    };
-
-                    const updatedJourneys = journeys.map(j =>
-                        j.id === updated.id ? updated : j
-                    );
-
-                    setJourneys(updatedJourneys);
-                    saveJourneys(updatedJourneys);
-                }}
-                placeholder="Journey Name"
-                style={{ fontSize: "2rem", width: "100%" }}
-            />
-
-            <textarea
-                value={selectedJourney.goal}
-                onChange={(e) => {
-                    const updated = {
-                        ...selectedJourney,
-                        goal: e.target.value,
-                    };
-
-                    setJourneys(prev =>
-                        prev.map(j =>
-                            j.id === updated.id ? updated : j
-                        )
-                    );
-                }}
-                placeholder="Goal"
-                style={{ width: "100%", marginTop: "12px" }}
-            />
-
-            <button
-                onClick={() => setShowSessionPopup(true)}
-                style={{ marginTop: "20px" }}
-            >
-                Start Session
-            </button>
-        </div>
-    )}
-
-    {/* ======================================================
-        🔥 THIS IS THE IMPORTANT PART
-        JOURNEY SESSION = REAL NOTES ENGINE
-    ====================================================== */}
-    {selectedJourney && activePageId && (
-    <NotesPage
-        initialNotebookId={selectedJourney.notebookId}
-        initialPageId={activePageId}
-    />
-)}
-
-    {/* ======================================================
-        SESSION POPUP
-    ====================================================== */}
-    {showSessionPopup && (
-        <StartSessionPopup
-            onClose={() => setShowSessionPopup(false)}
-            onStart={handleStartSession}
-        />
-    )}
-</main>
-        </div>
-    );
-}
+         
+                     {/* ================= MAIN EDITOR ================= */}
+                     <main
+                         style={{
+                             flex: 1,
+                             display: "flex",
+                             justifyContent: "center",
+                             padding: "40px",
+                             overflowY: "auto",
+                         }}
+                     >
+                         {selectedPage ? (
+                             <div
+                                 style={{
+                                     width: "95%",
+                                     maxWidth: "100%",
+                                     backgroundColor: "rgba(20, 12, 55, 0.38)",
+                                     borderRadius: "10px",
+                                     padding: "48px",
+                                     minHeight: "900px",
+                                 }}
+                             >
+                                 {/* PAGE TITLE */}
+                                 <input
+                                     type="text"
+                                     value={selectedPage?.title ?? ""}
+                                     onChange={(e) =>
+                                         handlePageTitleChange(e.target.value)
+                                     }
+                                     placeholder="Untitled Page"
+                                     style={{
+                                         width: "100%",
+                                         fontSize: "2.5rem",
+                                         fontWeight: "bold",
+                                         border: "none",
+                                         outline: "none",
+                                         background: "transparent",
+                                         marginBottom: "12px",
+                                     }}
+                                 />
+         
+                                 {/* META */}
+                                 <p style={{ color: "#777", marginBottom: "24px" }}>
+                                     Last edited: Just now
+                                 </p>
+         
+                               
+         
+                                 {/* TASK PICKER */}
+                                 <button
+                                     onClick={() => setShowTaskPicker(true)}
+                                     style={{ marginBottom: "24px" }}
+                                 >
+                                     + Add Task Block
+                                 </button>
+         
+                                 {showTaskPicker && (
+                                     <div
+                                         style={{
+                                             position: "absolute",
+                                             top: 160,
+                                             right: 48,
+                                             width: 300,
+                                             background: "#1a1a2e",
+                                             borderRadius: 8,
+                                             padding: 12,
+                                             zIndex: 1000,
+                                         }}
+                                     >
+                                         <h4>Select Task</h4>
+         
+                                         {tasks.map((task) => (
+                                             <div
+                                                 key={task.id}
+                                                 onClick={() =>
+                                                     handleInsertTaskBlock(task.id)
+                                                 }
+                                                 style={{
+                                                     padding: "10px",
+                                                     cursor: "pointer",
+                                                     borderBottom:
+                                                         "1px solid rgba(255,255,255,.15)",
+                                                 }}
+                                             >
+                                                 {task.title}
+                                             </div>
+                                         ))}
+         
+                                         <button
+                                             onClick={() => setShowTaskPicker(false)}
+                                         >
+                                             Close
+                                         </button>
+                                     </div>
+                                 )}
+         
+                                 <hr style={{ margin: "40px 0" }} />
+         
+                                 {/* BLOCK EDITOR */}
+                                 <div onClick={handleCanvasClick}>
+                                     <BlockList
+                                         page={selectedPage}
+                                         blocks={blocks}
+                                         tasks={tasks}
+                                         onUpdateBlock={handleUpdateBlock}
+                                         onConvertBlock={handleConvertBlock}
+                                         onCreateBlockAfter={handleCreateBlockAfter}
+                                         onDeleteBlock={handleDeleteBlock}
+                                         onEditTask={handleEditTask}
+                                         onDeleteTask={handleDeleteTask}
+                                         focusedBlockId={focusedBlockId}
+                                     />
+                                 </div>
+                             </div>
+                         ) : (
+                             <div
+                                 style={{
+                                     display: "flex",
+                                     justifyContent: "center",
+                                     alignItems: "center",
+                                     width: "100%",
+                                     color: "#777",
+                                     fontSize: "1.2rem",
+                                 }}
+                             >
+                                 Select or create a page to begin writing.
+                             </div>
+                         )}
+                     </main>
+                 </div>
+             );
+         }
