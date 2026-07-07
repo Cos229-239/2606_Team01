@@ -19,5 +19,19 @@ contextBridge.exposeInMainWorld("electron", {
     notifyTimerComplete: (payload) => {
         console.log("[preload] notifyTimerComplete called", payload);
         ipcRenderer.send("timer-complete", payload);
+    },
+
+    // Opens a native "choose a file" dialog filtered to common audio
+    // formats. Resolves with the chosen absolute path, or null if the
+    // user cancelled.
+    selectAudioFile: () => {
+        return ipcRenderer.invoke("select-audio-file");
+    },
+
+    // Reads an audio file from disk and hands back a base64 data URL so
+    // the renderer can play it via <audio> without hitting Chromium's
+    // file:// access restrictions. Resolves null on failure.
+    readAudioFileAsDataUrl: (filePath) => {
+        return ipcRenderer.invoke("read-audio-file", filePath);
     }
 });

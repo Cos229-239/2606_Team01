@@ -15,13 +15,15 @@ interface Props {
     focused?: boolean;
 }
 
-export default function TextBlock({ block, onUpdateBlock, 
+export default function TextBlock(
+          { block, onUpdateBlock, 
             onConvertBlock, focused,
-                onCreateBlockAfter, onDeleteBlock  }: Props) {
+            onCreateBlockAfter, onDeleteBlock 
+         }: Props) {
 
-                if (block.type !== "text") return null;
+        if (block.type !== "text") return null;
 
-                 const [value, setValue] = useState<string>(
+        const [value, setValue] = useState<string>(
                         block.type === "text"
                             ? String(block.content ?? "")
                             : ""

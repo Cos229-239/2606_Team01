@@ -16,6 +16,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import TimerControls from "../Components/Timer/TimerControls";
 import { formatTime } from "../Components/Timer/FormatTime";
+import { playNotificationSound } from "../Data/notificationSound";
+import { getNotificationBehaviorSettings } from "../Data/notificationSettings";
 
 const DEFAULT_MINUTES = 25;
 
@@ -138,8 +140,10 @@ export default function TimerPage() {
         if (remainingSeconds === 0) {
             if (hasStartedRef.current && !hasNotifiedRef.current) {
                 hasNotifiedRef.current = true;
-                setJustCompleted(true);
-                notifyTimerFinished(originalDuration);
+                const { flashEnabled, osNotificationEnabled } = getNotificationBehaviorSettings();
+                setJustCompleted(flashEnabled);
+                if (osNotificationEnabled) notifyTimerFinished(originalDuration);
+                playNotificationSound();
             }
         } else {
             hasNotifiedRef.current = false;

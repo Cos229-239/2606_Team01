@@ -388,6 +388,9 @@ export function useNotesPageFunctions()
 
         setBlocks(updatedBlocks);
         saveBlocks(updatedBlocks);
+
+    //  force UI sync boundary
+    setFocusedBlockId(blockId);
             }
         
     

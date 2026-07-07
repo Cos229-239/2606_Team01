@@ -8,11 +8,8 @@ interface Props {
     onUpdateBlock: (blockId: string, content: string) => void;
 
     onConvertBlock: (
-        blockId: string,
-        type: BlockType,
-        content: any
-    ) => void;
-
+        blockId: string,  type: BlockType,
+        content: any   ) => void;
     onCreateBlockAfter?: (blockId: string) => void;
     onDeleteBlock?: (blockId: string) => void;
 
@@ -30,9 +27,11 @@ export default function HeadingBlock({
 
     if (block.type !== "heading") return null;
 
-    const [value, setValue] = useState<string>(
-        String(block.content ?? "")
-    );
+     const [value, setValue] = useState<string>(
+                        block.type === "heading"
+                            ? String(block.content ?? "")
+                            : ""
+                    );
 
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -41,9 +40,11 @@ export default function HeadingBlock({
 
     // sync external updates
     useEffect(() => {
-        setValue(String(block.content ?? ""));
+        if (typeof block.content === "string") {
+            setValue(block.content);
+        }
     }, [block.content]);
-
+     
     // focus behavior
     useEffect(() => {
         if (focused && inputRef.current) {
@@ -55,6 +56,12 @@ export default function HeadingBlock({
     useEffect(() => {
         autoResize();
     }, [value]);
+
+
+    useEffect(() => {
+    setShowSlashMenu(false);
+    setSlashQuery("");
+}, [block.type]);
 
     function autoResize() {
         if (!inputRef.current) return;
@@ -75,37 +82,58 @@ export default function HeadingBlock({
         setSlashQuery(input.substring(1).toLowerCase());
     }
 
+   // Text Changes
     function handleChange(
         event: React.ChangeEvent<HTMLTextAreaElement>
     ) {
+        console.log("handleChange");
         const newValue = event.target.value;
 
         updateSlashMenu(newValue);
 
         setValue(newValue);
+        autoResize();
 
-        onUpdateBlock(block.id, newValue);
+        onUpdateBlock?.(
+            block.id,
+            newValue
+        );
     }
+
+    
+    // ==================================================
+    // Keyboard Controls
+    // ==================================================
 
     function handleKeyDown(
         event: React.KeyboardEvent<HTMLTextAreaElement>
     ) {
-        if (event.key === "Enter" && event.shiftKey) {
+
+        //create new blocks
+        if (event.key === "Enter" &&  event.shiftKey) 
+        {
             event.preventDefault();
-            onCreateBlockAfter?.(block.id);
+
+            onCreateBlockAfter?.(
+                block.id  );
         }
 
-        if (event.key === "Backspace" && value === "") {
+            //delete existing blocls
+        if (
+            event.key === "Backspace" && value === ""
+        )
+        {
             event.preventDefault();
-            onDeleteBlock?.(block.id);
+            onDeleteBlock?.(   block.id );
         }
+
+                 //  SLASH SYSTEM WILL GO HERE LATER
     }
-
     function handleSlashCommand(command: string) {
 
-          //  ALWAYS close menu immediately FIRST
-    setShowSlashMenu(false);
-    setSlashQuery("");
+        
+        setShowSlashMenu(false);
+        setSlashQuery("");
 
         switch (command) {
             case "divider":
@@ -120,7 +148,7 @@ export default function HeadingBlock({
                 onConvertBlock(block.id, "text", null);
                 break;
 
-            case "heading":
+                case "heading":
                 onConvertBlock(block.id, "heading", null);
                 break;
         }
