@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { Journey } from "../Features/journey/types";
 import type { Notebook, Page } from "../Features/notes/types";
-
+import CreateTaskPopup from "../Components/CreateTaskPopup";
 import {
     loadJourneys,
     saveJourneys,
@@ -38,12 +38,19 @@ export default function JourneyPage()
     const [selectedPageId, setSelectedPageId] =
         useState<string | null>(null);
 
+        
+    const [showCreateTaskPopup, setShowCreateTaskPopup] =
+        useState(false);
+
     const {
     notebooks,
     pages,
     blocks,
     tasks,
+
     focusedBlockId,
+    showTaskPicker,
+    setShowTaskPicker,
 
     handlePageTitleChange,
     handleUpdateBlock,
@@ -54,6 +61,10 @@ export default function JourneyPage()
     handleEditTask,
     handleDeleteTask,
     handleCanvasClick,
+    handleInsertTaskBlock,
+    handleCreateTask,
+    handleCreatePage,
+    handleDeletePage,
     reloadData,
 
 } = useNotesPageFunctions({
@@ -108,14 +119,7 @@ export default function JourneyPage()
         saveJourneys(
             updatedJourneys
         );
-
-
-        saveNotebooks(
-            updatedNotebooks
-        );
-
-
-
+       
         setJourneys(
             updatedJourneys
         );
@@ -197,11 +201,6 @@ export default function JourneyPage()
 
 
 
-        saveNotebooks(
-            updatedNotebooks
-        );
-
-
         saveJourneys(
             updatedJourneys
         );
@@ -271,13 +270,6 @@ export default function JourneyPage()
                 }
             );
 
-
-
-        saveNotebooks(
-            updatedNotebooks
-        );
-
-
         saveNotebooks(updatedNotebooks);
         reloadData();
 
@@ -320,64 +312,39 @@ export default function JourneyPage()
             <JourneyBrowser
 
                 journeys={journeys}
-
                 notebooks={notebooks}
-
                 pages={pages}
 
-
-                selectedJourneyId={
-                    selectedJourneyId
+                selectedJourneyId={ selectedJourneyId
+                }
+                selectedPageId={ selectedPageId
+                }
+               onCreateJourney={  handleCreateJourney
+                }
+                onSelectedJourney={     handleSelectJourney
+                }
+                onSelectedPage={    handleSelectPage
                 }
 
-
-                selectedPageId={
-                    selectedPageId
+                onCreatePage={handleCreatePage}
+                onDeletePage={handleDeletePage}
+                onDeleteNotebook={ handleDeleteNotebook
                 }
-
-
-                onCreateJourney={
-                    handleCreateJourney
+                onRenameNotebook={  handleRenameNotebook
                 }
-
-
-                onSelectedJourney={
-                    handleSelectJourney
-                }
-
-
-                onSelectedPage={
-                    handleSelectPage
-                }
-
-
-                onDeleteNotebook={
-                    handleDeleteNotebook
-                }
-
-
-                onRenameNotebook={
-                    handleRenameNotebook
-                }
-
             />
 
 
-
-
             <main
-    style={{
-        flex:1,
-        display:"flex",
-        justifyContent:"center",
-        padding:"40px",
-        overflowY:"auto",
-    }}
->
-{
-    selectedPage
-    ?
-
+                style={{
+                    flex:1,
+                    display:"flex",
+                    justifyContent:"center",
+                    padding:"40px",
+                    overflowY:"auto",
+                }}
+            >
+            {  selectedPage  ?
     (
         <div
             style={{
@@ -389,13 +356,17 @@ export default function JourneyPage()
             }}
         >
 
+                        {/* PAGE TITLE */}
+                           
             <input
+                type="text"
                 value={selectedPage.title}
                 onChange={(e)=>
-                    handlePageTitleChange(
-                        e.target.value
+                    handlePageTitleChange(  e.target.value
                     )
                 }
+                
+                  placeholder="Untitled Session"
                 style={{
                     width:"100%",
                     fontSize:"2.5rem",
@@ -405,6 +376,78 @@ export default function JourneyPage()
                     outline:"none",
                 }}
             />
+
+                        {/* META */}
+                        <p style={{ color: "#777", marginBottom: "24px" }}>
+                            Last edited: Just now
+                        </p>
+
+                        {/* TASK CREATION */}
+                        <button
+                            onClick={() => setShowCreateTaskPopup(true)}
+                        >
+                            + Create New Task
+                        </button>
+
+                        {showCreateTaskPopup && (
+                            <CreateTaskPopup
+                                onClose={() =>
+                                    setShowCreateTaskPopup(false)
+                                }
+                                onCreate={(task) => {
+                                    handleCreateTask(task);
+                                    setShowCreateTaskPopup(false);
+                                }}
+                            />
+                        )}
+
+                        {/* TASK PICKER */}
+                        <button
+                            onClick={() => setShowTaskPicker(true)}
+                            style={{ marginBottom: "24px" }}
+                        >
+                            + Add Task Block
+                        </button>
+
+                        {showTaskPicker && (
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    top: 160,
+                                    right: 48,
+                                    width: 300,
+                                    background: "#1a1a2e",
+                                    borderRadius: 8,
+                                    padding: 12,
+                                    zIndex: 1000,
+                                }}
+                            >
+                                <h4>Select Task</h4>
+
+                                {tasks.map((task) => (
+                                    <div
+                                        key={task.id}
+                                        onClick={() =>
+                                            handleInsertTaskBlock(task.id)
+                                        }
+                                        style={{
+                                            padding: "10px",
+                                            cursor: "pointer",
+                                            borderBottom:
+                                                "1px solid rgba(255,255,255,.15)",
+                                        }}
+                                    >
+                                        {task.title}
+                                    </div>
+                                ))}
+
+                                <button
+                                    onClick={() => setShowTaskPicker(false)}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        )}
 
 
             <hr
@@ -425,57 +468,46 @@ export default function JourneyPage()
             <BlockList
 
                 page={selectedPage}
-
                 blocks={blocks}
-
                 tasks={tasks}
-
-
                 onUpdateBlock={
                     handleUpdateBlock
                 }
-
-
                 onConvertBlock={
                     handleConvertBlock
                 }
-
-
                 onCreateBlockAfter={
                     handleCreateBlockAfter
                 }
-
-
                 onDeleteBlock={
                     handleDeleteBlock
                 }
-
-
                 onEditTask={
                     handleEditTask
                 }
-
-
                 onDeleteTask={
                     handleDeleteTask
                 }
-
-
                 focusedBlockId={
                     focusedBlockId
                 }
 
             />
             </div>
-
-
         </div>
     )
 
     :
 
     (
-        <div>
+        <div   style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%",
+                            color: "#777",
+                            fontSize: "1.2rem",
+        }}>
             Select or create a journey.
         </div>
     )

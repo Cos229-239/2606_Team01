@@ -9,7 +9,9 @@ export default function Sidebar() {
         <Link to="/task"><button className="sidebar-btn">Task List</button></Link>
         <Link to="/congruence"><button className="sidebar-btn">Congruence</button></Link>
         <Link to="/Notebook"><button className="sidebar-btn">Notebook</button></Link>
+        <Link to="/Journey"><button className="sidebar-btn">Journey</button></Link>
         
+
       </nav>
       <Link to="/settings">
         <button className="sidebar-btn">⚙ Settings</button>
