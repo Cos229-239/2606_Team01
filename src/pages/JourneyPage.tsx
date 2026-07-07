@@ -1,287 +1,516 @@
 import { useEffect, useState } from "react";
-import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
 
 import type { Journey } from "../Features/journey/types";
+import type { Notebook, Page } from "../Features/notes/types";
 
 import {
     loadJourneys,
     saveJourneys,
 } from "../Features/journey/Storage/journeyStorage";
 
-import { createJourney } from "../Features/journey/Utils/JourneyFactory";
+import {
+    createJourney,
+} from "../Features/journey/Utils/JourneyFactory";
 
 import JourneyBrowser from "../Features/journey/Browser/JourneyBrowser";
 
-import StartSessionPopup from "../Features/journey/Session/StartSessionPopup";
-
-import CreateTaskPopup from "../Components/CreateTaskPopup";
-
-import BlockList from "../Features/notes/editor/BlockList";
-
 import {
-    createPage,
-} from "../Features/notes/utils/NotesFactory";
-
-import {
-    loadPages,
-    savePages,
-    loadBlocks,
-    saveBlocks,
     loadNotebooks,
     saveNotebooks,
+    loadPages,
 } from "../Features/notes/storage/notebookStorage";
+import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
+import BlockList from "../Features/notes/editor/BlockList";
+
 
 
 export default function JourneyPage()
 {
+
     // ======================================================
-    // JOURNEY STATE
+    // STATE
     // ======================================================
-    const [journeys, setJourneys] = useState<Journey[]>([]);
+
+    const [journeys, setJourneys] =
+        useState<Journey[]>([]);
+
+
+    const [notebooks, setNotebooks] =
+        useState<Notebook[]>([]);
+
+
+    const [pages, setPages] =
+        useState<Page[]>([]);
+
+
     const [selectedJourneyId, setSelectedJourneyId] =
         useState<string | null>(null);
 
+
     const [selectedPageId, setSelectedPageId] =
-    useState<string | null>(null);    
-    
-    const [startSessionPopup, setShowSessionPopup] =
-        useState(false);
+        useState<string | null>(null);
 
-    
-    // Derived selected journey
-    const selectedJourney =
-        journeys.find((j) => j.id === selectedJourneyId);
-
-
-   const {
-    pages,
+        const {
     blocks,
     tasks,
     focusedBlockId,
-
-    showTaskPicker,
-    setShowTaskPicker,
 
     handlePageTitleChange,
     handleUpdateBlock,
     handleConvertBlock,
     handleCreateBlockAfter,
     handleDeleteBlock,
-    handleCanvasClick,
-    handleInsertTaskBlock,
-    handleCreateTask,
+
     handleEditTask,
     handleDeleteTask,
+    handleCanvasClick,
+
 } = useNotesPageFunctions({
     selectedPageId,
-})
-
-
-   const selectedPage = pages.find(
-    (page) =>
-        page.id === selectedPageId &&
-        selectedJourney?.notebookId === page.notebookId
-);
+});
 
 
     // ======================================================
-    // LOAD JOURNEYS ON MOUNT
+    // LOAD DATA
     // ======================================================
+
     useEffect(() =>
     {
-        const loadedJourneys = loadJourneys();
-        setJourneys(loadedJourneys);
+        setJourneys(
+            loadJourneys()
+        );
+
+
+        setNotebooks(
+            loadNotebooks()
+        );
+
+
+        setPages(
+            loadPages()
+        );
+
     }, []);
 
-    function handleCreateJourney() {
-    const { journey } = createJourney();
 
-    const updated = [...journeys, journey];
 
-    setJourneys(updated);
 
-    saveJourneys(updated);
+    // ======================================================
+    // CREATE JOURNEY
+    // ======================================================
 
-    setSelectedJourneyId(journey.id);
-}
+    function handleCreateJourney()
+    {
+        const {
+            journey,
+            notebook,
+        } =
+            createJourney();
 
-function handleSelectJourney(journeyId: string) {
-    setSelectedJourneyId(journeyId);
 
-    setSelectedPageId(null);
-}
 
-function handleCreateSession(journeyId: string) {
-    setSelectedJourneyId(journeyId);
+        const updatedJourneys =
+        [
+            ...journeys,
+            journey,
+        ];
 
-    setShowSessionPopup(true);
-}
 
-function handleSelectPage(pageId: string)
-{
-    setSelectedPageId(pageId);
-}
+
+        const updatedNotebooks =
+        [
+            ...notebooks,
+            notebook,
+        ];
+
+
+
+        saveJourneys(
+            updatedJourneys
+        );
+
+
+        saveNotebooks(
+            updatedNotebooks
+        );
+
+
+
+        setJourneys(
+            updatedJourneys
+        );
+
+
+        setNotebooks(
+            updatedNotebooks
+        );
+
+
+
+        setSelectedJourneyId(
+            journey.journeyId
+        );
+    }
+
+
+
+
+
+    // ======================================================
+    // SELECT JOURNEY
+    // ======================================================
+
+    function handleSelectJourney(
+        journeyId:string
+    )
+    {
+        setSelectedJourneyId(
+            journeyId
+        );
+
+
+        setSelectedPageId(
+            null
+        );
+    }
+
+
+
+
+
+    // ======================================================
+    // SELECT PAGE
+    // ======================================================
+
+    function handleSelectPage(
+        pageId:string
+    )
+    {
+        setSelectedPageId(
+            pageId
+        );
+    }
+
+
+
+
+
+    // ======================================================
+    // DELETE NOTEBOOK
+    // ======================================================
+
+    function handleDeleteNotebook(
+        notebookId:string
+    )
+    {
+
+        const updatedNotebooks =
+            notebooks.filter(
+                (notebook)=>
+                    notebook.id !== notebookId
+            );
+
+
+        const updatedJourneys =
+            journeys.filter(
+                (journey)=>
+                    journey.notebookId !== notebookId
+            );
+
+
+
+        saveNotebooks(
+            updatedNotebooks
+        );
+
+
+        saveJourneys(
+            updatedJourneys
+        );
+
+
+
+        setNotebooks(
+            updatedNotebooks
+        );
+
+
+        setJourneys(
+            updatedJourneys
+        );
+
+
+
+        const deletedJourney =
+            journeys.find(
+                (journey)=>
+                    journey.notebookId === notebookId
+            );
+
+
+        if(
+            deletedJourney &&
+            deletedJourney.journeyId === selectedJourneyId
+        )
+        {
+            setSelectedJourneyId(null);
+
+            setSelectedPageId(null);
+        }
+
+    }
+
+
+
+
+
+    // ======================================================
+    // RENAME NOTEBOOK
+    // ======================================================
+
+    function handleRenameNotebook(
+        notebookId:string,
+        title:string
+    )
+    {
+
+        const updatedNotebooks =
+            notebooks.map(
+                (notebook)=>
+                {
+
+                    if(
+                        notebook.id === notebookId
+                    )
+                    {
+                        return {
+                            ...notebook,
+                            title,
+                        };
+                    }
+
+
+                    return notebook;
+
+                }
+            );
+
+
+
+        saveNotebooks(
+            updatedNotebooks
+        );
+
+
+        setNotebooks(
+            updatedNotebooks
+        );
+
+    }
+
+
+
+
+
+    // ======================================================
+    // SELECTED PAGE
+    // ======================================================
+
+    const selectedPage =
+        pages.find(
+            (page)=>
+                page.id === selectedPageId
+        );
+
+
+
 
 
     // ======================================================
     // RENDER
     // ======================================================
-    
 
-          return (
-                 <div
-                     style={{
-                         display: "flex",
-                         height: "100vh",
-                         backgroundColor: "rgba(20, 12, 55, 0.38)",
-                     }}
-                 >
-                    
-            {/* ======================================================
-                LEFT: JOURNEY BROWSER
-                (mirrors NotebookBrowser structure intentionally)
-            ====================================================== */}
+    return (
+
+        <div
+            style={{
+                display:"flex",
+                height:"100vh",
+                backgroundColor:
+                    "rgba(20,12,55,0.38)",
+            }}
+        >
+
+
             <JourneyBrowser
+
                 journeys={journeys}
+
+                notebooks={notebooks}
+
                 pages={pages}
-                selectedPageId={selectedPageId}
-                selectedJourneyId={selectedJourneyId}
 
-                onCreateJourney={handleCreateJourney}
-                onSelectedJourney={handleSelectJourney}
 
-                onSelectedPage={handleSelectPage}
-                onCreateSession={handleCreateSession}
+                selectedJourneyId={
+                    selectedJourneyId
+                }
+
+
+                selectedPageId={
+                    selectedPageId
+                }
+
+
+                onCreateJourney={
+                    handleCreateJourney
+                }
+
+
+                onSelectedJourney={
+                    handleSelectJourney
+                }
+
+
+                onSelectedPage={
+                    handleSelectPage
+                }
+
+
+                onDeleteNotebook={
+                    handleDeleteNotebook
+                }
+
+
+                onRenameNotebook={
+                    handleRenameNotebook
+                }
+
             />
-         
-                     {/* ================= MAIN EDITOR ================= */}
-                     <main
-                         style={{
-                             flex: 1,
-                             display: "flex",
-                             justifyContent: "center",
-                             padding: "40px",
-                             overflowY: "auto",
-                         }}
-                     >
-                         {selectedPage ? (
-                             <div
-                                 style={{
-                                     width: "95%",
-                                     maxWidth: "100%",
-                                     backgroundColor: "rgba(20, 12, 55, 0.38)",
-                                     borderRadius: "10px",
-                                     padding: "48px",
-                                     minHeight: "900px",
-                                 }}
-                             >
-                                 {/* PAGE TITLE */}
-                                 <input
-                                     type="text"
-                                     value={selectedPage?.title ?? ""}
-                                     onChange={(e) =>
-                                         handlePageTitleChange(e.target.value)
-                                     }
-                                     placeholder="Untitled Page"
-                                     style={{
-                                         width: "100%",
-                                         fontSize: "2.5rem",
-                                         fontWeight: "bold",
-                                         border: "none",
-                                         outline: "none",
-                                         background: "transparent",
-                                         marginBottom: "12px",
-                                     }}
-                                 />
-         
-                                 {/* META */}
-                                 <p style={{ color: "#777", marginBottom: "24px" }}>
-                                     Last edited: Just now
-                                 </p>
-         
-                               
-         
-                                 {/* TASK PICKER */}
-                                 <button
-                                     onClick={() => setShowTaskPicker(true)}
-                                     style={{ marginBottom: "24px" }}
-                                 >
-                                     + Add Task Block
-                                 </button>
-         
-                                 {showTaskPicker && (
-                                     <div
-                                         style={{
-                                             position: "absolute",
-                                             top: 160,
-                                             right: 48,
-                                             width: 300,
-                                             background: "#1a1a2e",
-                                             borderRadius: 8,
-                                             padding: 12,
-                                             zIndex: 1000,
-                                         }}
-                                     >
-                                         <h4>Select Task</h4>
-         
-                                         {tasks.map((task) => (
-                                             <div
-                                                 key={task.id}
-                                                 onClick={() =>
-                                                     handleInsertTaskBlock(task.id)
-                                                 }
-                                                 style={{
-                                                     padding: "10px",
-                                                     cursor: "pointer",
-                                                     borderBottom:
-                                                         "1px solid rgba(255,255,255,.15)",
-                                                 }}
-                                             >
-                                                 {task.title}
-                                             </div>
-                                         ))}
-         
-                                         <button
-                                             onClick={() => setShowTaskPicker(false)}
-                                         >
-                                             Close
-                                         </button>
-                                     </div>
-                                 )}
-         
-                                 <hr style={{ margin: "40px 0" }} />
-         
-                                 {/* BLOCK EDITOR */}
-                                 <div onClick={handleCanvasClick}>
-                                     <BlockList
-                                         page={selectedPage}
-                                         blocks={blocks}
-                                         tasks={tasks}
-                                         onUpdateBlock={handleUpdateBlock}
-                                         onConvertBlock={handleConvertBlock}
-                                         onCreateBlockAfter={handleCreateBlockAfter}
-                                         onDeleteBlock={handleDeleteBlock}
-                                         onEditTask={handleEditTask}
-                                         onDeleteTask={handleDeleteTask}
-                                         focusedBlockId={focusedBlockId}
-                                     />
-                                 </div>
-                             </div>
-                         ) : (
-                             <div
-                                 style={{
-                                     display: "flex",
-                                     justifyContent: "center",
-                                     alignItems: "center",
-                                     width: "100%",
-                                     color: "#777",
-                                     fontSize: "1.2rem",
-                                 }}
-                             >
-                                 Select or create a page to begin writing.
-                             </div>
-                         )}
-                     </main>
-                 </div>
-             );
-         }
+
+
+
+
+            <main
+    style={{
+        flex:1,
+        display:"flex",
+        justifyContent:"center",
+        padding:"40px",
+        overflowY:"auto",
+    }}
+>
+{
+    selectedPage
+    ?
+
+    (
+        <div
+            style={{
+                width:"95%",
+                backgroundColor:"rgba(20,12,55,0.38)",
+                borderRadius:"10px",
+                padding:"48px",
+                minHeight:"900px",
+            }}
+        >
+
+            <input
+                value={selectedPage.title}
+                onChange={(e)=>
+                    handlePageTitleChange(
+                        e.target.value
+                    )
+                }
+                style={{
+                    width:"100%",
+                    fontSize:"2.5rem",
+                    fontWeight:"bold",
+                    background:"transparent",
+                    border:"none",
+                    outline:"none",
+                }}
+            />
+
+
+            <hr
+                style={{
+                    margin:"40px 0"
+                }}
+            />
+
+                {/* BLOCK EDITOR */}
+            <div
+                onClick={handleCanvasClick}
+                style={{
+                    flex: 1,
+                    width: "100%",
+                    minHeight: "600px",
+                }}
+            >
+            <BlockList
+
+                page={selectedPage}
+
+                blocks={blocks}
+
+                tasks={tasks}
+
+
+                onUpdateBlock={
+                    handleUpdateBlock
+                }
+
+
+                onConvertBlock={
+                    handleConvertBlock
+                }
+
+
+                onCreateBlockAfter={
+                    handleCreateBlockAfter
+                }
+
+
+                onDeleteBlock={
+                    handleDeleteBlock
+                }
+
+
+                onEditTask={
+                    handleEditTask
+                }
+
+
+                onDeleteTask={
+                    handleDeleteTask
+                }
+
+
+                focusedBlockId={
+                    focusedBlockId
+                }
+
+            />
+            </div>
+
+
+        </div>
+    )
+
+    :
+
+    (
+        <div>
+            Select or create a journey.
+        </div>
+    )
+}
+
+</main>
+
+
+        </div>
+
+    );
+
+}

@@ -16,6 +16,23 @@ export interface JourneyStatistics
 
 export interface Journey
 {
+    journeyId: string;
+    // Linked Notebook
+    notebookId: string;
+    
+}
+
+export interface Journeyold
+{
+
+    // ======================================================
+    // Current Journey Model
+    // ------------------------------------------------------
+    // Journey currently acts as a wrapper around an existing
+    // Notebook. Additional Journey metadata will be added
+    // later without changing the Notebook relationship.
+    // ======================================================
+
     id: string;
 
     // Linked Notebook

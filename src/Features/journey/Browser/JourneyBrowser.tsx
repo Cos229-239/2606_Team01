@@ -1,55 +1,79 @@
 import type { Journey } from "../types";
-import { useState } from "react";
+import type { Notebook } from "../../notes/types";
 import type { Page } from "../../notes/types";
+import { useState } from "react";
+
 
 interface JourneyBrowserProps
 {
     journeys: Journey[];
 
+    notebooks: Notebook[];
     pages: Page[];
 
     selectedJourneyId: string | null;
-
-    selectedPageId: string | null;
 
     onCreateJourney: () => void;
 
     onSelectedJourney: (journeyId: string) => void;
 
-    onSelectedPage: (pageId: string) => void;
+    selectedPageId: string | null;
 
-    onCreateSession: (journeyId: string) => void;
+    onSelectedPage: (pageId: string) => void;
+    onDeleteNotebook: (notebookId: string) => void;
+
+    onRenameNotebook: (
+        notebookId: string,
+        title: string
+    ) => void;
 }
+
+
 
 export default function JourneyBrowser(
 {
     journeys,
+    notebooks,
     pages,
+
     selectedJourneyId,
-    selectedPageId,
+
     onCreateJourney,
     onSelectedJourney,
+
+    selectedPageId,
     onSelectedPage,
-    onCreateSession,
+
+    onDeleteNotebook,
+    onRenameNotebook,
+
 }: JourneyBrowserProps)
+
 {
+
     const [editingJourneyId, setEditingJourneyId] =
         useState<string | null>(null);
+
 
     const [editingTitle, setEditingTitle] =
         useState("");
 
-   
+
 
     return (
+
         <aside
             style={{
                 width: "260px",
                 padding: "12px",
-                borderRight: "1px solid rgba(255,255,255,0.1)",
+                borderRight:
+                    "1px solid rgba(255,255,255,0.1)",
             }}
         >
+
+
             {/* ================= Create Journey ================= */}
+
             <button
                 onClick={onCreateJourney}
                 style={{
@@ -63,110 +87,333 @@ export default function JourneyBrowser(
                 + New Journey
             </button>
 
+
+
+
             {/* ================= Empty State ================= */}
+
             {journeys.length === 0 && (
-                <div style={{ opacity: 0.6 }}>
-                    No journeys yet
+
+                <div
+                    style={{
+                        marginTop: "20px",
+                        opacity: 0.7,
+                        fontSize: "0.9rem",
+                    }}
+                >
+                    No journeys yet. Create your first journey.
                 </div>
+
             )}
 
+
+
+
+
+
             {/* ================= Journey List ================= */}
-            {journeys.map((journey) => {
-                const isSelected =
-                    selectedJourneyId === journey.id;
+
+            {journeys.map((journey) =>
+            {
 
                 
-                const journeyPages =
-                    pages.filter(
-                        (page) =>
-                            page.notebookId === journey.notebookId
+                const isSelected =
+                    selectedJourneyId === journey.journeyId;
+
+
+
+                const notebook =
+                    notebooks.find(
+                        (notebook) =>
+                            notebook.id === journey.notebookId
                     );
 
 
+
+                if(!notebook)
+                {
+                    return null;
+                }
+
+
+
+                /*
+                    NOTEBOOK
+                       |
+                       | notebookId
+                       ↓
+                    PAGES
+                */
+
+                const notebookPages =
+                    pages.filter(
+                        (page) =>
+                            page.notebookId === notebook.id
+                    );
+
+
+
+
                 return (
-                     <div
-                        key={journey.id}
+
+                    <div
+                        key={journey.journeyId}
                         style={{
                             marginBottom: "18px",
                         }}
                     >
+
+
+
                         {/* ================= Journey Row ================= */}
+
                         <div
-                            onClick={() =>
-                                onSelectedJourney(journey.id)
-                            }
                             style={{
-                                padding: "10px",
-                                borderRadius: "6px",
-                                cursor: "pointer",
-                                backgroundColor: isSelected
-                                    ? "rgba(20, 12, 55, 0.38)"
-                                    : "transparent",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent:
+                                    "space-between",
+                                gap: "8px",
                             }}
                         >
-                            {journey.name}
+
+
+
+                            <button
+
+                                onClick={() =>
+                                    onSelectedJourney(
+                                        journey.journeyId
+                                    )
+                                }
+
+
+                                onDoubleClick={() =>
+                                {
+                                    setEditingJourneyId(
+                                        journey.journeyId
+                                    );
+
+                                    setEditingTitle(
+                                        notebook?.title ??
+                                        "Untitled Journey"
+                                    );
+                                }}
+
+
+                                style={{
+                                    flex: 1,
+                                    textAlign: "left",
+                                    cursor: "pointer",
+                                    padding:
+                                        "8px 10px",
+                                    borderRadius:
+                                        "6px",
+                                    
+
+                                    fontWeight:
+                                        isSelected
+                                            ? "bold"
+                                            : "normal",
+
+                                    backgroundColor:
+                                        isSelected
+                                            ? "rgba(20,12,55,0.38)"
+                                            : "transparent",
+                                }}
+                            >
+
+
+
+                                {editingJourneyId === journey.journeyId ? (
+
+                                    <input
+
+                                        autoFocus
+
+                                        onClick={(e) =>
+                                            e.stopPropagation()
+                                        }
+
+
+                                        value={editingTitle}
+
+
+                                        onChange={(e) =>
+                                            setEditingTitle(
+                                                e.target.value
+                                            )
+                                        }
+
+
+                                         onBlur={() =>
+                                            {
+                                                onRenameNotebook(
+                                                    notebook.id,
+                                                    editingTitle.trim() ||
+                                                    "Untitled Journey"
+                                                );
+
+                                            setEditingJourneyId(
+                                                null
+                                            );
+                                        }}
+
+
+                                         onKeyDown={(e)=>
+                                            {
+                                                if(e.key === "Enter")
+                                                {
+                                                    onRenameNotebook(
+                                                        notebook.id,
+                                                        editingTitle.trim() ||
+                                                        "Untitled Journey"
+                                                    );
+
+                                                    setEditingJourneyId(
+                                                        null
+                                                    );
+                                                }
+                                            }}
+
+                                            style={{
+                                                width:"100%",
+                                                border:"none",
+                                                outline:"none",
+                                                background:"transparent",
+                                                color:"inherit",
+                                                font:"inherit",
+                                            }}
+                                        />
+                                    )
+
+                                    :
+
+                                    notebook.title
+                                }
+
+
+                            </button>
+
+
+
+                            <button
+                                onClick={() =>
+                                    onDeleteNotebook(
+                                        notebook.id
+                                    )
+                                }
+
+                                style={{
+                                    border:"none",
+                                    background:"transparent",
+                                    cursor:"pointer",
+                                    opacity:0.5,
+                                }}
+                            >
+                                X
+                            </button>
+
+
                         </div>
 
-                        {/* ================= Sessions ================= */}
+
+
+
+
+                        {/* ================= Notebook Pages ================= */}
+
                         {isSelected && (
-                            <>
-                                {journeyPages.length > 0 && (
-                                    <div
-                                        style={{
-                                            marginTop: "12px",
-                                            marginLeft: "18px",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            gap: "6px",
-                                        }}
-                                    >
-                                        {journeyPages.map((page) =>
-                                        {
-                                            const isSelectedPage =
-                                                selectedPageId === page.id;
 
-                                            return (
-                                                <button
-                                                    key={page.id}
-                                                    onClick={() =>
-                                                        onSelectedPage(page.id)
-                                                    }
-                                                    style={{
-                                                        textAlign: "left",
-                                                        padding: "6px 8px",
-                                                        borderRadius: "4px",
-                                                        cursor: "pointer",
-                                                        backgroundColor:
-                                                            isSelectedPage
-                                                                ? "rgba(20, 12, 55, 0.38)"
-                                                                : "transparent",
-                                                    }}
-                                                >
-                                                    {page.title}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
+                            <div
+                                style={{
+                                    marginLeft:"18px",
+                                    marginTop:"12px",
+                                    display:"flex",
+                                    flexDirection:"column",
+                                    gap:"6px",
+                                }}
+                            >
 
-                                <button
-                                    onClick={() =>
-                                        onCreateSession(journey.id)
-                                    }
-                                    style={{
-                                        marginTop: "10px",
-                                        marginLeft: "10px",
-                                        padding: "6px 10px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    + New Session
-                                </button>
-                            </>
+                                {
+                                    notebookPages.length === 0
+                                    &&
+                                    (
+                                        <div
+                                            style={{
+                                                opacity:0.6,
+                                                fontSize:"0.85rem",
+                                            }}
+                                        >
+                                            No pages yet.
+                                        </div>
+                                    )
+                                }
+
+
+
+                                {
+                                    notebookPages.map((page)=>
+                                    {
+
+                                        const isSelectedPage =
+                                            selectedPageId === page.id;
+
+
+
+                                        return (
+
+                                            <button
+
+                                                key={page.id}
+
+                                                onClick={() =>
+                                                    onSelectedPage(
+                                                        page.id
+                                                    )
+                                                }
+
+                                                style={{
+                                                    textAlign:"left",
+                                                    padding:"6px 8px",
+                                                    borderRadius:"4px",
+                                                    cursor:"pointer",
+
+                                                    backgroundColor:
+                                                        isSelectedPage
+                                                        ?
+                                                        "rgba(20,12,55,0.38)"
+                                                        :
+                                                        "transparent",
+                                                }}
+                                            >
+
+                                                {page.title}
+
+                                            </button>
+
+                                        );
+
+                                    })
+                                }
+
+
+                            </div>
+
                         )}
+
+
+
                     </div>
+
                 );
+
             })}
+
+
+
         </aside>
+
     );
+
 }

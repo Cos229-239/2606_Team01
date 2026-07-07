@@ -437,8 +437,7 @@ export function useNotesPageFunctions({
         event: React.MouseEvent
     )
     {
-    if (event.target !== event.currentTarget) return;
-
+   
     handleCreateBlockAtEnd();
     }
 

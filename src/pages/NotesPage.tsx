@@ -196,7 +196,14 @@ const selectedPage =
                         <hr style={{ margin: "40px 0" }} />
 
                         {/* BLOCK EDITOR */}
-                        <div onClick={handleCanvasClick}>
+                        <div
+                            onClick={handleCanvasClick}
+                            style={{
+                                flex: 1,
+                                width: "100%",
+                                minHeight: "600px",
+                            }}
+                        >
                             <BlockList
                                 page={selectedPage}
                                 blocks={blocks}
