@@ -14,14 +14,9 @@ import {
 
 import JourneyBrowser from "../Features/journey/Browser/JourneyBrowser";
 
-import {
-    loadNotebooks,
-    saveNotebooks,
-    loadPages,
-} from "../Features/notes/storage/notebookStorage";
+import { saveNotebooks} from "../Features/notes/storage/notebookStorage";
 import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
 import BlockList from "../Features/notes/editor/BlockList";
-
 
 
 export default function JourneyPage()
@@ -35,13 +30,6 @@ export default function JourneyPage()
         useState<Journey[]>([]);
 
 
-    const [notebooks, setNotebooks] =
-        useState<Notebook[]>([]);
-
-
-    const [pages, setPages] =
-        useState<Page[]>([]);
-
 
     const [selectedJourneyId, setSelectedJourneyId] =
         useState<string | null>(null);
@@ -50,7 +38,9 @@ export default function JourneyPage()
     const [selectedPageId, setSelectedPageId] =
         useState<string | null>(null);
 
-        const {
+    const {
+    notebooks,
+    pages,
     blocks,
     tasks,
     focusedBlockId,
@@ -64,11 +54,11 @@ export default function JourneyPage()
     handleEditTask,
     handleDeleteTask,
     handleCanvasClick,
+    reloadData,
 
 } = useNotesPageFunctions({
     selectedPageId,
 });
-
 
     // ======================================================
     // LOAD DATA
@@ -78,16 +68,6 @@ export default function JourneyPage()
     {
         setJourneys(
             loadJourneys()
-        );
-
-
-        setNotebooks(
-            loadNotebooks()
-        );
-
-
-        setPages(
-            loadPages()
         );
 
     }, []);
@@ -140,10 +120,8 @@ export default function JourneyPage()
             updatedJourneys
         );
 
-
-        setNotebooks(
-            updatedNotebooks
-        );
+        saveNotebooks(updatedNotebooks);
+        reloadData();
 
 
 
@@ -230,10 +208,8 @@ export default function JourneyPage()
 
 
 
-        setNotebooks(
-            updatedNotebooks
-        );
-
+        saveNotebooks(updatedNotebooks);
+        reloadData();
 
         setJourneys(
             updatedJourneys
@@ -302,9 +278,8 @@ export default function JourneyPage()
         );
 
 
-        setNotebooks(
-            updatedNotebooks
-        );
+        saveNotebooks(updatedNotebooks);
+        reloadData();
 
     }
 
@@ -322,7 +297,7 @@ export default function JourneyPage()
                 page.id === selectedPageId
         );
 
-
+        
 
 
 

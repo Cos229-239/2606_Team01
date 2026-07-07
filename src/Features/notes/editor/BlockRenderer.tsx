@@ -30,8 +30,12 @@ interface BlockRendererProps {
  * ------------------------------------------------------
  * Responsibility:
  * - Choose correct block component
- * - Forward update handler
+ * - Forward editor callbacks
+ * - Mark the rendered block so the editor canvas can
+ *   distinguish between clicking a block and clicking
+ *   empty canvas.
  */
+
 export default function BlockRenderer({
     block,
     tasks,
@@ -46,6 +50,7 @@ export default function BlockRenderer({
     switch (block.type) {
         case "empty":
             return (
+                <div data-block>
                 <EmptyBlock
                     block={block}
                     onUpdateBlock={onUpdateBlock}
@@ -54,44 +59,65 @@ export default function BlockRenderer({
                     focused={focused}
                     onConvertBlock={onConvertBlock}
                 />
+                </div>
             );
 
         case "text":
-            return <TextBlock block={block}
+            return (
+            <div data-block>
+                <TextBlock block={block}
                     onUpdateBlock={onUpdateBlock}
                     onConvertBlock={onConvertBlock}
                     onCreateBlockAfter={onCreateBlockAfter}
                     onDeleteBlock={onDeleteBlock}
                     focused={focused}
-                />;
+                />
+                </div>
+            );
 
         case "heading":
-            return <HeadingBlock block={block}
+            return (
+            <div data-block>
+                <HeadingBlock block={block}
                     onUpdateBlock={onUpdateBlock}
                     onConvertBlock={onConvertBlock}
                     onCreateBlockAfter={onCreateBlockAfter}
                     onDeleteBlock={onDeleteBlock}
-                    focused={focused} />;
+                    focused={focused} />
+            </div>
+            );
 
         case "list":
-            return <ListBlock block={block} 
+            return   (
+            <div data-block>
+               <ListBlock block={block} 
                     onUpdateBlock={onUpdateBlock}
                     onConvertBlock={onConvertBlock}
                     onCreateBlockAfter={onCreateBlockAfter}
                     onDeleteBlock={onDeleteBlock}
-                    focused={focused}/>;
+                    focused={focused}/>
+                    </div>
+            );
 
         case "divider":
-            return <DividerBlock block={block} />;
+
+            return (
+            <div data-block> 
+            <DividerBlock block={block} />
+            </div>
+            );
 
         case "task":
-            return <TaskBlock block={block}
+            return (
+            <div data-block>
+                <TaskBlock block={block}
                     tasks ={tasks}
                     onEditTask={onEditTask}
                     onDeleteTask={onDeleteTask}
-                    onDeleteBlock={onDeleteBlock} />;
+                    onDeleteBlock={onDeleteBlock} />
+                    </div>
+            );
 
         default:
             return null;
-    }
-}
+        }}

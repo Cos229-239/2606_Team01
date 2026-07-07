@@ -65,10 +65,20 @@ export function useNotesPageFunctions({
                 page.id === selectedPageId
         );
 
+
+        function reloadData()
+{
+    setNotebooks(loadNotebooks());
+    setPages(loadPages());
+    setBlocks(loadBlocks());
+    setTasks(loadTasks());
+}
    
     // ==================================================
     // Notebook Actions
     // ==================================================
+
+    
 
     function handleCreateNotebook()
     {
@@ -433,11 +443,17 @@ export function useNotesPageFunctions({
     // Canvas Actions
     // ==================================================
 
-    function handleCanvasClick(
-        event: React.MouseEvent
+    function handleCanvasClick( event: React.MouseEvent )
+    {
+        const target = event.target as HTMLElement;
+
+    if (
+        target.closest("[data-block]")
     )
     {
-   
+        return;
+    }
+
     handleCreateBlockAtEnd();
     }
 
@@ -561,6 +577,8 @@ function handleCreateTask(task: Task)
         handleEditTask,
         handleDeleteTask,
         handleConvertBlock,
-        handleCreateTask, // Added this line to return the handleCreateTask function
+        handleCreateTask, 
+        reloadData,
+   
     };
 }
