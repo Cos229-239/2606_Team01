@@ -17,7 +17,9 @@ import JourneyBrowser from "../Features/journey/Browser/JourneyBrowser";
 import { saveNotebooks} from "../Features/notes/storage/notebookStorage";
 import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
 import BlockList from "../Features/notes/editor/BlockList";
-
+import { loadSessions, addSession } from "../Features/journey/Storage/sessionStorage";
+import type { JourneySession } from "../Features/journey/Session/journeySession";
+import StartSessionPopup from "../Features/journey/Session/StartSessionPopup";
 
 export default function JourneyPage()
 {
@@ -41,6 +43,17 @@ export default function JourneyPage()
         
     const [showCreateTaskPopup, setShowCreateTaskPopup] =
         useState(false);
+
+    const [showSessionPopup, setShowSessionPopup] =
+    useState(false);
+
+
+    const [sessions, setSessions] =
+        useState<JourneySession[]>([]);
+
+
+    const [activeSession, setActiveSession] =
+        useState<JourneySession | null>(null);
 
     const {
     notebooks,
@@ -80,10 +93,11 @@ export default function JourneyPage()
         setJourneys(
             loadJourneys()
         );
+    setSessions(
+        loadSessions()
+    );
 
-    }, []);
-
-
+}, []);
 
 
     // ======================================================
@@ -173,9 +187,89 @@ export default function JourneyPage()
         );
     }
 
+function handleStartSession(data:
+{
+    type:string;
+    plannedDuration:number;
+    mood:string;
+    goal:string;
+})
+{
+
+    if(!selectedJourneyId)
+    {
+        return;
+    }
 
 
+    const selectedJourney =
+        journeys.find(
+            (journey) =>
+                journey.journeyId === selectedJourneyId
+        );
 
+
+    if(!selectedJourney)
+    {
+        return;
+    }
+
+
+    const newPage =
+        handleCreatePage(
+            selectedJourney.notebookId
+        );
+
+
+    const session:JourneySession =
+    {
+        sessionId:
+            crypto.randomUUID(),
+
+        journeyId:
+            selectedJourneyId,
+
+        pageId:
+            newPage.id,
+
+        startedAt:
+            new Date().toISOString(),
+
+        type:
+            data.type,
+
+        plannedDuration:
+            data.plannedDuration,
+
+        mood:
+            data.mood as any,
+
+        goal:
+            data.goal,
+    };
+
+
+    const updatedSessions =
+        addSession(session);
+
+
+    setSessions(
+        updatedSessions
+    );
+
+
+    setActiveSession(
+        session
+    );
+
+
+    setSelectedPageId(
+        newPage.id
+    );
+
+
+    setShowSessionPopup(false);
+}
 
     // ======================================================
     // DELETE NOTEBOOK
@@ -377,11 +471,66 @@ export default function JourneyPage()
                 }}
             />
 
-                        {/* META */}
-                        <p style={{ color: "#777", marginBottom: "24px" }}>
-                            Last edited: Just now
+                        {/* SESSION META */}
+
+                        <button
+                            onClick={() =>
+                                setShowSessionPopup(true)
+                            }
+                        >
+                            + Start Session
+                        </button>
+
+
+                        {
+                        activeSession &&
+                        (
+                        <div
+                        style={{
+                            marginTop:"20px",
+                            padding:"12px",
+                            borderRadius:"8px",
+                            background:"rgba(255,255,255,.05)",
+                        }}
+                        >
+
+                        <p>
+                        Type: {activeSession.type}
                         </p>
 
+                        <p>
+                        Mood: {activeSession.mood}
+                        </p>
+
+                        <p>
+                        Duration:
+                        {activeSession.plannedDuration}
+                        minutes
+                        </p>
+
+                        <p>
+                        Goal:
+                        {activeSession.goal}
+                        </p>
+
+                        </div>
+                        )
+                        }
+                        {
+                        showSessionPopup &&
+                        (
+                        <StartSessionPopup
+
+                        onClose={() =>
+                            setShowSessionPopup(false)
+                        }
+
+
+                        onStart={handleStartSession}
+
+                        />
+                        )
+                        }
                         {/* TASK CREATION */}
                         <button
                             onClick={() => setShowCreateTaskPopup(true)}

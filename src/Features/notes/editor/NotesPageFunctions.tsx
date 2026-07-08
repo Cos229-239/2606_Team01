@@ -211,6 +211,7 @@ export function useNotesPageFunctions({
         setNotebooks(updatedNotebooks);
         saveNotebooks(updatedNotebooks);
 
+        return page;
     }
 
     function handleSelectedPage(

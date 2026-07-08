@@ -6,8 +6,9 @@ interface StartSessionPopupProps
 
     onStart: (sessionData: {
         type: string;
-        duration: number;
+        plannedDuration: number;
         mood: string;
+        goal: string;
     }) => void;
 }
 
@@ -20,29 +21,34 @@ export default function StartSessionPopup(
     const [type, setType] = useState("Coding");
     const [duration, setDuration] = useState(60);
     const [mood, setMood] = useState("Focus");
+    const [goal, setGoal] = useState("");
 
     return (
+         <div
+        style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.75)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            pointerEvents: "auto",
+        }}
+        onClick={onClose}
+    >
         <div
             style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: "rgba(0,0,0,0.6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                width: "400px",
+                background: "#1a1a2e",
+                padding: "20px",
+                borderRadius: "10px",
+                zIndex: 10000,
             }}
+            onClick={(e) =>
+                e.stopPropagation()
+            }
         >
-            <div
-                style={{
-                    width: "400px",
-                    background: "#1a1a2e",
-                    padding: "20px",
-                    borderRadius: "10px",
-                }}
-            >
                 <h2>Start Session</h2>
 
                 {/* TYPE */}
@@ -81,9 +87,38 @@ export default function StartSessionPopup(
                     <option value="Recharge">Recharge</option>
                 </select>
 
+                
+                {/* GOAL */}
+
+                <label>
+                    Session Goal
+                </label>
+
+
+                <textarea
+                    value={goal}
+                    onChange={(e)=>
+                        setGoal(e.target.value)
+                    }
+
+                    placeholder="What do you want to accomplish?"
+                    
+                    style={{
+                        width:"100%",
+                        height:"80px",
+                        marginBottom:"20px"
+                    }}
+                />
+
+
+
+
                 <button
                     onClick={() =>
-                        onStart({ type, duration, mood })
+                        onStart({ 
+            type, plannedDuration: duration,
+            mood,  goal, 
+        })
                     }
                     style={{ marginRight: "10px" }}
                 >

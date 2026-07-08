@@ -1,40 +1,63 @@
-import type { Session } from "../types";
+import type { JourneySession } from "../Session/journeySession";
 
-const STORAGE_KEY = "sessions";
 
-// ======================================================
-// Load Sessions
-// ======================================================
-export function loadSessions(): Session[]
+const STORAGE_KEY = "journeySessions";
+
+
+
+export function loadSessions(): JourneySession[]
 {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored =
+        localStorage.getItem(STORAGE_KEY);
 
-    if (!stored)
+
+    if(!stored)
     {
         return [];
     }
 
-    return JSON.parse(stored);
+
+    try
+    {
+        return JSON.parse(stored);
+    }
+    catch
+    {
+        return [];
+    }
 }
 
-// ======================================================
-// Save Sessions
-// ======================================================
-export function saveSessions(sessions: Session[]): void
+
+
+export function saveSessions(
+    sessions: JourneySession[]
+)
 {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(sessions)
+    );
 }
 
-// ======================================================
-// Add Session
-// ======================================================
-export function addSession(session: Session): Session[]
-{
-    const existing = loadSessions();
 
-    const updated = [...existing, session];
+
+export function addSession(
+    session: JourneySession
+)
+{
+    const sessions =
+        loadSessions();
+
+
+    const updated =
+    [
+        ...sessions,
+        session,
+    ];
+
 
     saveSessions(updated);
+
 
     return updated;
 }
