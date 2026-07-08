@@ -54,22 +54,3 @@ export interface Journeyold
     // Placeholder statistics
     statistics: JourneyStatistics;
 }
-
-export interface Session
-{
-    id: string;
-
-    journeyId: string;
-
-    type: string;
-
-    duration: number;
-
-    mood: string;
-
-    notebookPageId: string;
-
-    createdAt: string;
-
-    completedAt: string | null;
-}
