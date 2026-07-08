@@ -20,6 +20,7 @@ export default function ListBlock({ block, onUpdateBlock,
     focused }: Props) {
 
     if (block.type !== "list") return null;
+
 const [value, setValue] = useState<string>(
         typeof block.content === "string"
             ? block.content
@@ -96,7 +97,6 @@ const [value, setValue] = useState<string>(
 
             setShowSlashMenu(false);
             setSlashQuery("");
-
             return;
         }
 
@@ -206,12 +206,7 @@ const [value, setValue] = useState<string>(
             }}
         >
 
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                }}
-            >
+           
                  <div style={{
                         position: "relative",
                         display: "flex",
@@ -225,11 +220,11 @@ const [value, setValue] = useState<string>(
                     +
                 </button>
 
-                {/* Bullet Column */}
+                {/* display left Bullet Column */}
 
                 <div
                     style={{
-                        width: 20,
+                        width: "20px",
                         paddingTop: 6,
                         userSelect: "none",
                     }}
@@ -258,7 +253,7 @@ const [value, setValue] = useState<string>(
                     onKeyDown={handleKeyDown}
                     placeholder="List item..."
                     style={{
-                        flex: 1,
+                        width: "100%",
                         minHeight: "30px",
                         overflow: "hidden",
                         border: "none",
@@ -271,7 +266,7 @@ const [value, setValue] = useState<string>(
                         fontFamily: "inherit",
                     }}
                 />
-                </div>
+                
 
             </div>
 
