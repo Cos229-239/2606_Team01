@@ -17,9 +17,20 @@ import JourneyBrowser from "../Features/journey/Browser/JourneyBrowser";
 import { saveNotebooks} from "../Features/notes/storage/notebookStorage";
 import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
 import BlockList from "../Features/notes/editor/BlockList";
-import { loadSessions, addSession } from "../Features/journey/Storage/sessionStorage";
-import type { JourneySession } from "../Features/journey/Session/journeySession";
 import StartSessionPopup from "../Features/journey/Session/StartSessionPopup";
+import
+{
+    type JourneySession,
+
+    loadSessions, addSession,
+    updateSession, deleteSession,
+
+    getSessionById, getSessionByPageId,
+    getSessionsByJourneyId, getActiveSessionForPage,
+
+    startSession, endSession,
+}
+from "../Features/journey/Session/journeySession";
 
 export default function JourneyPage()
 {
@@ -185,6 +196,15 @@ export default function JourneyPage()
         setSelectedPageId(
             pageId
         );
+
+          const session =
+        getActiveSessionForPage(
+            pageId
+        );
+
+    setActiveSession(
+        session
+    );
     }
 
 function handleStartSession(data:
@@ -221,32 +241,38 @@ function handleStartSession(data:
         );
 
 
-    const session:JourneySession =
-    {
-        sessionId:
-            crypto.randomUUID(),
+    const session: JourneySession =
+{
+    sessionId:
+        crypto.randomUUID(),
 
-        journeyId:
-            selectedJourneyId,
+    journeyId:
+        selectedJourneyId,
 
-        pageId:
-            newPage.id,
+    pageId:
+        newPage.id,
 
-        startedAt:
-            new Date().toISOString(),
+    status:
+        "Planning",
 
-        type:
-            data.type,
+    startedAt:
+        undefined,
 
-        plannedDuration:
-            data.plannedDuration,
+    endedAt:
+        undefined,
 
-        mood:
-            data.mood as any,
+    type:
+        data.type,
 
-        goal:
-            data.goal,
-    };
+    plannedDuration:
+        data.plannedDuration,
+
+    mood:
+        data.mood as any,
+
+    goal:
+        data.goal,
+};
 
 
     const updatedSessions =
@@ -258,18 +284,44 @@ function handleStartSession(data:
     );
 
 
+  setSelectedPageId(
+    newPage.id
+);
+
+setSessions(
+    updatedSessions
+);
+
+setShowSessionPopup(false);
+}
+
+// ======================================================
+// ACTIVE SESSION
+// ======================================================
+
+useEffect(() =>
+{
+    if (!selectedPageId)
+    {
+        setActiveSession(null);
+        return;
+    }
+
+    const session =
+        getActiveSessionForPage(
+            selectedPageId
+        );
+
     setActiveSession(
         session
     );
 
+}, [
+    selectedPageId,
+    sessions,
+]);
 
-    setSelectedPageId(
-        newPage.id
-    );
 
-
-    setShowSessionPopup(false);
-}
 
     // ======================================================
     // DELETE NOTEBOOK
