@@ -9,6 +9,7 @@
 
 import type { Notebook, Page } from "../types";
 import { useState } from "react";
+import { useConfirmDelete } from "../../../Components/ConfirmDialog";
 
 interface NotebookBrowserProps
 {
@@ -54,12 +55,20 @@ const [editingNotebookId, setEditingNotebookId] =
 const [editingTitle, setEditingTitle] =
     useState("");
 
+const { requestDelete, confirmDialog } = useConfirmDelete();
+
      return (
+        <>
+        {confirmDialog}
         <aside
             style={{
                 width: "260px",
+                flexShrink: 0,
                 padding: "12px",
                 borderRight: "1px solid rgba(255,255,255,0.1)",
+                height: "100%",
+                minHeight: 0,
+                overflowY: "auto",
             }}
         >
         {/* ================= New Notebook ================= */}
@@ -191,7 +200,10 @@ const [editingTitle, setEditingTitle] =
 
                             <button
                                 onClick={() =>
-                                    onDeleteNotebook(notebook.id)
+                                    requestDelete(
+                                        `Delete "${notebook.title || "Untitled Notebook"}" and all of its pages? This can't be undone.`,
+                                        () => onDeleteNotebook(notebook.id)
+                                    )
                                 }
                                 style={{
                                     border: "none",
@@ -247,7 +259,10 @@ const [editingTitle, setEditingTitle] =
 
                                                 <button
                                                     onClick={() =>
-                                                        onDeletePage(page.id)
+                                                        requestDelete(
+                                                            `Delete "${page.title || "Untitled Page"}"? This can't be undone.`,
+                                                            () => onDeletePage(page.id)
+                                                        )
                                                     }
                                                     style={{
                                                         border: "none",
@@ -283,5 +298,6 @@ const [editingTitle, setEditingTitle] =
                 );
             })}
         </aside>
+        </>
     );
 }

@@ -2,6 +2,7 @@ import type { Journey } from "../types";
 import type { Notebook } from "../../notes/types";
 import type { Page } from "../../notes/types";
 import { useState } from "react";
+import { useConfirmDelete } from "../../../Components/ConfirmDialog";
 
 
 interface JourneyBrowserProps
@@ -64,10 +65,14 @@ export default function JourneyBrowser(
     const [editingTitle, setEditingTitle] =
         useState("");
 
+    const { requestDelete, confirmDialog } = useConfirmDelete();
+
 
 
     return (
 
+        <>
+        {confirmDialog}
         <aside
             style={{
                 width: "260px",
@@ -274,8 +279,9 @@ export default function JourneyBrowser(
 
                             <button
                                 onClick={() =>
-                                    onDeleteNotebook(
-                                        notebook.id
+                                    requestDelete(
+                                        `Delete "${notebook.title || "Untitled Journey"}" and all of its sessions? This can't be undone.`,
+                                        () => onDeleteNotebook(notebook.id)
                                     )
                                 }
 
@@ -351,7 +357,10 @@ export default function JourneyBrowser(
 
                                                 <button
                                                     onClick={() =>
-                                                        onDeletePage(page.id)
+                                                        requestDelete(
+                                                            `Delete "${page.title || "Untitled Session"}"? This can't be undone.`,
+                                                            () => onDeletePage(page.id)
+                                                        )
                                                     }
                                                     style={{
                                                         border: "none",
@@ -386,5 +395,6 @@ export default function JourneyBrowser(
                 );
             })}
         </aside>
+        </>
     );
 }

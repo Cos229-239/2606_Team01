@@ -39,13 +39,27 @@
     return `hsl(${h}, ${s}%, ${l}%)`;
   }
 
+  // Reads the two gradient colour stops, preferring a per-mood override
+  // (set on the Appearance page) when the active mood has one enabled —
+  // same pattern cityscape.js uses for its own mood-based palette.
+  function readColours() {
+    const mood = localStorage.getItem('active-mood') || 'Focused';
+    const moodEnabled = mood !== 'default' && localStorage.getItem(`gradient-mood-${mood}-enabled`) === 'true';
+
+    const prefix = moodEnabled ? `gradient-mood-${mood}-` : 'gradient-';
+
+    return {
+      h1: parseFloat(localStorage.getItem(`${prefix}h1`) ?? '220'),
+      s1: parseFloat(localStorage.getItem(`${prefix}s1`) ?? '70'),
+      l1: parseFloat(localStorage.getItem(`${prefix}l1`) ?? '18'),
+      h2: parseFloat(localStorage.getItem(`${prefix}h2`) ?? '280'),
+      s2: parseFloat(localStorage.getItem(`${prefix}s2`) ?? '60'),
+      l2: parseFloat(localStorage.getItem(`${prefix}l2`) ?? '8'),
+    };
+  }
+
   function applyGradient() {
-    const h1    = parseFloat(localStorage.getItem('gradient-h1')    ?? '220');
-    const s1    = parseFloat(localStorage.getItem('gradient-s1')    ?? '70');
-    const l1    = parseFloat(localStorage.getItem('gradient-l1')    ?? '18');
-    const h2    = parseFloat(localStorage.getItem('gradient-h2')    ?? '280');
-    const s2    = parseFloat(localStorage.getItem('gradient-s2')    ?? '60');
-    const l2    = parseFloat(localStorage.getItem('gradient-l2')    ?? '8');
+    const { h1, s1, l1, h2, s2, l2 } = readColours();
     const angle = parseFloat(localStorage.getItem('gradient-angle') ?? '160');
 
     el.style.background = `linear-gradient(${angle}deg, ${hslStr(h1, s1, l1)}, ${hslStr(h2, s2, l2)})`;
@@ -72,6 +86,12 @@
     if (isActive()) applyGradient();
   });
 
+  // In-window mood changes (from CongruencePage in same tab) — re-apply so
+  // any enabled per-mood gradient override takes effect immediately.
+  window.addEventListener('mood-change', () => {
+    if (isActive()) applyGradient();
+  });
+
   // Re-sync when window regains focus (cross-window, e.g. timer window)
   window.addEventListener('focus', syncVisibility);
 
@@ -88,9 +108,14 @@
     const k = e.key ?? '';
     if (MODE_KEYS.has(k)) {
       syncVisibility();
-    } else if (COLOUR_KEYS.has(k)) {
-      // Colour/angle changed; update the gradient if we're currently visible
-      // AND re-run syncVisibility in case mode also just became gradient
+    } else if (k === 'active-mood') {
+      // Mood changed in another window — re-apply colours if a per-mood
+      // override is enabled for the new mood.
+      if (isActive()) applyGradient();
+    } else if (COLOUR_KEYS.has(k) || k.startsWith('gradient-mood-')) {
+      // Colour/angle (global or per-mood) changed; update the gradient if
+      // we're currently visible AND re-run syncVisibility in case mode
+      // also just became gradient
       syncVisibility();
       if (isActive()) applyGradient();
     }

@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
-import { getProfile, saveProfile } from "../Data/profileStorage";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { DEFAULT_PROFILE, getProfile, saveProfile } from "../Data/profileStorage";
 import type { ProfileData } from "../Data/profileStorage";
+import { loadTasks } from "../Data/taskStorage";
 
 // ── Default avatar icon shown when no photo has been set ──────────────────
 function DefaultAvatarIcon() {
@@ -167,10 +168,129 @@ function TitleChips({
   );
 }
 
+// ── Task preference statistics ─────────────────────────────────────────────
+// Reads task "mood" values (Focused / Planning / Recharge / etc., set on
+// each task via CreateTaskPopup) and shows which state the user tends to
+// work in most, as a simple set of bars — same accent colours as the
+// Congruence page's mood cards, so it reads as "the same thing" elsewhere.
+const MOOD_COLORS: Record<string, string> = {
+  Focused:  "rgba(100, 160, 255, 0.75)",
+  Planning: "rgba(255, 180, 60, 0.75)",
+  Recharge: "rgba(60, 220, 160, 0.75)",
+};
+const DEFAULT_MOOD_COLOR = "rgba(200, 210, 230, 0.5)";
+const MOOD_ORDER = ["Focused", "Planning", "Recharge"];
+
+function TaskPreferences() {
+  const counts = useMemo(() => {
+    const tasks = loadTasks();
+    const tally = new Map<string, number>();
+
+    for (const task of tasks) {
+      const mood = task.mood || "Unspecified";
+      tally.set(mood, (tally.get(mood) ?? 0) + 1);
+    }
+
+    // Canonical moods first (even at zero), then anything unexpected.
+    const moods = [
+      ...MOOD_ORDER,
+      ...[...tally.keys()].filter((m) => !MOOD_ORDER.includes(m)),
+    ];
+
+    const total = tasks.length;
+    const rows = moods
+      .map((mood) => ({ mood, count: tally.get(mood) ?? 0 }))
+      .filter((row) => total === 0 || row.count > 0 || MOOD_ORDER.includes(row.mood));
+
+    const topCount = Math.max(0, ...rows.map((r) => r.count));
+    const preferred = topCount > 0 ? rows.find((r) => r.count === topCount)?.mood : null;
+
+    return { rows, total, preferred };
+  }, []);
+
+  return (
+    <div className="glass-panel" style={{ padding: "28px", marginTop: "24px", maxWidth: "700px" }}>
+      <h2 style={{ marginBottom: "4px" }}>Task Preferences</h2>
+      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", marginBottom: "20px" }}>
+        {counts.total === 0
+          ? "Create a few tasks to see which state you gravitate toward."
+          : counts.preferred
+          ? `You spend the most time in ${counts.preferred} mode.`
+          : "How your tasks are split across each state."}
+      </p>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        {counts.rows.map(({ mood, count }) => {
+          const pct = counts.total > 0 ? Math.round((count / counts.total) * 100) : 0;
+          const color = MOOD_COLORS[mood] ?? DEFAULT_MOOD_COLOR;
+          const isPreferred = mood === counts.preferred;
+
+          return (
+            <div key={mood}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: isPreferred ? 700 : 500,
+                    color: isPreferred ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.7)",
+                  }}
+                >
+                  {mood}
+                  {isPreferred && (
+                    <span style={{ marginLeft: "8px", fontSize: "10px", color, letterSpacing: "0.04em" }}>
+                      ★ MOST PICKED
+                    </span>
+                  )}
+                </span>
+                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)" }}>
+                  {count} task{count === 1 ? "" : "s"} · {pct}%
+                </span>
+              </div>
+              <div
+                style={{
+                  width: "100%",
+                  height: "8px",
+                  borderRadius: "6px",
+                  background: "rgba(255,255,255,0.06)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${pct}%`,
+                    height: "100%",
+                    borderRadius: "6px",
+                    background: color,
+                    transition: "width 0.4s ease",
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<ProfileData>(() => getProfile());
+  const [profile, setProfile] = useState<ProfileData>(DEFAULT_PROFILE);
+  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<ProfileData>(profile);
+  const [draft, setDraft] = useState<ProfileData>(DEFAULT_PROFILE);
+
+  useEffect(() => {
+    let cancelled = false;
+    getProfile().then((loaded) => {
+      if (cancelled) return;
+      setProfile(loaded);
+      setDraft(loaded);
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function startEditing() {
     setDraft(profile);
@@ -182,13 +302,26 @@ export default function ProfilePage() {
     setEditing(false);
   }
 
-  function handleSave() {
-    saveProfile(draft);
+  async function handleSave() {
+    await saveProfile(draft);
     setProfile(draft);
     setEditing(false);
   }
 
   const active = editing ? draft : profile;
+
+  if (loading) {
+    return (
+      <div>
+        <div className="task-list-header">
+          <h1>Profile</h1>
+        </div>
+        <div className="glass-panel" style={{ padding: "28px", marginTop: "24px", maxWidth: "700px" }}>
+          <p style={{ color: "rgba(255,255,255,0.4)" }}>Loading profile…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -295,6 +428,8 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      <TaskPreferences />
     </div>
   );
 }

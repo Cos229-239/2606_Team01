@@ -362,6 +362,97 @@ function GradientStopRow({ label, hue, lightness, saturation, onHue, onLightness
   );
 }
 
+// ── Per-mood gradient colour section ──────────────────────────────────────
+// Fires gradient-update so the gradient background picks up the change live
+function useGradientMoodSetting(key: string, defaultValue: string) {
+  const [value, setValue] = useState(() => localStorage.getItem(key) ?? defaultValue);
+  const set = useCallback((v: string) => {
+    setValue(v);
+    localStorage.setItem(key, v);
+    window.dispatchEvent(new CustomEvent("gradient-update"));
+  }, [key]);
+  return [value, set] as const;
+}
+
+function GradientMoodRow({ moodKey, label, accent }: {
+  moodKey: string;
+  label: string;
+  accent: string;
+}) {
+  const [enabled, setEnabled] = useGradientMoodSetting(`gradient-mood-${moodKey}-enabled`, "false");
+  const [h1, setH1] = useGradientMoodSetting(`gradient-mood-${moodKey}-h1`, "220");
+  const [s1, setS1] = useGradientMoodSetting(`gradient-mood-${moodKey}-s1`, "70");
+  const [l1, setL1] = useGradientMoodSetting(`gradient-mood-${moodKey}-l1`, "18");
+  const [h2, setH2] = useGradientMoodSetting(`gradient-mood-${moodKey}-h2`, "280");
+  const [s2, setS2] = useGradientMoodSetting(`gradient-mood-${moodKey}-s2`, "60");
+  const [l2, setL2] = useGradientMoodSetting(`gradient-mood-${moodKey}-l2`, "8");
+
+  const isOn = enabled === "true";
+  const gh1 = parseInt(h1), gs1 = parseFloat(s1), gl1 = parseFloat(l1);
+  const gh2 = parseInt(h2), gs2 = parseFloat(s2), gl2 = parseFloat(l2);
+
+  return (
+    <div style={{
+      padding: "14px 16px",
+      borderRadius: "10px",
+      background: "rgba(255,255,255,0.04)",
+      border: `1px solid ${isOn ? accent : "rgba(255,255,255,0.08)"}`,
+      transition: "border-color 0.3s",
+      marginBottom: "10px",
+    }}>
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isOn ? "14px" : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{
+            width: "8px", height: "8px", borderRadius: "50%",
+            background: accent, display: "inline-block",
+          }} />
+          <p style={{ margin: 0, color: "rgba(220,235,255,0.9)", fontSize: "13px" }}>{label}</p>
+        </div>
+        <label style={{ cursor: "pointer", flexShrink: 0 }}>
+          <input type="checkbox" checked={isOn} onChange={e => setEnabled(String(e.target.checked))} style={{ display: "none" }} />
+          <span style={{
+            display: "inline-flex", alignItems: "center",
+            width: "40px", height: "22px", borderRadius: "11px",
+            background: isOn ? "rgba(170,120,255,0.7)" : "rgba(255,255,255,0.12)",
+            transition: "background 0.2s", position: "relative",
+          }}>
+            <span style={{
+              position: "absolute", width: "18px", height: "18px", borderRadius: "50%",
+              background: "#fff", transition: "transform 0.2s",
+              transform: isOn ? "translateX(19px)" : "translateX(2px)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+            }} />
+          </span>
+        </label>
+      </div>
+
+      {isOn && (
+        <>
+          <GradientStopRow
+            label="Colour 1"
+            hue={gh1} lightness={gl1} saturation={gs1}
+            onHue={h => setH1(String(h))}
+            onLightness={l => setL1(String(l))}
+          />
+          <GradientStopRow
+            label="Colour 2"
+            hue={gh2} lightness={gl2} saturation={gs2}
+            onHue={h => setH2(String(h))}
+            onLightness={l => setL2(String(l))}
+          />
+          {/* Preview */}
+          <div style={{
+            height: "28px", borderRadius: "6px",
+            background: `linear-gradient(160deg, hsl(${gh1}, ${gs1}%, ${gl1}%), hsl(${gh2}, ${gs2}%, ${gl2}%))`,
+            border: "1px solid rgba(255,255,255,0.1)",
+          }} />
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────
 export default function AppearancePage() {
   const navigate = useNavigate();
@@ -751,6 +842,17 @@ export default function AppearancePage() {
           background: `linear-gradient(${gAngle}deg, hsl(${gH1}, ${gS1}%, ${gL1}%), hsl(${gH2}, ${gS2}%, ${gL2}%))`,
           border: "1px solid rgba(255,255,255,0.1)",
         }} />
+
+        {/* Gradient mood color overrides */}
+        <p style={{ margin: "20px 0 10px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          Mood Color Overrides
+        </p>
+        <p style={{ margin: "0 0 12px", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+          Override the gradient colours when a mood is active.
+        </p>
+        {MOODS.map(m => (
+          <GradientMoodRow key={m.key} moodKey={m.key} label={m.label} accent={m.accent} />
+        ))}
       </div>
     </div>
   );

@@ -14,6 +14,12 @@ const settingsCategories = [
     icon: "🔔",
   },
   {
+    title: "Notebook",
+    description: "Deletion confirmations and other notebook preferences",
+    path: "/settings/notebook",
+    icon: "📓",
+  },
+  {
     title: "Profile Settings",
     description: "Name, titles, photo and bio",
     path: "/profile",

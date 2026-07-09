@@ -65,7 +65,8 @@ const selectedPage =
         <div
             style={{
                 display: "flex",
-                height: "100vh",
+                height: "100%",
+                minHeight: 0,
                 backgroundColor: "rgba(20, 12, 55, 0.38)",
             }}
         >
@@ -87,6 +88,8 @@ const selectedPage =
             <main
                 style={{
                     flex: 1,
+                    minWidth: 0,
+                    minHeight: 0,
                     display: "flex",
                     justifyContent: "center",
                     padding: "40px",
@@ -102,6 +105,9 @@ const selectedPage =
                             borderRadius: "10px",
                             padding: "48px",
                             minHeight: "900px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignSelf: "flex-start",
                         }}
                     >
                         {/* PAGE TITLE */}
@@ -131,6 +137,7 @@ const selectedPage =
                         {/* TASK CREATION */}
                         <button
                             onClick={() => setShowCreateTaskPopup(true)}
+                            style={{ alignSelf: "flex-start" }}
                         >
                             + Create New Task
                         </button>
@@ -150,7 +157,7 @@ const selectedPage =
                         {/* TASK PICKER */}
                         <button
                             onClick={() => setShowTaskPicker(true)}
-                            style={{ marginBottom: "24px" }}
+                            style={{ alignSelf: "flex-start", marginBottom: "24px" }}
                         >
                             + Add Task Block
                         </button>
@@ -204,6 +211,8 @@ const selectedPage =
                                 flex: 1,
                                 width: "100%",
                                 minHeight: "600px",
+                                paddingBottom: "260px",
+                                cursor: "text",
                             }}
                         >
                             <BlockList

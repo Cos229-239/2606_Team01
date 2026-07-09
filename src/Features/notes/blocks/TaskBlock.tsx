@@ -2,6 +2,7 @@ import type { Block } from "../types";
 import type { Task } from "../../../Data/tasks";
 import TaskCard from "../../../Components/TaskCard";
 import EditTaskPopup from "../../../Components/EditTaskPopup";
+import { useConfirmDelete } from "../../../Components/ConfirmDialog";
 import { useState } from "react";
 
 interface Props {
@@ -26,6 +27,7 @@ export default function TaskBlock(
    
     // Controls whether the edit popup is open
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const { requestDelete, confirmDialog } = useConfirmDelete();
     
      // Find the task attached to this block
      const taskId: string  = block.content.taskId;
@@ -46,12 +48,19 @@ export default function TaskBlock(
 
     return (
         <>
+        {confirmDialog}
 
         <TaskCard
             {...matchedTask}
             onEdit={() => setEditingTask(matchedTask)}
-            onDelete={() => {onDeleteTask(matchedTask.id);
-                            onDeleteBlock(block.id);}
+            onDelete={() =>
+                requestDelete(
+                    `Delete "${matchedTask.title || "this task"}"?`,
+                    () => {
+                        onDeleteTask(matchedTask.id);
+                        onDeleteBlock(block.id);
+                    }
+                )
             }
         />
 

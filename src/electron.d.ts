@@ -18,6 +18,10 @@ declare global
             notifyTimerComplete: (payload: { title?: string; body?: string }) => void;
             selectAudioFile: () => Promise<string | null>;
             readAudioFileAsDataUrl: (filePath: string) => Promise<string | null>;
+            profile: {
+                load: () => Promise<import("./Data/profileStorage").ProfileData | null>;
+                save: (profile: import("./Data/profileStorage").ProfileData) => Promise<boolean>;
+            };
         };
     }
 }
