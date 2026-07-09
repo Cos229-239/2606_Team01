@@ -16,6 +16,8 @@ declare global
         {
             openTimer: () => void;
             notifyTimerComplete: (payload: { title?: string; body?: string }) => void;
+            selectAudioFile: () => Promise<string | null>;
+            readAudioFileAsDataUrl: (filePath: string) => Promise<string | null>;
         };
     }
 }

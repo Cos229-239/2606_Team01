@@ -10,7 +10,7 @@ const settingsCategories = [
   {
     title: "Notifications",
     description: "Notification preferences",
-    path: null,
+    path: "/settings/notifications",
     icon: "🔔",
   },
   {
