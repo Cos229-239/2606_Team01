@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import type { Notebook, Page, Block, BlockType } from "../types";
 import type { Task } from "../../../Data/tasks";
-
+import {
+    getSessionByPageId,
+    deleteSession,
+} from "../../journey/Session/journeySession";
 import {
     loadNotebooks,  saveNotebooks,    loadPages,
     savePages,  loadBlocks,  saveBlocks,
@@ -274,9 +277,17 @@ export function useNotesPageFunctions({
     setNotebooks(updatedNotebooks);
     saveNotebooks(updatedNotebooks);
 
-    if (selectedPageId === pageId)
-    {
-    }
+   
+    const session =
+    getSessionByPageId(pageId);
+
+
+        if(session)
+        {
+            deleteSession(
+                session.sessionId
+            );
+        }
     }
 
     // ==================================================
