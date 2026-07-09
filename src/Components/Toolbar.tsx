@@ -14,6 +14,11 @@ export default function Toolbar() {
       <button  onClick = {() => window.electron.openTimer()}>
         Timer
       </button>
+      {/* Profile tab */}
+      <Link to="/profile">
+        <button>Profile</button>
+      </Link>
     </div>
+
   );
 }

@@ -13,6 +13,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import TimerPage from "./pages/TimerPage";
 import NotesPage from "./pages/NotesPage";
 import JourneyPage from "./pages/JourneyPage";
+import ProfilePage from "./pages/ProfilePage";
 import "./Css/App.css";
 
 function MainLayout()
@@ -52,6 +53,7 @@ function App() {
             <Route path="/settings/notifications" element={<NotificationsPage />} />
             <Route path="/notebook" element={<NotesPage />} />
             <Route path="/journey" element={<JourneyPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
          
