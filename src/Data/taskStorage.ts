@@ -21,7 +21,33 @@ export function loadTasks(): Task[] {
     if (!savedTasks) {
         return [];
     }
-    return JSON.parse(savedTasks);
+
+    const tasks: Task[] = JSON.parse(savedTasks);
+
+    // ── Duplicate-id repair ─────────────────────────────────────────────
+    // Edit/delete both match tasks by id, so two tasks sharing the same
+    // id get edited or deleted together (and React key collisions make
+    // edits look like they don't save). Older saved data could contain
+    // duplicates from a since-fixed seeding bug — reassign any repeats
+    // a fresh id here, once, so every task is safe to edit/delete on
+    // its own from this point on.
+    const seenIds = new Set<string>();
+    let hadDuplicates = false;
+
+    const repairedTasks = tasks.map((task) => {
+        if (!task.id || seenIds.has(task.id)) {
+            hadDuplicates = true;
+            return { ...task, id: crypto.randomUUID() };
+        }
+        seenIds.add(task.id);
+        return task;
+    });
+
+    if (hadDuplicates) {
+        saveTasks(repairedTasks);
+    }
+
+    return repairedTasks;
 }
 
 

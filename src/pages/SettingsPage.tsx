@@ -14,9 +14,9 @@ const settingsCategories = [
     icon: "🔔",
   },
   {
-    title: "Account",
-    description: "Account settings",
-    path: null,
+    title: "Profile Settings",
+    description: "Name, titles, photo and bio",
+    path: "/profile",
     icon: "👤",
   },
 ];

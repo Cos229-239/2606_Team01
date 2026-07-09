@@ -58,8 +58,12 @@ const [editingTitle, setEditingTitle] =
         <aside
             style={{
                 width: "260px",
+                flexShrink: 0,
                 padding: "12px",
                 borderRight: "1px solid rgba(255,255,255,0.1)",
+                height: "100%",
+                minHeight: 0,
+                overflowY: "auto",
             }}
         >
         {/* ================= New Notebook ================= */}
