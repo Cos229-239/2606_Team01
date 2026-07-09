@@ -2,6 +2,12 @@ import { useNavigate } from "react-router-dom";
 
 const settingsCategories = [
   {
+    title: "General",
+    description: "Deletion confirmations and other general preferences",
+    path: "/settings/general",
+    icon: "⚙️",
+  },
+  {
     title: "Appearance",
     description: "Starfield, themes and display options",
     path: "/settings/appearance",
@@ -12,12 +18,6 @@ const settingsCategories = [
     description: "Notification preferences",
     path: "/settings/notifications",
     icon: "🔔",
-  },
-  {
-    title: "Notebook",
-    description: "Deletion confirmations and other notebook preferences",
-    path: "/settings/notebook",
-    icon: "📓",
   },
   {
     title: "Profile Settings",

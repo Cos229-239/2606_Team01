@@ -10,7 +10,7 @@ import RechargePage from "./pages/RechargePage";
 import SettingsPage from "./pages/SettingsPage";
 import AppearancePage from "./pages/AppearancePage";
 import NotificationsPage from "./pages/NotificationsPage";
-import NotebookSettingsPage from "./pages/NotebookSettingsPage";
+import GeneralSettingsPage from "./pages/GeneralSettingsPage";
 import TimerPage from "./pages/TimerPage";
 import NotesPage from "./pages/NotesPage";
 import JourneyPage from "./pages/JourneyPage";
@@ -52,7 +52,7 @@ function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/appearance" element={<AppearancePage />} />
             <Route path="/settings/notifications" element={<NotificationsPage />} />
-            <Route path="/settings/notebook" element={<NotebookSettingsPage />} />
+            <Route path="/settings/general" element={<GeneralSettingsPage />} />
             <Route path="/notebook" element={<NotesPage />} />
             <Route path="/journey" element={<JourneyPage />} />
             <Route path="/profile" element={<ProfilePage />} />

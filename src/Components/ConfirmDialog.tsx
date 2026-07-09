@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { getConfirmBeforeDelete } from "../Data/notebookSettings";
+import { getConfirmBeforeDelete } from "../Data/generalSettings";
 
 interface PendingConfirm {
     message: string;
