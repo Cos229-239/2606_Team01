@@ -14,7 +14,7 @@ export type Task = {
 
 export const defaultTask: Task[] = [
     {
-       id: "1",
+       id: "2",
             title: "Build TaskCard",
             notes: `Design from sketch Implement accordion
             Test preview lines Works great`,
@@ -32,7 +32,7 @@ export const defaultTask: Task[] = [
             Improve spacing system
             Clean up styles`,
             completed: true,
-            mood: "Focused",
+            mood: "Deep Work",
             status: "In Progress",
             priority: "Medium",
             dueDate: "May 22",

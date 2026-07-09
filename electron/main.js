@@ -7,17 +7,6 @@ import { ipcMain, Notification, dialog } from "electron";
 import fs from "node:fs";
 import path from "node:path";
 
-    // Profile data persistence
-    // ------------------------------------------------------
-    // The user's profile (name, titles, bio, photo) lives in its own
-    // folder inside Electron's userData directory, as a small JSON file
-    // on disk — separate from anything else the app stores, and
-    // reachable across app restarts/updates like the rest of the app's
-    // saved data.
-    //   <userData>/profile/profile.json
-    const PROFILE_DIR = () => path.join(app.getPath("userData"), "profile");
-    const PROFILE_FILE = () => path.join(PROFILE_DIR(), "profile.json");
-
     // This is what shows up as the sender name on notifications (instead
     // of the generic "Electron"), in the taskbar, and in userData paths.
     app.setName("BetterEveryDay");
@@ -134,44 +123,6 @@ import path from "node:path";
             {
                 console.error("[main] failed to read custom sound file:", error);
                 return null;
-            }
-        });
-
-    // Profile save/load
-    // ------------------------------------------------------
-    // Backs the Profile page. Reads/writes a single JSON file in its
-    // own "profile" folder under userData (see PROFILE_DIR/PROFILE_FILE
-    // above), rather than sharing storage with anything else.
-    ipcMain.handle("profile:load", async () =>
-        {
-            try
-            {
-                const raw = await fs.promises.readFile(PROFILE_FILE(), "utf-8");
-                return JSON.parse(raw);
-            }
-            catch (error)
-            {
-                // No profile saved yet (first run) — not a real error.
-                if (error.code !== "ENOENT")
-                {
-                    console.error("[main] failed to read profile.json:", error);
-                }
-                return null;
-            }
-        });
-
-    ipcMain.handle("profile:save", async (_event, profile) =>
-        {
-            try
-            {
-                await fs.promises.mkdir(PROFILE_DIR(), { recursive: true });
-                await fs.promises.writeFile(PROFILE_FILE(), JSON.stringify(profile, null, 2), "utf-8");
-                return true;
-            }
-            catch (error)
-            {
-                console.error("[main] failed to write profile.json:", error);
-                return false;
             }
         });
     

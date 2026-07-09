@@ -2,23 +2,28 @@
 // profileStorage.ts
 // ------------------------------------------------------
 // Central location for reading and writing the user's
-// profile (name, titles, bio, photo).
-//
-// Unlike most of the app's settings (which live in
-// localStorage), the profile is persisted to disk via the
-// Electron main process — see electron/main.js
-// ("profile:load" / "profile:save") — in its own folder:
-//   <userData>/profile/profile.json
-//
-// This means the profile survives things localStorage
-// doesn't always survive (cache clears, browser storage
-// limits) and lives in a predictable place on the user's
-// computer, same as the rest of the app's real data.
-//
-// When running outside Electron (e.g. `npm run dev` in a
-// plain browser tab), window.electron isn't present, so we
-// fall back to localStorage just so the page still works.
+// profile (name, titles, bio, photo), mirroring the
+// pattern used by notificationSettings.ts -- storage keys,
+// defaults, and getters live here so ProfilePage (and
+// anything else that wants to display the profile) never
+// touches localStorage keys directly.
 // ======================================================
+
+export const PROFILE_KEYS = {
+    name:         "profile-name",
+    primaryTitle: "profile-primary-title",
+    titles:       "profile-titles",   // JSON-encoded string[]
+    bio:          "profile-bio",
+    photo:        "profile-photo",    // base64 data URL, "" = use default icon
+} as const;
+
+export const PROFILE_DEFAULTS = {
+    name:         "",
+    primaryTitle: "",
+    titles:       "[]",
+    bio:          "",
+    photo:        "",
+};
 
 export interface ProfileData {
     name: string;
@@ -28,52 +33,31 @@ export interface ProfileData {
     photo: string;
 }
 
-export const DEFAULT_PROFILE: ProfileData = {
-    name:         "",
-    primaryTitle: "",
-    titles:       [],
-    bio:          "",
-    photo:        "",
-};
-
-{/* Used only as a fallback when window.electron isn't available (browser dev preview) */}
-const FALLBACK_KEY = "profile-data";
-
-function hasElectronProfileBridge(): boolean {
-    return typeof window !== "undefined" && !!window.electron?.profile;
-}
-
-{/* Reads the full profile from disk (via IPC), falling back to defaults */}
-export async function getProfile(): Promise<ProfileData> {
-    if (hasElectronProfileBridge()) {
-        try {
-            const saved = await window.electron.profile.load();
-            return saved ? { ...DEFAULT_PROFILE, ...saved } : DEFAULT_PROFILE;
-        } catch {
-            return DEFAULT_PROFILE;
-        }
-    }
-
-    // Browser dev fallback
+{/* Reads the full profile from localStorage, falling back to defaults */}
+export function getProfile(): ProfileData {
+    let titles: string[] = [];
     try {
-        const raw = localStorage.getItem(FALLBACK_KEY);
-        return raw ? { ...DEFAULT_PROFILE, ...JSON.parse(raw) } : DEFAULT_PROFILE;
+        titles = JSON.parse(localStorage.getItem(PROFILE_KEYS.titles) ?? PROFILE_DEFAULTS.titles);
+        if (!Array.isArray(titles)) titles = [];
     } catch {
-        return DEFAULT_PROFILE;
+        titles = [];
     }
+
+    return {
+        name:         localStorage.getItem(PROFILE_KEYS.name) ?? PROFILE_DEFAULTS.name,
+        primaryTitle: localStorage.getItem(PROFILE_KEYS.primaryTitle) ?? PROFILE_DEFAULTS.primaryTitle,
+        titles,
+        bio:          localStorage.getItem(PROFILE_KEYS.bio) ?? PROFILE_DEFAULTS.bio,
+        photo:        localStorage.getItem(PROFILE_KEYS.photo) ?? PROFILE_DEFAULTS.photo,
+    };
 }
 
-{/* Persists the full profile to disk (via IPC) and notifies listeners (e.g. Toolbar avatar) */}
-export async function saveProfile(profile: ProfileData): Promise<void> {
-    if (hasElectronProfileBridge()) {
-        await window.electron.profile.save(profile);
-    } else {
-        try {
-            localStorage.setItem(FALLBACK_KEY, JSON.stringify(profile));
-        } catch {
-            // ignore — nothing more we can do in this fallback path
-        }
-    }
-
+{/* Persists the full profile to localStorage and notifies listeners (e.g. Toolbar avatar) */}
+export function saveProfile(profile: ProfileData): void {
+    localStorage.setItem(PROFILE_KEYS.name, profile.name);
+    localStorage.setItem(PROFILE_KEYS.primaryTitle, profile.primaryTitle);
+    localStorage.setItem(PROFILE_KEYS.titles, JSON.stringify(profile.titles));
+    localStorage.setItem(PROFILE_KEYS.bio, profile.bio);
+    localStorage.setItem(PROFILE_KEYS.photo, profile.photo);
     window.dispatchEvent(new CustomEvent("profile-update"));
 }

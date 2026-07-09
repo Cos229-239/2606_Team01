@@ -65,8 +65,7 @@ const selectedPage =
         <div
             style={{
                 display: "flex",
-                height: "100%",
-                minHeight: 0,
+                height: "100vh",
                 backgroundColor: "rgba(20, 12, 55, 0.38)",
             }}
         >
@@ -88,8 +87,6 @@ const selectedPage =
             <main
                 style={{
                     flex: 1,
-                    minWidth: 0,
-                    minHeight: 0,
                     display: "flex",
                     justifyContent: "center",
                     padding: "40px",
@@ -105,8 +102,6 @@ const selectedPage =
                             borderRadius: "10px",
                             padding: "48px",
                             minHeight: "900px",
-                            display: "flex",
-                            flexDirection: "column",
                         }}
                     >
                         {/* PAGE TITLE */}
@@ -209,8 +204,6 @@ const selectedPage =
                                 flex: 1,
                                 width: "100%",
                                 minHeight: "600px",
-                                paddingBottom: "260px",
-                                cursor: "text",
                             }}
                         >
                             <BlockList

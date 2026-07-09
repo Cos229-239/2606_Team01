@@ -33,12 +33,5 @@ contextBridge.exposeInMainWorld("electron", {
     // file:// access restrictions. Resolves null on failure.
     readAudioFileAsDataUrl: (filePath) => {
         return ipcRenderer.invoke("read-audio-file", filePath);
-    },
-
-    // Profile (name, titles, bio, photo) — persisted to its own JSON
-    // file on disk under userData/profile, via main.js.
-    profile: {
-        load: () => ipcRenderer.invoke("profile:load"),
-        save: (profile) => ipcRenderer.invoke("profile:save", profile),
     }
 });
