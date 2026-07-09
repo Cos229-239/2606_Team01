@@ -18,6 +18,7 @@ import { saveNotebooks} from "../Features/notes/storage/notebookStorage";
 import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctions";
 import BlockList from "../Features/notes/editor/BlockList";
 import StartSessionPopup from "../Features/journey/Session/StartSessionPopup";
+import JourneyOverview from "../Features/journey/Utils/JourneyOverview";
 import
 {
     type JourneySession,
@@ -29,6 +30,9 @@ import
     getSessionsByJourneyId, getActiveSessionForPage,
 
     startSession, endSession,
+
+    getSessionDuration,
+
 }
 from "../Features/journey/Session/journeySession";
 
@@ -207,6 +211,14 @@ export default function JourneyPage()
     );
     }
 
+
+
+    // ======================================================
+    // SESSION
+    // ======================================================
+
+
+
 function handleStartSession(data:
 {
     type:string;
@@ -293,6 +305,71 @@ setSessions(
 );
 
 setShowSessionPopup(false);
+}
+
+
+// START ACTIVE SESSION
+function handleActivateSession()
+{
+    if(!activeSession)
+    {
+        return;
+    }
+
+
+    const updatedSession =
+        startSession(
+            activeSession.sessionId
+        );
+
+
+    if(!updatedSession)
+    {
+        return;
+    }
+
+
+    setSessions(
+        loadSessions()
+    );
+
+
+    setActiveSession(
+        updatedSession
+    );
+}
+
+
+
+// END SESSION
+function handleEndSession()
+{
+    if(!activeSession)
+    {
+        return;
+    }
+
+
+    const updatedSession =
+        endSession(
+            activeSession.sessionId
+        );
+
+
+    if(!updatedSession)
+    {
+        return;
+    }
+
+
+    setSessions(
+        loadSessions()
+    );
+
+
+    setActiveSession(
+        updatedSession
+    );
 }
 
 // ======================================================
@@ -426,7 +503,7 @@ useEffect(() =>
 
 
     // ======================================================
-    // SELECTED PAGE
+    // SELECTED PAGE, JOURNEY, NOTEBOOK
     // ======================================================
 
     const selectedPage =
@@ -435,6 +512,28 @@ useEffect(() =>
                 page.id === selectedPageId
         );
 
+        const selectedJourney =
+    journeys.find(
+        (journey) =>
+            journey.journeyId === selectedJourneyId
+    );
+
+
+const selectedNotebook =
+    notebooks.find(
+        (notebook) =>
+            notebook.id === selectedJourney?.notebookId
+    );
+
+
+const journeySessions =
+    selectedJourney
+        ?
+        getSessionsByJourneyId(
+            selectedJourney.journeyId
+        )
+        :
+        [];
         
 
 
@@ -525,13 +624,48 @@ useEffect(() =>
 
                         {/* SESSION META */}
 
-                        <button
-                            onClick={() =>
-                                setShowSessionPopup(true)
-                            }
+                        <div
+                            style={{
+                                display:"flex",
+                                gap:"10px",
+                                marginTop:"20px",
+                            }}
                         >
-                            + Start Session
-                        </button>
+
+                            {/* PLAN SESSION */}
+                            <button
+                                onClick={() =>
+                                    setShowSessionPopup(true)
+                                }
+                            >
+                                Plan Session
+                            </button>
+
+
+                            {/* START SESSION */}
+                            <button
+                                onClick={handleActivateSession}
+                                disabled={
+                                    !activeSession ||
+                                    activeSession.status !== "Planning"
+                                }
+                            >
+                                Start Session
+                            </button>
+
+
+                            {/* END SESSION */}
+                            <button
+                                onClick={handleEndSession}
+                                disabled={
+                                    !activeSession ||
+                                    activeSession.status !== "Active"
+                                }
+                            >
+                                End Session
+                            </button>
+
+                        </div>
 
 
                         {
@@ -547,6 +681,10 @@ useEffect(() =>
                         >
 
                         <p>
+                        Status: {activeSession.status}
+                        </p>
+
+                        <p>
                         Type: {activeSession.type}
                         </p>
 
@@ -559,11 +697,49 @@ useEffect(() =>
                         {activeSession.plannedDuration}
                         minutes
                         </p>
-
+                        
                         <p>
                         Goal:
                         {activeSession.goal}
                         </p>
+                        <p>
+                        Started:
+                        {
+                            activeSession.startedAt
+                                ?
+                                new Date(
+                                    activeSession.startedAt
+                                ).toLocaleString()
+                                :
+                                "Not started"
+                        }
+                        </p>
+
+
+                        <p>
+                        Ended:
+                        {
+                            activeSession.endedAt
+                                ?
+                                new Date(
+                                    activeSession.endedAt
+                                ).toLocaleString()
+                                :
+                                "Not completed"
+                        }
+                            </p>
+                        <p>
+                         Actual Time:
+
+                        {
+                            getSessionDuration(
+                                activeSession
+                            )
+                        }
+
+                        minutes
+                        </p>
+
 
                         </div>
                         )
@@ -699,19 +875,40 @@ useEffect(() =>
     )
 
     :
+selectedJourneyId
+?
+(
+    <JourneyOverview
 
-    (
-        <div   style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            width: "100%",
-                            color: "#777",
-                            fontSize: "1.2rem",
-        }}>
-            Select or create a journey.
-        </div>
-    )
+        journey={
+            selectedJourney ?? null
+        }
+
+        notebookTitle={
+            selectedNotebook?.title ?? ""
+        }
+
+        sessions={
+            journeySessions
+        }
+
+    />
+)
+:
+(
+    <div
+        style={{
+            display:"flex",
+            justifyContent:"center",
+            alignItems:"center",
+            width:"100%",
+            color:"#777",
+            fontSize:"1.2rem",
+        }}
+    >
+        Select or create a journey.
+    </div>
+)
 }
 
 </main>

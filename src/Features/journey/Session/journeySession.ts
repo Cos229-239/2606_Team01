@@ -225,3 +225,37 @@ export function getActiveSessionForPage(
 {
     return getSessionByPageId(pageId) ?? null;
 }
+
+export function getSessionDuration(
+    session: JourneySession
+)
+{
+    if(
+        !session.startedAt ||
+        !session.endedAt
+    )
+    {
+        return 0;
+    }
+
+
+    const start =
+        new Date(
+            session.startedAt
+        ).getTime();
+
+
+    const end =
+        new Date(
+            session.endedAt
+        ).getTime();
+
+
+    const difference =
+        end - start;
+
+
+    return Math.floor(
+        difference / 1000 / 60
+    );
+}
