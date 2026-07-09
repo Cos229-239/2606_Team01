@@ -13,6 +13,8 @@ export function createJourney()
         journeyId: crypto.randomUUID(),
 
         notebookId: notebook.id,
+
+        createdAt: new Date().toISOString(),
     };
 
 

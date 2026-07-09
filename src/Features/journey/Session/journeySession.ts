@@ -18,18 +18,20 @@ export type SessionStatus =
 export interface JourneySession
 {
     sessionId: string;
-
     journeyId: string;
-
     pageId: string;
+
     status: SessionStatus;
+    createdAt: string;
     startedAt?: string;
     endedAt?: string;
+
     type: string;
     plannedDuration: number;
     mood: SessionMood;
     goal: string;
 
+    
     actualDuration?: number;
 }
 

@@ -60,6 +60,22 @@ export default function JourneyOverview(
             0
         );
 
+         const createdDate =
+        journey
+            ? new Date(journey.createdAt).toLocaleDateString()
+            : "-";
+
+
+        const journeyLifetime =
+            journey
+                ? Math.floor(
+                    (
+                        Date.now() -
+                        new Date(journey.createdAt).getTime()
+                    ) /
+                    (1000 * 60 * 60 * 24)
+                )
+                : 0;
 
     return (
         <div
@@ -99,28 +115,45 @@ export default function JourneyOverview(
                 }}
             >
 
-                <p>
-                    Sessions:
-                    {" "}
-                    {sessionCount}
-                </p>
 
+                <div>
+                    <h3>Journey</h3>
 
-                <p>
-                    Completed Sessions:
-                    {" "}
-                    {completedCount}
-                </p>
+                    <p>
+                        <strong>Notebook:</strong>{" "}
+                        {notebookTitle}
+                    </p>
 
+                    <p>
+                        <strong>Created:</strong>{" "}
+                        {createdDate}
+                    </p>
 
-                <p>
-                    Total Session Time:
-                    {" "}
-                    {totalMinutes}
-                    {" "}
-                    minutes
-                </p>
+                    <p>
+                        <strong>Journey Lifetime:</strong>{" "}
+                        {journeyLifetime} day
+                         {journeyLifetime !== 1 ? "s" : ""}
+                    </p>
+                </div>
 
+  <div>
+                    <h3>Sessions</h3>
+
+                    <p>
+                        <strong>Total Sessions:</strong>{" "}
+                        {sessionCount}
+                    </p>
+
+                    <p>
+                        <strong>Completed Sessions:</strong>{" "}
+                        {completedCount}
+                    </p>
+
+                    <p>
+                        <strong>Total Session Time:</strong>{" "}
+                        {totalMinutes} minutes
+                    </p>
+                </div>
 
             </div>
 

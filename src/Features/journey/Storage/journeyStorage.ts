@@ -58,7 +58,7 @@ export function updateJourney(updatedJourney: Journey): Journey[]
 
     const updatedJourneys = existingJourneys.map((journey) =>
     {
-        if (journey.id !== updatedJourney.id)
+        if (journey.journeyId !== updatedJourney.journeyId)
         {
             return journey;
         }
@@ -79,7 +79,7 @@ export function deleteJourney(journeyId: string): Journey[]
     const existingJourneys = loadJourneys();
 
     const updatedJourneys = existingJourneys.filter(
-        (journey) => journey.id !== journeyId
+        (journey) => journey.journeyId !== journeyId
     );
 
     saveJourneys(updatedJourneys);

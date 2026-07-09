@@ -267,6 +267,10 @@ function handleStartSession(data:
     status:
         "Planning",
 
+
+    createdAt:
+        new Date().toISOString(),
+
     startedAt:
         undefined,
 
@@ -300,9 +304,6 @@ function handleStartSession(data:
     newPage.id
 );
 
-setSessions(
-    updatedSessions
-);
 
 setShowSessionPopup(false);
 }
@@ -669,119 +670,179 @@ const journeySessions =
 
 
                         {
-                        activeSession &&
-                        (
-                        <div
-                        style={{
-                            marginTop:"20px",
-                            padding:"12px",
-                            borderRadius:"8px",
-                            background:"rgba(255,255,255,.05)",
-                        }}
-                        >
+                            activeSession &&
+                            (
+                            <div
+                            style={{
+                                marginTop:"20px",
+                                padding:"16px",
+                                borderRadius:"8px",
+                                background:"rgba(255,255,255,.05)",
+                            }}
+                            >
 
-                        <p>
-                        Status: {activeSession.status}
-                        </p>
+                            <h3>
+                                Session
+                            </h3>
 
-                        <p>
-                        Type: {activeSession.type}
-                        </p>
-
-                        <p>
-                        Mood: {activeSession.mood}
-                        </p>
-
-                        <p>
-                        Duration:
-                        {activeSession.plannedDuration}
-                        minutes
-                        </p>
-                        
-                        <p>
-                        Goal:
-                        {activeSession.goal}
-                        </p>
-                        <p>
-                        Started:
-                        {
-                            activeSession.startedAt
-                                ?
-                                new Date(
-                                    activeSession.startedAt
-                                ).toLocaleString()
-                                :
-                                "Not started"
-                        }
-                        </p>
-
-
-                        <p>
-                        Ended:
-                        {
-                            activeSession.endedAt
-                                ?
-                                new Date(
-                                    activeSession.endedAt
-                                ).toLocaleString()
-                                :
-                                "Not completed"
-                        }
+                            <p>
+                                <strong>Status:</strong>{" "}
+                                {activeSession.status}
                             </p>
-                        <p>
-                         Actual Time:
 
-                        {
-                            getSessionDuration(
-                                activeSession
+                            <p>
+                                <strong>Type:</strong>{" "}
+                                {activeSession.type}
+                            </p>
+
+                            <p>
+                                <strong>Mood:</strong>{" "}
+                                {activeSession.mood}
+                            </p>
+
+
+                            <hr style={{ margin:"20px 0" }}/>
+
+
+                            <h4>
+                                Planning
+                            </h4>
+
+                            <p>
+                                <strong>Goal:</strong>{" "}
+                                {activeSession.goal}
+                            </p>
+
+                            <p>
+                                <strong>Planned Duration:</strong>{" "}
+                                {activeSession.plannedDuration}
+                                {" "}
+                                minutes
+                            </p>
+
+
+                            <hr style={{ margin:"20px 0" }}/>
+
+
+                            <h4>
+                                Timeline
+                            </h4>
+
+                            <p>
+                                <strong>Created:</strong>{" "}
+                                {
+                                    activeSession.createdAt
+                                        ? new Date(
+                                            activeSession.createdAt
+                                        ).toLocaleString()
+                                        : "Unknown"
+                                }
+                            </p>
+
+                            <p>
+                                <strong>Started:</strong>{" "}
+                                {
+                                    activeSession.startedAt
+                                        ? new Date(
+                                            activeSession.startedAt
+                                        ).toLocaleString()
+                                        : "Not started"
+                                }
+                            </p>
+
+                            <p>
+                                <strong>Ended:</strong>{" "}
+                                {
+                                    activeSession.endedAt
+                                        ? new Date(
+                                            activeSession.endedAt
+                                        ).toLocaleString()
+                                        : "Not completed"
+                                }
+                            </p>
+
+
+                            <hr style={{ margin:"20px 0" }}/>
+
+
+                            <h4>
+                                Results
+                            </h4>
+
+                            <p>
+                                <strong>Actual Duration:</strong>{" "}
+                                {
+                                    getSessionDuration(
+                                        activeSession
+                                    )
+                                }
+                                {" "}
+                                minutes
+                            </p>
+
+                            </div>
+                            )
+                            }
+                                               {
+                            showSessionPopup &&
+                            (
+                                <StartSessionPopup
+
+                                    onClose={() =>
+                                        setShowSessionPopup(false)
+                                    }
+
+                                    onStart={
+                                        handleStartSession
+                                    }
+
+                                />
                             )
                         }
 
-                        minutes
-                        </p>
 
-
-                        </div>
-                        )
-                        }
-                        {
-                        showSessionPopup &&
-                        (
-                        <StartSessionPopup
-
-                        onClose={() =>
-                            setShowSessionPopup(false)
-                        }
-
-
-                        onStart={handleStartSession}
-
-                        />
-                        )
-                        }
                         {/* TASK CREATION */}
+
                         <button
-                            onClick={() => setShowCreateTaskPopup(true)}
+                            onClick={() =>
+                                setShowCreateTaskPopup(true)
+                            }
                         >
                             + Create New Task
                         </button>
 
-                        {showCreateTaskPopup && (
-                            <CreateTaskPopup
-                                onClose={() =>
-                                    setShowCreateTaskPopup(false)
-                                }
-                                onCreate={(task) => {
-                                    handleCreateTask(task);
-                                    setShowCreateTaskPopup(false);
-                                }}
-                            />
-                        )}
+
+                        {
+                            showCreateTaskPopup &&
+                            (
+                                <CreateTaskPopup
+
+                                    onClose={() =>
+                                        setShowCreateTaskPopup(false)
+                                    }
+
+                                    onCreate={(task) =>
+                                    {
+                                        handleCreateTask(task);
+
+                                        setShowCreateTaskPopup(false);
+                                    }}
+
+                                />
+                            )
+                        }
+
 
                         {/* TASK PICKER */}
+
                         <button
-                            onClick={() => setShowTaskPicker(true)}
-                            style={{ marginBottom: "24px" }}
+                            onClick={() =>
+                                setShowTaskPicker(true)
+                            }
+
+                            style={{
+                                marginBottom:"24px"
+                            }}
                         >
                             + Add Task Block
                         </button>

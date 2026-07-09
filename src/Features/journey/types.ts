@@ -13,5 +13,7 @@ export interface Journey
     journeyId: string;
     // Linked Notebook
     notebookId: string;
+    // When the Journey was created
+    createdAt: string;
     
 }
