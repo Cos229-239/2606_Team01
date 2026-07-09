@@ -214,28 +214,6 @@ function useCitySetting(key: string, defaultValue: string) {
   return [value, set] as const;
 }
 
-// ── Timer background hook ─────────────────────────────────────────────────
-function useTimerBg() {
-  const [timerBg, setTimerBg] = useState(() => localStorage.getItem("timer-background") ?? "starfield");
-  const set = useCallback((v: string) => {
-    setTimerBg(v);
-    localStorage.setItem("timer-background", v);
-    window.dispatchEvent(new CustomEvent("timer-background-update"));
-  }, []);
-  return [timerBg, set] as const;
-}
-
-// ── Timer black hole hook (fires timer-blackhole-update) ─────────────────
-function useTimerBlackHoleSetting(key: string, defaultValue: string) {
-  const [value, setValue] = useState(() => localStorage.getItem(key) ?? defaultValue);
-  const set = useCallback((v: string) => {
-    setValue(v);
-    localStorage.setItem(key, v);
-    window.dispatchEvent(new CustomEvent("timer-blackhole-update"));
-  }, [key]);
-  return [value, set] as const;
-}
-
 // ── Per-mood city tint section ────────────────────────────────────────────
 // Fires cityscape-update so the canvas rebuilds with the new mood active
 function useCityMoodTint(key: string, defaultValue: string) {
@@ -381,15 +359,17 @@ function GradientMoodRow({ moodKey, label, accent }: {
 }) {
   const [enabled, setEnabled] = useGradientMoodSetting(`gradient-mood-${moodKey}-enabled`, "false");
   const [h1, setH1] = useGradientMoodSetting(`gradient-mood-${moodKey}-h1`, "220");
-  const [s1, setS1] = useGradientMoodSetting(`gradient-mood-${moodKey}-s1`, "70");
+  const [s1] = useGradientMoodSetting(`gradient-mood-${moodKey}-s1`, "70");
   const [l1, setL1] = useGradientMoodSetting(`gradient-mood-${moodKey}-l1`, "18");
   const [h2, setH2] = useGradientMoodSetting(`gradient-mood-${moodKey}-h2`, "280");
-  const [s2, setS2] = useGradientMoodSetting(`gradient-mood-${moodKey}-s2`, "60");
+  const [s2] = useGradientMoodSetting(`gradient-mood-${moodKey}-s2`, "60");
   const [l2, setL2] = useGradientMoodSetting(`gradient-mood-${moodKey}-l2`, "8");
+  const [angle, setAngle] = useGradientMoodSetting(`gradient-mood-${moodKey}-angle`, "160");
 
   const isOn = enabled === "true";
   const gh1 = parseInt(h1), gs1 = parseFloat(s1), gl1 = parseFloat(l1);
   const gh2 = parseInt(h2), gs2 = parseFloat(s2), gl2 = parseFloat(l2);
+  const gAngle = parseFloat(angle);
 
   return (
     <div style={{
@@ -441,10 +421,25 @@ function GradientMoodRow({ moodKey, label, accent }: {
             onHue={h => setH2(String(h))}
             onLightness={l => setL2(String(l))}
           />
+
+          {/* Angle override */}
+          <p style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(180,205,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            Angle
+          </p>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "6px" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: "rgba(200,220,255,0.8)" }}>{Math.round(gAngle)}°</p>
+          </div>
+          <input
+            type="range" min="0" max="360" step="1"
+            value={angle}
+            onChange={e => setAngle(e.target.value)}
+            style={{ width: "100%", accentColor: "rgba(170,120,255,0.9)", marginBottom: "12px" }}
+          />
+
           {/* Preview */}
           <div style={{
             height: "28px", borderRadius: "6px",
-            background: `linear-gradient(160deg, hsl(${gh1}, ${gs1}%, ${gl1}%), hsl(${gh2}, ${gs2}%, ${gl2}%))`,
+            background: `linear-gradient(${gAngle}deg, hsl(${gh1}, ${gs1}%, ${gl1}%), hsl(${gh2}, ${gs2}%, ${gl2}%))`,
             border: "1px solid rgba(255,255,255,0.1)",
           }} />
         </>
@@ -476,10 +471,10 @@ export default function AppearancePage() {
 
   // Gradient settings
   const [gradH1,    setGradH1]    = useGradientSetting("gradient-h1", "220");
-  const [gradS1,     setGradS1]    = useGradientSetting("gradient-s1", "70");
+  const [gradS1]    = useGradientSetting("gradient-s1", "70");
   const [gradL1,    setGradL1]    = useGradientSetting("gradient-l1", "18");
   const [gradH2,    setGradH2]    = useGradientSetting("gradient-h2", "280");
-  const [gradS2,     setGradS2]    = useGradientSetting("gradient-s2", "60");
+  const [gradS2]    = useGradientSetting("gradient-s2", "60");
   const [gradL2,    setGradL2]    = useGradientSetting("gradient-l2", "8");
   const [gradAngle, setGradAngle] = useGradientSetting("gradient-angle", "160");
 

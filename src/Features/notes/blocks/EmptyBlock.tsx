@@ -35,7 +35,7 @@ export default function EmptyBlock({
      const [showSlashMenu, setShowSlashMenu] =
         useState(false);
 
-    const [slashQuery, setSlashQuery] =
+    const [, setSlashQuery] =
         useState("");
 
 

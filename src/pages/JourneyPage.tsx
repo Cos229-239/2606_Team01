@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import type { Journey } from "../Features/journey/types";
-import type { Notebook, Page } from "../Features/notes/types";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
 import {
     loadJourneys,
@@ -24,9 +23,7 @@ import
     type JourneySession,
 
     loadSessions, addSession,
-    updateSession, deleteSession,
 
-    getSessionById, getSessionByPageId,
     getSessionsByJourneyId, getActiveSessionForPage,
 
     startSession, endSession,

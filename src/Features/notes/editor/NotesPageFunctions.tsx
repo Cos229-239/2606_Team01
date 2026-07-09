@@ -16,11 +16,6 @@ import {
     createNotebook,  createPage,
 } from "../utils/NotesFactory";
 
-interface NotesPageOptions {
-    initialNotebookId?: string;
-    initialPageId?: string;
-}
-
 export function useNotesPageFunctions({
     selectedPageId,
 }: {
@@ -218,7 +213,7 @@ export function useNotesPageFunctions({
     }
 
     function handleSelectedPage(
-        pageId: string
+        _pageId: string
     )
     {}
 

@@ -30,7 +30,9 @@
         z-index: 0;
         display: none;
         pointer-events: none;
-        transition: background 0.6s ease;
+        /* Colour transitions are handled by gradient-bg.js (interpolating the
+           hsl stops frame-by-frame) since CSS cannot tween between two
+           different linear-gradient() values on its own. */
       }
       /* React root sits above canvas */
       #root {
