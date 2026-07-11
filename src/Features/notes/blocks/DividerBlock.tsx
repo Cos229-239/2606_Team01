@@ -1,19 +1,50 @@
 import { useState } from "react";
-import type { Block } from "../types";
+import type { Block, BlockType } from "../types";
 import { useConfirmDelete } from "../../../Components/ConfirmDialog";
+import SlashMenu from "../slash/SlashMenu";
 
 interface Props {
     block: Block;
     onDeleteBlock?: (blockId: string) => void;
+    onConvertBlock?: (
+        blockId: string,  type: BlockType,
+        content: any  ) => void;
 }
 
-export default function DividerBlock({ block, onDeleteBlock }: Props) {
+export default function DividerBlock(
+    { block, onDeleteBlock, onConvertBlock }: Props) {
     // Hover-reveal delete control, same idea as the "X" buttons used
     // elsewhere in the app (NotebookBrowser rows, TaskCard) — dividers
     // have no text to backspace through, so they need an explicit way
     // to be removed.
     const [hovered, setHovered] = useState(false);
     const { requestDelete, confirmDialog } = useConfirmDelete();
+    const [showSlashMenu, setShowSlashMenu] = useState(false);
+    const [slashQuery, setSlashQuery] = useState("");
+
+    function handleSlashCommand(command: string) {
+        setShowSlashMenu(false);
+        setSlashQuery("");
+
+        switch (command) {
+            case "divider":
+                onConvertBlock?.(block.id, "divider", null);
+                break;
+
+            case "list":
+                onConvertBlock?.(block.id, "list", null);
+                break;
+
+            case "text":
+                onConvertBlock?.(block.id, "text", null);
+                break;
+
+            case "heading":
+                onConvertBlock?.(block.id, "heading", null);
+                break;
+        }
+    }
+
 
     return (
         <div
@@ -27,6 +58,11 @@ export default function DividerBlock({ block, onDeleteBlock }: Props) {
                 padding: "6px 0",
             }}
         >
+            <button
+                onClick={() => setShowSlashMenu(true)}
+            >
+                +
+            </button>
             {confirmDialog}
             <hr style={{ flex: 1, margin: 0 }} />
 
@@ -54,6 +90,12 @@ export default function DividerBlock({ block, onDeleteBlock }: Props) {
                 >
                     ✕
                 </button>
+            )}
+                 {showSlashMenu && (
+                <SlashMenu
+                    query={slashQuery}
+                    onSelect={handleSlashCommand}
+                />
             )}
         </div>
     );

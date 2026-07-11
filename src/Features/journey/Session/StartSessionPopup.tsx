@@ -10,12 +10,26 @@ interface StartSessionPopupProps
         mood: string;
         goal: string;
     }) => void;
+
+//lets the same popup be reused for editing.
+    // When provided, fields are pre-filled from the existing session
+    // instead of the hardcoded defaults.
+    initialData?: {
+        type: string;
+        plannedDuration: number;
+        mood: string;
+        goal: string;
+    };
+
+    mode?: "create" | "edit";
 }
 
 export default function StartSessionPopup(
 {
     onClose,
     onStart,
+    initialData,   
+    mode = "create"
 }: StartSessionPopupProps)
 {
     const [type, setType] = useState("Coding");
@@ -35,7 +49,6 @@ export default function StartSessionPopup(
             zIndex: 9999,
             pointerEvents: "auto",
         }}
-        onClick={onClose}
     >
         <div
             style={{
@@ -49,7 +62,7 @@ export default function StartSessionPopup(
                 e.stopPropagation()
             }
         >
-                <h2>Start Session</h2>
+                <h2>{mode === "edit" ? "Edit Session" : "Start Session"}</h2>
 
                 {/* TYPE */}
                 <label>Type</label>
@@ -122,7 +135,7 @@ export default function StartSessionPopup(
                     }
                     style={{ marginRight: "10px" }}
                 >
-                    Start
+                     {mode === "edit" ? "Save" : "Start"}
                 </button>
 
                 <button onClick={onClose}>Cancel</button>

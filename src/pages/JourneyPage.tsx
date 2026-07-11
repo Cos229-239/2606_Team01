@@ -22,7 +22,7 @@ import
 {
     type JourneySession,
 
-    loadSessions, addSession,
+    loadSessions, addSession, updateSession, 
 
     getSessionsByJourneyId, getActiveSessionForPage,
 
@@ -66,6 +66,9 @@ export default function JourneyPage()
 
     const [activeSession, setActiveSession] =
         useState<JourneySession | null>(null);
+
+    const [showEditSessionPopup, setShowEditSessionPopup] =
+    useState(false);
 
     const {
     notebooks,
@@ -243,12 +246,13 @@ function handleStartSession(data:
         return;
     }
 
-
-    const newPage =
-        handleCreatePage(
-            selectedJourney.notebookId
-        );
-
+ if(!selectedPageId)
+    {
+        // Defensive fallback — shouldn't happen since the popup can
+        // only be triggered from a selected page, but keeps this
+        // function safe if that ever changes.
+        return;
+    }
 
     const session: JourneySession =
 {
@@ -259,7 +263,7 @@ function handleStartSession(data:
         selectedJourneyId,
 
     pageId:
-        newPage.id,
+        selectedPageId,
 
     status:
         "Planning",
@@ -295,11 +299,6 @@ function handleStartSession(data:
     setSessions(
         updatedSessions
     );
-
-
-  setSelectedPageId(
-    newPage.id
-);
 
 
 setShowSessionPopup(false);
@@ -368,6 +367,49 @@ function handleEndSession()
     setActiveSession(
         updatedSession
     );
+}
+
+function handleEditSession(data:
+{
+    type:string;
+    plannedDuration:number;
+    mood:string;
+    goal:string;
+})
+{
+    if(!activeSession)
+    {
+        return;
+    }
+
+    const updatedSession: JourneySession =
+    {
+        ...activeSession, 
+
+        type:
+            data.type,
+
+        plannedDuration:
+            data.plannedDuration,
+
+        mood:
+            data.mood as any,
+
+        goal:
+            data.goal,
+    };
+
+    updateSession(updatedSession);
+
+    setSessions(
+        loadSessions()
+    );
+
+    setActiveSession(
+        updatedSession
+    );
+
+    setShowEditSessionPopup(false);
 }
 
 // ======================================================
@@ -639,6 +681,17 @@ const journeySessions =
                                 Plan Session
                             </button>
 
+                            <button
+                                onClick={() =>
+                                    setShowEditSessionPopup(true)
+                                }
+                                disabled={
+                                    !activeSession ||
+                                    activeSession.status === "Completed"
+                                }
+                            >
+                                Edit Session
+                            </button>
 
                             {/* START SESSION */}
                             <button
@@ -793,6 +846,29 @@ const journeySessions =
                                         handleStartSession
                                     }
 
+                                />
+                            )
+                        }
+                        {
+                            showEditSessionPopup && activeSession &&
+                            (
+                                <StartSessionPopup
+                                    mode="edit"
+
+                                    initialData={{
+                                        type: activeSession.type,
+                                        plannedDuration: activeSession.plannedDuration,
+                                        mood: activeSession.mood,
+                                        goal: activeSession.goal,
+                                    }}
+
+                                    onClose={() =>
+                                        setShowEditSessionPopup(false)
+                                    }
+
+                                    onStart={
+                                        handleEditSession
+                                    }
                                 />
                             )
                         }

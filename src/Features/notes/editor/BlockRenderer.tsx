@@ -103,7 +103,9 @@ export default function BlockRenderer({
 
             return (
             <div data-block> 
-            <DividerBlock block={block} onDeleteBlock={onDeleteBlock} />
+            <DividerBlock block={block} 
+            onDeleteBlock={onDeleteBlock}
+            onConvertBlock={onConvertBlock} />
             </div>
             );
 
