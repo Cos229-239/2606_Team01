@@ -3,6 +3,13 @@ import type { Journey } from "../types";
 import type { JourneySession } from "../Session/journeySession";
 
 import { getJourneyStats } from "./journeyStats";
+// ADD to imports:
+import { useEffect, useState } from "react";
+
+import type { JourneyPlan } from "../Plan/journeyPlan";
+import { getPlanByJourneyId, setPlan } from "../Plan/journeyPlan";
+
+import JourneyPlanPopup from "../Plan/JourneyPlanPopup";
 
 interface JourneyOverviewProps
 {
@@ -36,6 +43,51 @@ export default function JourneyOverview(
     } = getJourneyStats(journey, journeySessions);
 
 
+    const [currentPlan, setCurrentPlan] =
+    useState<JourneyPlan | null>(null);
+
+    const [showPlanPopup, setShowPlanPopup] =
+        useState(false);
+
+    useEffect(() =>
+    {
+        if (!journey)
+        {
+            setCurrentPlan(null);
+            return;
+        }
+
+        setCurrentPlan(
+            getPlanByJourneyId(journey.journeyId)
+        );
+
+    }, [journey]);
+
+    function handleSavePlan(data:
+    {
+        purpose: string;
+        sessionsPerWeek: number;
+    })
+    {
+    if (!journey)
+    {
+        return;
+    }
+
+    const updatedPlan: JourneyPlan =
+    {
+        journeyId: journey.journeyId,
+        purpose: data.purpose,
+        sessionsPerWeek: data.sessionsPerWeek,
+        createdAt: currentPlan?.createdAt ?? new Date().toISOString(),
+    };
+
+    setPlan(updatedPlan);
+
+    setCurrentPlan(updatedPlan);
+
+    setShowPlanPopup(false)
+}
     return (
         <div
             style={{
@@ -96,7 +148,42 @@ export default function JourneyOverview(
                 </div>
 
                  <div>
+
+                    <div>
+                <button onClick={() => setShowPlanPopup(true)}>
+                        {currentPlan ? "Edit Plan" : "Set Journey Plan"}
+                    </button>
+            <h3>Journey Plan</h3>
+
+            {currentPlan ? (
+        <>
+            <p>
+                <strong>Purpose:</strong>{" "}
+                {currentPlan.purpose}
+            </p>
+
+            <p>
+                <strong>Sessions Per Week:</strong>{" "}
+                {currentPlan.sessionsPerWeek}
+            </p>
+                        </>
+                    ) : (
+                        <p>No plan set yet.</p>
+                    )}
+
+                    
+                </div>
+
+                    
                     <h3>Sessions</h3>
+                {showPlanPopup && journey && (
+                    <JourneyPlanPopup
+                        initialPurpose={currentPlan?.purpose}
+                        initialSessionsPerWeek={currentPlan?.sessionsPerWeek}
+                        onClose={() => setShowPlanPopup(false)}
+                        onSave={handleSavePlan}
+                    />
+                )}
 
                     <p>
                         <strong>Total Sessions:</strong>{" "}
