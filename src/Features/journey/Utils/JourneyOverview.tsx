@@ -2,10 +2,7 @@ import type { Journey } from "../types";
 
 import type { JourneySession } from "../Session/journeySession";
 
-import {
-    getSessionDuration,
-} from "../Session/journeySession";
-
+import { getJourneyStats } from "./journeyStats";
 
 interface JourneyOverviewProps
 {
@@ -30,52 +27,14 @@ export default function JourneyOverview(
         sessions;
 
 
-    const sessionCount =
-        journeySessions.length;
+   const {
+        sessionCount,
+        completedCount,
+        totalMinutes,
+        createdDate,
+        journeyLifetime,
+    } = getJourneyStats(journey, journeySessions);
 
-
-    const completedSessions =
-        journeySessions.filter(
-            (session) =>
-                session.status === "Completed"
-        );
-
-
-    const completedCount =
-        completedSessions.length;
-
-
-    const totalMinutes =
-        completedSessions.reduce(
-            (
-                total,
-                session
-            ) =>
-            {
-                return (
-                    total +
-                    getSessionDuration(session)
-                );
-            },
-            0
-        );
-
-         const createdDate =
-        journey
-            ? new Date(journey.createdAt).toLocaleDateString()
-            : "-";
-
-
-        const journeyLifetime =
-            journey
-                ? Math.floor(
-                    (
-                        Date.now() -
-                        new Date(journey.createdAt).getTime()
-                    ) /
-                    (1000 * 60 * 60 * 24)
-                )
-                : 0;
 
     return (
         <div
@@ -136,7 +95,7 @@ export default function JourneyOverview(
                     </p>
                 </div>
 
-  <div>
+                 <div>
                     <h3>Sessions</h3>
 
                     <p>

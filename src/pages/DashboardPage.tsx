@@ -1,53 +1,18 @@
-import DashboardAccordion from "../Components/DashboardAccordion";
+
+import { Outlet } from "react-router-dom";
+import FocusTabs from "../Components/Dashboard/FocusTabs";
 
 export default function DashboardPage() {
   return (
     <div>
       <h1>Dashboard</h1>
       <hr />
-      <div className="section-heading">Overview</div>
+     <FocusTabs />
+
       <div className="dashboard-grid">
-        <DashboardAccordion
-          title="Congruence"
-          preview="Match your Task to your MOOD."
-          expandedView={[
-            "Current mood: Focused",
-            "3 matching tasks available",
-            "Last check-in: Today",
-          ]}
-          pagePath="/congruence"
-        />
-        <DashboardAccordion
-          title="Task List"
-          preview="View and manage your tasks"
-          expandedView={[
-            "Current Task: Build TaskCard",
-            "notes: Design from sketch",
-            "Implement accordion",
-            "Journal Progress",
-          ]}
-          pagePath="/task"
-        />
-
-        <DashboardAccordion
-          title="Notebook"
-          preview="New notes "
-          expandedView={[
-            
-          ]}
-          pagePath="/notebook"
-        />
-
-        <DashboardAccordion
-          title="Journey"
-          preview="Build habits over time"
-          expandedView={[
-            
-          ]}
-          pagePath="/journey"
-        />
-        
+        <Outlet />
       </div>
+
       <hr />
     </div>
   );

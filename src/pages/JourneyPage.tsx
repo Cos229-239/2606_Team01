@@ -18,6 +18,7 @@ import { useNotesPageFunctions } from "../Features/notes/editor/NotesPageFunctio
 import BlockList from "../Features/notes/editor/BlockList";
 import StartSessionPopup from "../Features/journey/Session/StartSessionPopup";
 import JourneyOverview from "../Features/journey/Utils/JourneyOverview";
+import { useSearchParams } from "react-router-dom";
 import
 {
     type JourneySession,
@@ -70,6 +71,8 @@ export default function JourneyPage()
     const [showEditSessionPopup, setShowEditSessionPopup] =
     useState(false);
 
+    const [searchParams] = useSearchParams();
+
     const {
     notebooks,
     pages,
@@ -111,6 +114,14 @@ export default function JourneyPage()
     setSessions(
         loadSessions()
     );
+    
+     const journeyIdFromUrl =
+        searchParams.get("journeyId");
+
+    if (journeyIdFromUrl)
+    {
+        setSelectedJourneyId(journeyIdFromUrl);
+    }
 
 }, []);
 

@@ -15,7 +15,11 @@ import TimerPage from "./pages/TimerPage";
 import NotesPage from "./pages/NotesPage";
 import JourneyPage from "./pages/JourneyPage";
 import ProfilePage from "./pages/ProfilePage";
+// CHANGED: added import for JourneyPreview so it can be
+// used as a nested route element.
+import JourneyPreview from "./Features/journey/Utils/JourneyPreview";
 import "./Css/App.css";
+
 
 function MainLayout()
 {
@@ -43,7 +47,11 @@ function App() {
 
               {/* Main application */}
           <Route element={ <MainLayout />} >
-            <Route path="/" element={<DashboardPage />} />
+            <Route path="/" element={<DashboardPage />}>
+              <Route index element={<div>Home coming soon.</div>} />
+              <Route path="journeyPreview" element={<JourneyPreview />} />
+            </Route>
+
             <Route path="/task" element={<TaskListPage />} />
             <Route path="/focus" element={<FocusPage />} />
             <Route path="/planning" element={<PlanningPage />} />
