@@ -105,16 +105,6 @@ export default function JourneyOverview(
             </h1>
 
 
-            <h2>
-                {
-                    journey
-                        ?
-                        notebookTitle
-                        :
-                        "No Journey Selected"
-                }
-            </h2>
-
 
             <div
                 style={{
@@ -131,7 +121,7 @@ export default function JourneyOverview(
                     <h3>Journey</h3>
 
                     <p>
-                        <strong>Notebook:</strong>{" "}
+                        <strong>Journey Title:</strong>{" "}
                         {notebookTitle}
                     </p>
 
@@ -153,6 +143,8 @@ export default function JourneyOverview(
                 <button onClick={() => setShowPlanPopup(true)}>
                         {currentPlan ? "Edit Plan" : "Set Journey Plan"}
                     </button>
+                    <br />
+                    <br/>
             <h3>Journey Plan</h3>
 
             {currentPlan ? (
@@ -174,7 +166,7 @@ export default function JourneyOverview(
                     
                 </div>
 
-                    
+                    <br />
                     <h3>Sessions</h3>
                 {showPlanPopup && journey && (
                     <JourneyPlanPopup

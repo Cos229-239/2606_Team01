@@ -3,7 +3,6 @@ import type { Notebook, Page, Block, BlockType } from "../types";
 import type { Task } from "../../../Data/tasks";
 import {
     getSessionByPageId,
-    deleteSession,
 } from "../../journey/Session/journeySession";
 import {
     loadNotebooks,  saveNotebooks,    loadPages,
@@ -15,6 +14,7 @@ import { loadTasks, saveTasks } from "../../../Data/taskStorage";
 import {
     createNotebook,  createPage,
 } from "../utils/NotesFactory";
+import { deleteSession } from "../../journey/Storage/sessionStorage";
 
 export function useNotesPageFunctions({
     selectedPageId,

@@ -7,7 +7,7 @@
 // Dashboard, Task List) should use these functions
 // instead of calling localStorage directly.
 // ======================================================
-
+import { sortTasksByDueDate } from "./taskSorting";
 import type { Task } from "./tasks";
 
 {/* Storage Key */}
@@ -124,20 +124,7 @@ export function getTaskCountByMood( mood: string ): number
  * Tasks without a due date are placed at the end.
  */
 
-export function sortTaskByDueDate(task: Task[]): Task[]
-{
-    return [...task].sort((a, b) =>
-    {
-        if (!a.dueDate && !b.dueDate) return 0;
-        if (!a.dueDate) return 1;
-        if (!b.dueDate) return -1;
 
-        return (
-            new Date(a.dueDate).getTime() - 
-                    new Date(b.dueDate).getTime()
-        );
-    })
-}
 
 
 /**
@@ -154,7 +141,7 @@ export function getUpcomingTasks(
     const filtered = 
         includeCompleted ? task : task.filter(task => !task.completed);
 
-        return sortTaskByDueDate(filtered).slice(0, count);
+        return sortTasksByDueDate(filtered).slice(0, count);
 }
 
 /**

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { Journey } from "../types";
-import { loadJourneys } from "../Storage/journeyStorage";
+import { loadJourneys, saveJourneys } from "../Storage/journeyStorage";
 
 import type { JourneySession } from "../Session/journeySession";
-import { loadSessions } from "../Session/journeySession";
+import { loadSessions } from "../Storage/sessionStorage";
 
 import type { JourneyPlan } from "../Plan/journeyPlan";
 import { loadPlans } from "../Plan/journeyPlan";
@@ -13,10 +13,15 @@ import { loadPlans } from "../Plan/journeyPlan";
 import { getJourneyStats } from "./journeyStats";
 
 import type { Notebook } from "../../notes/types";
-import { loadNotebooks } from "../../notes/storage/notebookStorage";
+
+import { loadNotebooks, saveNotebooks } from "../../notes/storage/notebookStorage";
 
 import PreviewLayout from "../../../Components/Dashboard/PreviewLayout";
+import { getMostRecentJourney } from "./journeyQueries";
+import { createJourney } from "./JourneyFactory";
 
+
+let rememberedJourneyId: string | null = null;
 
 // ======================================================
 // NOTEBOOK SELECT POPUP
@@ -33,6 +38,7 @@ interface NotebookSelectPopupProps
     onSelect: (journeyId: string) => void;
     onClose: () => void;
 }
+
 
 function NotebookSelectPopup(
 {
@@ -113,14 +119,30 @@ export default function JourneyPreview()
     const [notebooks, setNotebooks] =
         useState<Notebook[]>([]);
 
-    useEffect(() =>
-    {
-        setJourneys(loadJourneys());
-        setSessions(loadSessions());
-        setPlans(loadPlans());
-        setNotebooks(loadNotebooks());
+   useEffect(() =>
+{
+    const loadedJourneys = loadJourneys();
 
-    }, []);
+    setJourneys(loadedJourneys);
+    setSessions(loadSessions());
+    setPlans(loadPlans());
+    setNotebooks(loadNotebooks());
+
+    if (rememberedJourneyId)
+{
+    setSelectedJourneyId(rememberedJourneyId);
+}
+else
+{
+    const defaultJourney = getMostRecentJourney(loadedJourneys);
+
+    if (defaultJourney)
+    {
+        selectJourney(defaultJourney.journeyId);
+    }
+}
+
+}, []);
 
     // ======================================================
     // NOTEBOOK SELECTION
@@ -158,11 +180,33 @@ export default function JourneyPreview()
                 plan.journeyId === selectedJourneyId
         ) ?? null;
 
-    function handleSelectJourney(journeyId: string)
+    function handleCreateJourney()
+{
+    const { journey, notebook } = createJourney();
+
+    const updatedJourneys = [...journeys, journey];
+    const updatedNotebooks = [...notebooks, notebook];
+
+    saveJourneys(updatedJourneys);
+    setJourneys(updatedJourneys);
+
+    saveNotebooks(updatedNotebooks);
+    setNotebooks(updatedNotebooks);
+
+    selectJourney(journey.journeyId);
+}
+
+function handleSelectJourney(journeyId: string)
     {
-        setSelectedJourneyId(journeyId);
+        selectJourney(journeyId);
         setShowSelectPopup(false);
     }
+
+function selectJourney(journeyId: string)
+{
+    rememberedJourneyId = journeyId;
+    setSelectedJourneyId(journeyId);
+}
 
     // ======================================================
     // CURRENT STATE
@@ -208,11 +252,13 @@ export default function JourneyPreview()
         return (
             <div style={{ position: "relative" }}>
                 <p>Select a notebook to see its Journey info.</p>
-
+                <br />
                 <button onClick={() => setShowSelectPopup(true)}>
-                    Select Notebook
+                    Switch Journey
                 </button>
 
+               
+                 <br />
                 {showSelectPopup && (
                     <NotebookSelectPopup
                         journeys={journeys}
@@ -220,7 +266,20 @@ export default function JourneyPreview()
                         onSelect={handleSelectJourney}
                         onClose={() => setShowSelectPopup(false)}
                     />
+                    
                 )}
+                   <button
+                onClick={handleCreateJourney}
+                style={{
+                    padding: "10px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                }}
+            >
+                + New Journey
+            </button>
+
             </div>
         );
     }
@@ -234,12 +293,38 @@ export default function JourneyPreview()
 
             identity={
                 <div style={{ position: "relative" }}>
-                    <button onClick={() => setShowSelectPopup(true)}>
-                        Change Notebook
+
+                    <div style={{ display: "flex", gap: "10px" }}>
+                    <button onClick={() => setShowSelectPopup(true)}
+                    style={{
+                            padding: "10px",
+                            
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                        }}
+                     >
+                        Switch Journey
+                        
                     </button>
 
-                    <h3>{selectedNotebook?.title ?? "Untitled Journey"}</h3>
-                    <p>{selectedPlan?.purpose ?? "No purpose set yet."}</p>
+                     <button
+                        onClick={handleCreateJourney}
+                        style={{
+                            padding: "10px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                        }}
+                    >
+                        + New Journey
+                    </button>
+                </div>
+
+                    <br />
+                    <br />
+                    <h3>Journey Title: {selectedNotebook?.title ?? "Untitled Journey"} </h3>
+                    <p>Purpose: {selectedPlan?.purpose ?? "No purpose set yet."}</p>
 
                     {showSelectPopup && (
                         <NotebookSelectPopup
@@ -262,18 +347,23 @@ export default function JourneyPreview()
             }
 
             recommendation={
+                <div>
                 <p>{recommendationText}</p>
-            }
 
-           quickActions={
-    <div>
-        <button
-            onClick={() =>
+                <br />
+                <button  onClick={() =>
                 navigate(`/journey?journeyId=${selectedJourneyId}`)
             }
         >
             Open {selectedNotebook?.title ?? "Journal"}
         </button>
+        </div>
+                
+            }
+
+           quickActions={
+    <div>
+        
 
         <button onClick={() => navigate("/journey")}>
             Open Journey

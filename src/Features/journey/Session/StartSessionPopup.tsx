@@ -65,7 +65,7 @@ export default function StartSessionPopup(
                 <h2>{mode === "edit" ? "Edit Session" : "Start Session"}</h2>
 
                 {/* TYPE */}
-                <label>Type</label>
+                <label>Reason</label>
                 <input
                     value={type}
                     onChange={(e) => setType(e.target.value)}

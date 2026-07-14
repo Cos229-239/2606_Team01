@@ -3,7 +3,17 @@ import type { Notebook } from "../../notes/types";
 import type { Page } from "../../notes/types";
 import { useState } from "react";
 import { useConfirmDelete } from "../../../Components/ConfirmDialog";
+import SortControl from "../../../Components/SortControl";
+import type { SortDirection } from "../../../Components/SortControl";
 
+import
+{
+    sortJourneysByTitle,
+    sortJourneysByCreatedDate,
+    sortJourneysByRecentActivity,
+    sortJourneysBySessionCount,
+}
+from "../Utils/journeySorting";
 
 interface JourneyBrowserProps
 {
@@ -67,6 +77,49 @@ export default function JourneyBrowser(
 
     const { requestDelete, confirmDialog } = useConfirmDelete();
 
+    const [sortField, setSortField] =
+    useState("created");
+
+    const [sortDirection, setSortDirection] =
+        useState<SortDirection>("desc");
+
+    const sortFieldOptions =
+    [
+        { value: "title", label: "Title" },
+        { value: "created", label: "Created" },
+        { value: "activity", label: "Recent Activity" },
+        { value: "count", label: "Session Count" },
+    ];
+
+    function getSortedJourneys()
+    {
+        switch (sortField)
+        {
+            case "title":
+                return sortJourneysByTitle(
+                    journeys, notebooks, sortDirection
+                );
+
+            case "activity":
+                return sortJourneysByRecentActivity(
+                    journeys, sortDirection
+                );
+
+            case "count":
+                return sortJourneysBySessionCount(
+                    journeys, sortDirection
+                );
+
+            case "created":
+            default:
+                return sortJourneysByCreatedDate(
+                    journeys, sortDirection
+                );
+        }
+    }
+
+    const sortedJourneys =
+        getSortedJourneys();
 
 
     return (
@@ -85,10 +138,18 @@ export default function JourneyBrowser(
 
             {/* ================= Create Journey ================= */}
 
+          
+                 <div
+                            style={{
+                                display:"flex",
+                                gap:"10px",
+                                marginTop:"20px",
+                                marginBottom: "20px",
+                            }}
+                        >
             <button
                 onClick={onCreateJourney}
                 style={{
-                    marginBottom: "16px",
                     padding: "10px",
                     borderRadius: "6px",
                     cursor: "pointer",
@@ -97,6 +158,18 @@ export default function JourneyBrowser(
             >
                 + New Journey
             </button>
+
+            
+        <SortControl
+            fields={sortFieldOptions}
+            currentField={sortField}
+            currentDirection={sortDirection}
+            onChange={(field, direction) =>
+            {
+                setSortField(field);
+                setSortDirection(direction);
+            }} />
+            </div>
 
             {/* ================= Empty State ================= */}
 
@@ -116,7 +189,7 @@ export default function JourneyBrowser(
 
             {/* ================= Journey List ================= */}
 
-            {journeys.map((journey) =>
+            {sortedJourneys.map((journey) =>
             {
 
                 

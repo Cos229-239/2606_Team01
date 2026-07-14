@@ -3,6 +3,15 @@
          or writing LocalStorage directly for 
             sessions. */}
 
+
+import
+{
+    loadSessions,
+    updateSession,
+}
+from "../Storage/sessionStorage";
+
+
 export type SessionMood =
     | "Focused"
     | "Planning"
@@ -33,106 +42,6 @@ export interface JourneySession
 
     
     actualDuration?: number;
-}
-
-
-const STORAGE_KEY = "journeySessions";
-
-// ======================================================
-// LOAD
-// ======================================================
-
-export function loadSessions(): JourneySession[]
-{
-    const stored =
-        localStorage.getItem(STORAGE_KEY);
-
-    if (!stored)
-    {
-        return [];
-    }
-
-    try
-    {
-        return JSON.parse(stored);
-    }
-    catch
-    {
-        return [];
-    }
-}
-
-// ======================================================
-// SAVE
-// ======================================================
-
-export function saveSessions(
-    sessions: JourneySession[]
-)
-{
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(sessions)
-    );
-}
-
-// ======================================================
-// ADD
-// ======================================================
-
-export function addSession(
-    session: JourneySession
-)
-{
-    const updated =
-    [
-        ...loadSessions(),
-        session,
-    ];
-
-    saveSessions(updated);
-
-    return updated;
-}
-
-// ======================================================
-// UPDATE
-// ======================================================
-
-export function updateSession(
-    updatedSession: JourneySession
-)
-{
-    const updated =
-        loadSessions().map(
-            (session) =>
-                session.sessionId === updatedSession.sessionId
-                    ? updatedSession
-                    : session
-        );
-
-    saveSessions(updated);
-
-    return updated;
-}
-
-// ======================================================
-// DELETE
-// ======================================================
-
-export function deleteSession(
-    sessionId: string
-)
-{
-    const updated =
-        loadSessions().filter(
-            (session) =>
-                session.sessionId !== sessionId
-        );
-
-    saveSessions(updated);
-
-    return updated;
 }
 
 // ======================================================

@@ -134,6 +134,14 @@ const selectedPage =
                             Last edited: Just now
                         </p>
 
+                            
+                     <div
+                            style={{
+                                display:"flex",
+                                gap:"10px",
+                                marginTop:"20px",
+                            }}
+                        >
                         {/* TASK CREATION */}
                         <button
                             onClick={() => setShowCreateTaskPopup(true)}
@@ -161,7 +169,7 @@ const selectedPage =
                         >
                             + Add Task Block
                         </button>
-
+                        </div>
                         {showTaskPicker && (
                             <div
                                 style={{

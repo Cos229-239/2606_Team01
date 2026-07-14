@@ -5,6 +5,17 @@ import EditTaskPopup from "../Components/EditTaskPopup";
 import { defaultTask } from "../Data/tasks";
 import type { Task } from "../Data/tasks";
 import { loadTasks, saveTasks } from "../Data/taskStorage";
+import SortControl from "../Components/SortControl";
+import type { SortDirection } from "../Components/SortControl";
+import
+{
+    sortTasksByTitle,
+    sortTasksByDueDate,
+    sortTasksByPriority,
+    sortTasksByStatus,
+    sortTasksByCompleted,
+}
+from "../Data/taskSorting";
 
 export default function TaskListPage() {
 
@@ -22,6 +33,45 @@ export default function TaskListPage() {
 
   const [showCreateTaskPopup, setShowCreateTaskPopup] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [sortField, setSortField] =
+    useState("dueDate");
+
+  const [sortDirection, setSortDirection] =
+      useState<SortDirection>("asc");
+
+  const sortFieldOptions =
+  [
+      { value: "title", label: "Title" },
+      { value: "dueDate", label: "Due Date" },
+      { value: "priority", label: "Priority" },
+      { value: "status", label: "Status" },
+      { value: "completed", label: "Completed" },
+  ];
+
+  function getSortedTasks()
+  {
+      switch (sortField)
+      {
+          case "title":
+              return sortTasksByTitle(tasks, sortDirection);
+
+          case "priority":
+              return sortTasksByPriority(tasks, sortDirection);
+
+          case "status":
+              return sortTasksByStatus(tasks, sortDirection);
+
+          case "completed":
+              return sortTasksByCompleted(tasks, sortDirection);
+
+          case "dueDate":
+          default:
+              return sortTasksByDueDate(tasks, sortDirection);
+      }
+  }
+
+  const sortedTasks =
+      getSortedTasks();
 
   function handleCreateTask(newTask: Task) {
     setTask((prevTasks) => [newTask, ...prevTasks]);
@@ -46,9 +96,24 @@ export default function TaskListPage() {
   return (
     <div>
       <div className="task-list-header">
-        <h1>Task List</h1>
-        <button onClick={() => setShowCreateTaskPopup(true)}>+ Create New Task</button>
-      </div>
+    <h1>Task List</h1>
+
+    <div style={{ display: "flex", gap: "8px" }}>
+        <button onClick={() => setShowCreateTaskPopup(true)}>
+          + Create New Task</button>
+
+        <SortControl
+            fields={sortFieldOptions}
+            currentField={sortField}
+            currentDirection={sortDirection}
+            onChange={(field, direction) =>
+            {
+                setSortField(field);
+                setSortDirection(direction);
+            }}
+        />
+    </div>
+</div>
 
       {showCreateTaskPopup &&
         <CreateTaskPopup onCreate={handleCreateTask}
@@ -65,7 +130,7 @@ export default function TaskListPage() {
 
       <div className="section-heading">All Tasks</div>
       <div>
-        {tasks.map((task) =>
+        {sortedTasks.map((task) =>
           <TaskCard key={task.id}
             {...task}
             onDelete={() => handleDeleteTask(task.id)}

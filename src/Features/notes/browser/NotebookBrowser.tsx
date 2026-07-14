@@ -75,7 +75,8 @@ const { requestDelete, confirmDialog } = useConfirmDelete();
             <button
                 onClick={onCreateNotebook}
                 style={{
-                    marginBottom: "16px",
+                    marginTop: "20px",
+                    marginBottom: "20px",
                     padding: "10px",
                     borderRadius: "6px",
                     cursor: "pointer",

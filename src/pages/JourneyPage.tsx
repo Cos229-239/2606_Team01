@@ -21,10 +21,7 @@ import JourneyOverview from "../Features/journey/Utils/JourneyOverview";
 import { useSearchParams } from "react-router-dom";
 import
 {
-    type JourneySession,
-
-    loadSessions, addSession, updateSession, 
-
+    type JourneySession, 
     getSessionsByJourneyId, getActiveSessionForPage,
 
     startSession, endSession,
@@ -33,6 +30,12 @@ import
 
 }
 from "../Features/journey/Session/journeySession";
+
+import
+{
+    loadSessions, addSession, updateSession,
+}
+from "../Features/journey/Storage/sessionStorage";
 
 export default function JourneyPage()
 {
@@ -887,15 +890,7 @@ const journeySessions =
 
                         {/* TASK CREATION */}
 
-                        <button
-                            onClick={() =>
-                                setShowCreateTaskPopup(true)
-                            }
-                        >
-                            + Create New Task
-                        </button>
-
-
+                       
                         {
                             showCreateTaskPopup &&
                             (
@@ -915,6 +910,29 @@ const journeySessions =
                                 />
                             )
                         }
+                       <div
+                            style={{
+                                display:"flex",
+                                gap:"10px",
+                                marginTop:"20px",
+                            }}
+                        >
+                         <button
+                            onClick={() =>
+                                setShowCreateTaskPopup(true)
+                            }
+                                style={{
+                                    padding: "10px",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+        }}
+                            
+                        >
+                            + Create New Task
+                        </button>
+
+
 
 
                         {/* TASK PICKER */}
@@ -924,13 +942,16 @@ const journeySessions =
                                 setShowTaskPicker(true)
                             }
 
-                            style={{
-                                marginBottom:"24px"
+                           style={{
+                                padding: "10px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontWeight: "bold",
                             }}
                         >
                             + Add Task Block
                         </button>
-
+                            </div>
                         {showTaskPicker && (
                             <div
                                 style={{

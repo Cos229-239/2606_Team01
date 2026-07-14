@@ -61,3 +61,43 @@ export function addSession(
 
     return updated;
 }
+
+// ======================================================
+// UPDATE
+// ======================================================
+
+export function updateSession(
+    updatedSession: JourneySession
+)
+{
+    const updated =
+        loadSessions().map(
+            (session) =>
+                session.sessionId === updatedSession.sessionId
+                    ? updatedSession
+                    : session
+        );
+
+    saveSessions(updated);
+
+    return updated;
+}
+
+// ======================================================
+// DELETE
+// ======================================================
+
+export function deleteSession(
+    sessionId: string
+)
+{
+    const updated =
+        loadSessions().filter(
+            (session) =>
+                session.sessionId !== sessionId
+        );
+
+    saveSessions(updated);
+
+    return updated;
+}
