@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import type { Journey } from "../types";
 import { loadJourneys, saveJourneys } from "../Storage/journeyStorage";
 
@@ -9,6 +8,10 @@ import { loadSessions } from "../Storage/sessionStorage";
 
 import type { JourneyPlan } from "../Plan/journeyPlan";
 import { loadPlans } from "../Plan/journeyPlan";
+
+import {  setPlan } from "../Plan/journeyPlan";
+
+import JourneyPlanPopup from "../Plan/JourneyPlanPopup";
 
 import { getJourneyStats } from "./journeyStats";
 
@@ -243,6 +246,43 @@ function selectJourney(journeyId: string)
                 ? "You've hit your weekly goal. Nice work."
                 : `${remainingSessions} more session${remainingSessions === 1 ? "" : "s"} will complete your weekly goal.`;
 
+
+
+
+
+    
+    
+    
+        const [showPlanPopup, setShowPlanPopup] =
+            useState(false);
+    
+    
+        function handleSavePlan(data:
+        {
+            purpose: string;
+            sessionsPerWeek: number;
+        })
+        {
+        if (!selectedJourney)
+        {
+            return;
+        }
+    
+        const updatedPlan: JourneyPlan =
+        {
+            journeyId: selectedJourney.journeyId,
+            purpose: data.purpose,
+            sessionsPerWeek: data.sessionsPerWeek,
+            createdAt: selectedPlan?.createdAt ?? new Date().toISOString(),
+        };
+    
+        const updatedPlans = setPlan(updatedPlan);
+    
+        setPlans(updatedPlans);
+    
+        setShowPlanPopup(false)
+    }
+
     // ======================================================
     // RENDER — NOTHING SELECTED YET
     // ======================================================
@@ -349,7 +389,6 @@ function selectJourney(journeyId: string)
             recommendation={
                 <div>
                 <p>{recommendationText}</p>
-
                 <br />
                 <button  onClick={() =>
                 navigate(`/journey?journeyId=${selectedJourneyId}`)
@@ -357,13 +396,57 @@ function selectJourney(journeyId: string)
         >
             Open {selectedNotebook?.title ?? "Journal"}
         </button>
-        </div>
+
+        <div>
+
+                    <div>
                 
+                    <br/>
+            <h3>Journey Plan</h3>
+
+            {selectedPlan ? (
+        <>
+            <p>
+                <strong>Purpose:</strong>{" "}
+                {selectedPlan.purpose}
+            </p>
+
+            <p>
+                <strong>Sessions Per Week:</strong>{" "}
+                {selectedPlan.sessionsPerWeek}
+            </p>
+            
+                    <br />
+            <button onClick={() => setShowPlanPopup(true)}>
+                        {selectedPlan ? "Edit Plan" : "Set Journey Plan"}
+                    </button>
+
+                    <br />
+                        </>
+                    ) : (
+                        <p>No plan set yet.</p>
+                    )}
+            
+            {showPlanPopup && selectedJourney && (
+                <JourneyPlanPopup
+                    initialPurpose={selectedPlan?.purpose}
+                    initialSessionsPerWeek={selectedPlan?.sessionsPerWeek}
+                    onClose={() => setShowPlanPopup(false)}
+                    onSave={handleSavePlan}
+                />
+            )}
+
+                    
+                </div>
+
+                    <br />
+        </div>
+                </div>
             }
 
            quickActions={
     <div>
-        
+         <br />
 
         <button onClick={() => navigate("/journey")}>
             Open Journey

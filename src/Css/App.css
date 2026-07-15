@@ -514,7 +514,8 @@
     align-items: center;
     gap: 10px;
     flex-wrap: nowrap;       /* never wrap — stays one line */
-    overflow: hidden;        /* clips gracefully if very narrow */
+    overflow-x: auto;        /* clips gracefully if very narrow */
+    overflow-y: hidden;   
 
     padding: 7px 12px;
 
@@ -527,7 +528,11 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
+
+    scrollbar-width: thin;
+    scrollbar-color: rgba(160,190,255,0.15) transparent;
 }
+
 
 .timer-page:hover .timer-settings-bar {
     opacity: 1;

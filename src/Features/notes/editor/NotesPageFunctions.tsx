@@ -14,6 +14,7 @@ import { loadTasks, saveTasks } from "../../../Data/taskStorage";
 import {
     createNotebook,  createPage,
 } from "../utils/NotesFactory";
+
 import { deleteSession } from "../../journey/Storage/sessionStorage";
 
 export function useNotesPageFunctions({
