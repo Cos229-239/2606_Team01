@@ -796,3 +796,167 @@
 
     color: var(--text-primary);
 }
+
+/* ── Help Page ──────────────────────────────────────────────────────────── */
+.help-page {
+  width: 100%;
+}
+
+/* ── About block (goal + benefits) ─────────────────────────────────────── */
+.help-about {
+  padding: calc(var(--panel-padding) + 6px) var(--panel-padding) var(--panel-padding);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  text-align: left;
+}
+
+.help-about-header {
+  padding-bottom: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.help-about-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-logo);
+  margin: 0;
+  text-shadow: 0 0 20px rgba(160, 190, 255, 0.3);
+}
+
+.help-about-tagline {
+  font-size: var(--font-size-sm);
+  color: rgba(160, 190, 255, 0.7);
+  margin: var(--space-xs) 0 0;
+  letter-spacing: 0.02em;
+}
+
+.help-about-section + .help-about-section {
+  margin-top: var(--space-lg);
+}
+
+.help-about-section h3 {
+  font-size: var(--font-size-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-label);
+  margin: 0 0 var(--space-sm);
+}
+
+.help-about-section p {
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.85);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.help-about-section p + p {
+  margin-top: var(--space-sm);
+}
+
+.help-about-benefits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.help-about-benefits li {
+  position: relative;
+  padding-left: 20px;
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.85);
+  line-height: 1.6;
+}
+
+.help-about-benefits li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(160, 190, 255, 0.7);
+  box-shadow: 0 0 8px rgba(160, 190, 255, 0.5);
+}
+
+.help-chapters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.help-chapter {
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.help-chapter:hover {
+  border-color: var(--border-panel-hover);
+  background: var(--bg-panel-hover);
+}
+
+.help-chapter-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 14px var(--panel-padding);
+  cursor: pointer;
+  user-select: none;
+}
+
+.help-chapter-icon {
+  font-size: 15px;
+  color: rgba(160, 190, 255, 0.75);
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+
+.help-chapter-header h3 {
+  flex: 1;
+  font-size: var(--font-size-h3);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-h3);
+  margin: 0;
+}
+
+.help-chapter-caret {
+  font-size: 16px;
+  color: rgba(160, 190, 255, 0.5);
+  transform: rotate(90deg);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.help-chapter-caret.open {
+  transform: rotate(-90deg);
+}
+
+.help-chapter-body {
+  padding: 0 var(--panel-padding) 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: var(--space-sm);
+}
+
+.help-chapter-body p {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.58);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.help-chapter-body p + p {
+  margin-top: var(--space-sm);
+}
+
+.help-chapter-placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+  font-style: italic;
+}

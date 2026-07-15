@@ -455,6 +455,8 @@
   function drawBlackHole(dt) {
     if (!optBlackHole && bhScale < 0.01) return;
 
+    if (bhTimerRunning) tickBHProgress();
+
     bhX += (bhTargetX - bhX) * BH_SMOOTH * (1 + (1 - bhScale) * 2);
     bhY += (bhTargetY - bhY) * BH_SMOOTH * (1 + (1 - bhScale) * 2);
 
@@ -692,13 +694,32 @@
   let optBlackHoleEnabled = localStorage.getItem('timer-blackhole') !== 'false';
   let optBlackHoleParticlesOn  = localStorage.getItem('timer-blackhole-particles') !== 'false';
   let bhTimerRunning      = false;
-  let bhTimerProgress     = 0; // 0..1, 1 = nearly finished
+  let bhTimerProgress     = 0; // 0..1, last authoritative value from the timer tick
 
-  // The hole's target scale grows from BH_MIN_SCALE up to BH_MIN_SCALE +
-  // BH_MAX_GROW as the countdown approaches zero.
+  // Progress arrives from the timer in discrete once-a-second ticks. Rather
+  // than feed that stair-stepped value straight into the scale target (which
+  // makes the hole visibly lurch each second), replay the known change
+  // between the last two ticks smoothly, frame by frame, over the interval.
+  let bhDisplayProgress     = 0; // continuously-animated progress used for rendering
+  let bhProgressStart       = 0; // progress value at the start of the current interval
+  let bhProgressEnd         = 0; // progress value we're interpolating toward
+  let bhProgressTickStart   = 0; // timestamp this interval began
+  let bhProgressTickLength  = 1; // how long the previous interval took (seconds)
+  let bhLastProgressTime    = 0; // timestamp of the last authoritative update
+
   function bhTargetScale() {
     if (!bhTimerRunning) return 0;
-    return BH_MIN_SCALE + bhTimerProgress * BH_MAX_GROW;
+    return BH_MIN_SCALE + bhDisplayProgress * BH_MAX_GROW;
+  }
+
+  // Called every frame. Fills in the gap between the last two known ticks
+  // by walking a fraction of the way from start to end, based on how much
+  // of that interval's real time has actually elapsed.
+  function tickBHProgress() {
+    const now = performance.now() / 1000;
+    const elapsed = now - bhProgressTickStart;
+    const frac = Math.min(1, elapsed / bhProgressTickLength);
+    bhDisplayProgress = bhProgressStart + (bhProgressEnd - bhProgressStart) * frac;
   }
 
   function reloadBHSettings() {
@@ -707,8 +728,21 @@
   }
 
   function applyTimerProgress(running, progress) {
+    const clamped = Math.max(0, Math.min(1, progress));
+    const now = performance.now() / 1000;
+
+    // Start a new interpolation leg: from wherever we currently are
+    // displaying, toward this freshly-received true value, over however
+    // long the previous interval actually took (falls back to 1s on the
+    // very first tick, when there's no prior interval to measure).
+    bhProgressStart      = bhDisplayProgress;
+    bhProgressEnd         = clamped;
+    bhProgressTickLength  = bhLastProgressTime > 0 ? Math.max(0.01, now - bhLastProgressTime) : 1;
+    bhProgressTickStart   = now;
+    bhLastProgressTime    = now;
+
     bhTimerRunning  = running;
-    bhTimerProgress = Math.max(0, Math.min(1, progress));
+    bhTimerProgress = clamped;
 
     if (!IS_TIMER || !optBlackHoleEnabled) {
       if (bhActive) deactivateBlackHole();

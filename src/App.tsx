@@ -15,6 +15,7 @@ import TimerPage from "./pages/TimerPage";
 import NotesPage from "./pages/NotesPage";
 import JourneyPage from "./pages/JourneyPage";
 import ProfilePage from "./pages/ProfilePage";
+import HelpPage from "./pages/HelpPage";
 // CHANGED: added import for JourneyPreview so it can be
 // used as a nested route element.
 import JourneyPreview from "./Features/journey/Utils/JourneyPreview";
@@ -64,6 +65,7 @@ function App() {
             <Route path="/notebook" element={<NotesPage />} />
             <Route path="/journey" element={<JourneyPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/help" element={<HelpPage />} />
           </Route>
 
          
