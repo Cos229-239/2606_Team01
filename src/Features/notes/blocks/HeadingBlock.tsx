@@ -151,6 +151,9 @@ export default function HeadingBlock({
                 case "heading":
                 onConvertBlock(block.id, "heading", null);
                 break;
+                case "checklist":
+                onConvertBlock?.(block.id, "checklist", []);
+                break;
         }
 
     }

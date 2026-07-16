@@ -42,6 +42,10 @@ export default function DividerBlock(
             case "heading":
                 onConvertBlock?.(block.id, "heading", null);
                 break;
+            
+            case "checklist":
+                onConvertBlock?.(block.id, "checklist", []);
+                break;
         }
     }
 

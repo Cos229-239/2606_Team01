@@ -29,5 +29,10 @@ export const SLASH_COMMANDS: SlashCommand[] =
         command: "text",
         label: "Text",
     },
+    {
+        id: "checklist",
+        command: "checklist",
+        label: "checklist",
+    },
 ];
 

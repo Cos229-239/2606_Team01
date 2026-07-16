@@ -4,12 +4,15 @@
 // Core data models for the Notes feature.
 //
 
+import type { ChecklistItem } from "../../Components/Checklist";
+
 
     //block types
     export type BlockType =
     | "empty" | "text"
     | "heading" | "list"
-    | "divider" | "task";
+    | "divider" | "task"
+    | "checklist";
 
 
     //notebook
@@ -102,6 +105,12 @@ export interface TaskBlock extends BaseBlock {
     };
 }
 
+export interface CheckBlock extends BaseBlock {
+    type: "checklist";
+
+    content: ChecklistItem[];
+}
+
 //Block union
 
 export type Block = 
@@ -110,4 +119,5 @@ export type Block =
     | HeadingBlock
     | ListBlock
     | DividerBlock
-    | TaskBlock;
+    | TaskBlock
+    | CheckBlock;

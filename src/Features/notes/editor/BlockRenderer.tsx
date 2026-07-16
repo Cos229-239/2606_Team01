@@ -7,11 +7,12 @@ import HeadingBlock from "../blocks/HeadingBlock";
 import ListBlock from "../blocks/ListBlock";
 import DividerBlock from "../blocks/DividerBlock";
 import TaskBlock from "../blocks/TaskBlock";
+import CheckBlock from "../blocks/CheckBlock";
 
 interface BlockRendererProps {
     block: Block;
     tasks: Task[];
-    onUpdateBlock: ( blockId: string, content: string) => void;
+    onUpdateBlock: ( blockId: string, content: any) => void;
     onCreateBlockAfter: (  blockId: string  ) => void;
     onDeleteBlock: ( blockId: string ) => void,
     onConvertBlock: (  blockId: string, type: BlockType, 
@@ -109,6 +110,20 @@ export default function BlockRenderer({
             </div>
             );
 
+             case "checklist":
+            return (
+                <div data-block>
+                    <CheckBlock
+                        block={block}
+                        onUpdateBlock={onUpdateBlock}
+                        onConvertBlock={onConvertBlock}
+                        onCreateBlockAfter={onCreateBlockAfter}
+                        onDeleteBlock={onDeleteBlock}
+                        focused={focused}
+                    />
+                </div>
+            );
+
         case "task":
             return (
             <div data-block>
@@ -119,6 +134,7 @@ export default function BlockRenderer({
                     onDeleteBlock={onDeleteBlock} />
                     </div>
             );
+
 
         default:
             return null;

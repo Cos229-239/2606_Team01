@@ -179,8 +179,9 @@ export default function CheckList(
 
         onItemsChange(updatedItems);
 
-        autoResize(itemId);
-    }
+        requestAnimationFrame(() => 
+                    { autoResize(itemId);}
+    )}
 
     // ==================================================
     // Create New Item
@@ -292,6 +293,7 @@ export default function CheckList(
             handleDeleteItem(item.id);
         }
     }
+    
 
     // ==================================================
     // Render
