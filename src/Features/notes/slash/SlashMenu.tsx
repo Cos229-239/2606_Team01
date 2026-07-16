@@ -1,4 +1,5 @@
 import { SLASH_COMMANDS } from "./SlashCommands";
+import { useSmoothScroll } from "../../../Data/useSmoothScroll";
 
 interface SlashMenuProps
 {
@@ -18,6 +19,8 @@ export default function SlashMenu({
         )
     );
 
+    const smoothScroll = useSmoothScroll();
+
     if (filteredCommands.length === 0)
     {
         return null;
@@ -25,6 +28,7 @@ export default function SlashMenu({
 
     return (
         <div
+            className={`popover-panel${smoothScroll ? "" : " no-motion"}`}
             style={{
                 position: "absolute",
                 top: "100%",

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSmoothScroll } from "../Data/useSmoothScroll";
 
 type TaskCardProps = {
   id: string;
@@ -26,6 +27,7 @@ export default function TaskCard({
   onEdit,
 }: TaskCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const smoothScroll = useSmoothScroll();
   const lines = notes.split("\n");
   const preview = lines.slice(0, 2);
 
@@ -52,23 +54,31 @@ export default function TaskCard({
         </span>
       </div>
 
-      {!isOpen &&
-        preview.map((line, index) => (
-          <p key={index} className="task-note-line">{line}</p>
-        ))}
-
-      {isOpen &&
-        lines.map((line, index) => (
-          <p key={index} className="task-note-line">{line}</p>
-        ))}
-
-      {isOpen && (
-        <div className="task-updated">
-          Updated: {updatedAt}
-          <button onClick={onEdit} style={{ marginLeft: "10px" }}>Edit Task</button>
-          <button onClick={onDelete} style={{ marginLeft: "8px" }}>Delete Task</button>
+      {/* Collapsed preview fades out as the full notes open, rather than the
+          two swapping instantly -- same accordion-body pattern used by
+          AccordionPreview/DashboardAccordion, gated by the smooth scrolling
+          setting. */}
+      <div className={`accordion-body ${isOpen ? "" : "open"} ${smoothScroll ? "" : "no-motion"}`}>
+        <div className="accordion-body-inner">
+          {preview.map((line, index) => (
+            <p key={index} className="task-note-line">{line}</p>
+          ))}
         </div>
-      )}
+      </div>
+
+      <div className={`accordion-body ${isOpen ? "open" : ""} ${smoothScroll ? "" : "no-motion"}`}>
+        <div className="accordion-body-inner">
+          {lines.map((line, index) => (
+            <p key={index} className="task-note-line">{line}</p>
+          ))}
+
+          <div className="task-updated">
+            Updated: {updatedAt}
+            <button onClick={onEdit} style={{ marginLeft: "10px" }}>Edit Task</button>
+            <button onClick={onDelete} style={{ marginLeft: "8px" }}>Delete Task</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

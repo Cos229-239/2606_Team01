@@ -3,6 +3,7 @@ import { useState } from "react";
 import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
 import BlockList from "../Features/notes/editor/BlockList";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
+import { useSmoothScroll } from "../Data/useSmoothScroll";
 
 interface NotesPageProps {
     initialNotebookId?: string;
@@ -19,6 +20,8 @@ export default function NotesPage({
 
     const [showCreateTaskPopup, setShowCreateTaskPopup] =
         useState(false);
+
+    const smoothScroll = useSmoothScroll();
 
 const {
     notebooks,
@@ -172,6 +175,7 @@ const selectedPage =
                         </div>
                         {showTaskPicker && (
                             <div
+                                className={`popover-panel${smoothScroll ? "" : " no-motion"}`}
                                 style={{
                                     position: "absolute",
                                     top: 160,

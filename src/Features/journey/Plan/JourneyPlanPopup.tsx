@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSmoothScroll } from "../../../Data/useSmoothScroll";
 
 
 interface JourneyPlanPopupProps
@@ -24,6 +25,7 @@ export default function JourneyPlanPopup(
 
 }: JourneyPlanPopupProps)
 {
+    const smoothScroll = useSmoothScroll();
 
     const [purpose, setPurpose] =
         useState(initialPurpose ?? "");
@@ -55,11 +57,13 @@ export default function JourneyPlanPopup(
             }}
         >
             <div
+                className={`popover-panel${smoothScroll ? "" : " no-motion"}`}
                 style={{
                     background: "#1a1a2e",
                     borderRadius: 8,
                     padding: 24,
                     width: 360,
+                    transformOrigin: "center",
                 }}
             >
                 <h3>Journey Plan</h3>

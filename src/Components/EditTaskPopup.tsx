@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Task } from "../Data/tasks";
+import { useSmoothScroll } from "../Data/useSmoothScroll";
 
 type EditTaskPopupProps = {
   task: Task;
@@ -8,6 +9,7 @@ type EditTaskPopupProps = {
 };
 
 export default function EditTaskPopup({ task, onClose, onSave }: EditTaskPopupProps) {
+  const smoothScroll = useSmoothScroll();
   const [title, setTitle] = useState(task.title);
   const [notes, setNotes] = useState(task.notes);
   const [mood, setMood] = useState(task.mood);
@@ -31,7 +33,7 @@ export default function EditTaskPopup({ task, onClose, onSave }: EditTaskPopupPr
 
   return (
     <div className="popup-overlay">
-      <div className="glass-panel popup-window">
+      <div className={`glass-panel popup-window${smoothScroll ? "" : " no-motion"}`}>
         <h2>Edit Task</h2>
 
         <div className="form-field">
