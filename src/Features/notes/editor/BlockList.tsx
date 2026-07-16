@@ -19,7 +19,7 @@ interface BlockListProps {
     tasks: Task[];
 
       // Block callbacks
-    onUpdateBlock: (blockId: string, content: string) => void;
+    onUpdateBlock: (blockId: string, content: any) => void;
     onCreateBlockAfter: (  blockId: string   ) => void;
     onDeleteBlock: ( blockId: string ) => void,
     onConvertBlock: (  blockId: string, type: BlockType, 

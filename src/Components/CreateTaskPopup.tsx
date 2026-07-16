@@ -25,6 +25,7 @@ export default function CreateTaskPopup({ onClose, onCreate }: CreateTaskPopupPr
       priority,
       dueDate,
       updatedAt: new Date().toLocaleDateString(),
+      checklist: [],
     };
     onCreate(newTask);
   }

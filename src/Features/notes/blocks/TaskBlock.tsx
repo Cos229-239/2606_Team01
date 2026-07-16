@@ -1,5 +1,6 @@
 import type { Block } from "../types";
 import type { Task } from "../../../Data/tasks";
+import type { ChecklistItem } from "../../../Components/Checklist";
 import TaskCard from "../../../Components/TaskCard";
 import EditTaskPopup from "../../../Components/EditTaskPopup";
 import { useConfirmDelete } from "../../../Components/ConfirmDialog";
@@ -44,6 +45,14 @@ export default function TaskBlock(
             </div>
         );
     }
+
+     const handleChecklistChange = (items: ChecklistItem[]): void =>
+          {
+        onEditTask({
+            ...matchedTask,
+            checklist: items,
+        });
+    }
     
 
     return (
@@ -52,6 +61,8 @@ export default function TaskBlock(
 
         <TaskCard
             {...matchedTask}
+
+            onChecklistChange={handleChecklistChange}
             onEdit={() => setEditingTask(matchedTask)}
             onDelete={() =>
                 requestDelete(

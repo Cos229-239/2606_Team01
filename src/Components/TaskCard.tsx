@@ -1,4 +1,6 @@
 import { useState } from "react";
+import CheckList from "./Checklist";
+import type { ChecklistItem } from "./Checklist";
 
 type TaskCardProps = {
   id: string;
@@ -9,6 +11,10 @@ type TaskCardProps = {
   priority: string;
   dueDate: string;
   updatedAt: string;
+
+checklist: ChecklistItem[];
+onChecklistChange: (items: ChecklistItem[]) => void;
+
 
   onDelete: () => void;
   onEdit: () => void;
@@ -22,12 +28,13 @@ export default function TaskCard({
   priority,
   dueDate,
   updatedAt,
+  checklist,
+  onChecklistChange,
   onDelete,
   onEdit,
 }: TaskCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const lines = notes.split("\n");
-  const preview = lines.slice(0, 2);
 
   return (
     <div className="glass-panel task-card">
@@ -52,22 +59,30 @@ export default function TaskCard({
         </span>
       </div>
 
-      {!isOpen &&
-        preview.map((line, index) => (
+       <div
+        onClick={(event) => event.stopPropagation()}
+        style={{ marginTop: "10px" }}
+      >
+        <CheckList
+          items={checklist}
+          onItemsChange={onChecklistChange}
+        />
+      </div>
+
+      {isOpen &&(
+        <>
+       {lines.map((line, index) => (
           <p key={index} className="task-note-line">{line}</p>
         ))}
 
-      {isOpen &&
-        lines.map((line, index) => (
-          <p key={index} className="task-note-line">{line}</p>
-        ))}
 
-      {isOpen && (
         <div className="task-updated">
           Updated: {updatedAt}
           <button onClick={onEdit} style={{ marginLeft: "10px" }}>Edit Task</button>
           <button onClick={onDelete} style={{ marginLeft: "8px" }}>Delete Task</button>
         </div>
+
+        </>
       )}
     </div>
   );

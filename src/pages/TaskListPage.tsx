@@ -2,11 +2,11 @@ import TaskCard from "../Components/TaskCard";
 import { useEffect, useState } from "react";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
 import EditTaskPopup from "../Components/EditTaskPopup";
-import { defaultTask } from "../Data/tasks";
 import type { Task } from "../Data/tasks";
 import { loadTasks, saveTasks } from "../Data/taskStorage";
 import SortControl from "../Components/SortControl";
 import type { SortDirection } from "../Components/SortControl";
+import type { ChecklistItem } from "../Components/Checklist";
 import
 {
     sortTasksByTitle,
@@ -19,13 +19,8 @@ from "../Data/taskSorting";
 
 export default function TaskListPage() {
 
-  const [tasks, setTask] = useState<Task[]>(() => {
-    const savedTasks = loadTasks();
-    if (savedTasks.length > 0) {
-      return savedTasks;
-    }
-    return defaultTask;
-  });
+  const [tasks, setTask] = useState<Task[]>(() => loadTasks());
+    
 
   useEffect(() => {
     saveTasks(tasks);
@@ -93,6 +88,12 @@ export default function TaskListPage() {
     setEditingTask(null);
   }
 
+  function handleChecklistChange(taskId: string, items: ChecklistItem[]) {
+    setTask(prevTasks =>
+      prevTasks.map(t => t.id === taskId ? { ...t, checklist: items } : t)
+    );
+  }
+
   return (
     <div>
       <div className="task-list-header">
@@ -135,6 +136,8 @@ export default function TaskListPage() {
             {...task}
             onDelete={() => handleDeleteTask(task.id)}
             onEdit={() => setEditingTask(task)}
+             onChecklistChange={(items) =>
+                    handleChecklistChange(task.id, items)}
           />
         )}
       </div>
