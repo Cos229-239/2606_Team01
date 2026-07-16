@@ -15,6 +15,9 @@ export default function Sidebar() {
         
 
       </nav>
+      <Link to="/help">
+        <button className="sidebar-btn">? Help</button>
+      </Link>
       <Link to="/settings">
         <button className="sidebar-btn">⚙ Settings</button>
       </Link>

@@ -305,16 +305,6 @@
   width: var(--popup-width);
   padding: var(--popup-padding);
   border-radius: var(--radius-popup);
-  /* Reuses the same popover-in keyframes as .popover-panel so every
-     mount-in panel in the app (dropdowns and modals alike) shares one
-     animation. Add "no-motion" alongside "popup-window" to skip it when
-     smooth scrolling is turned off in Settings. */
-  animation: popover-in 0.16s ease;
-  transform-origin: center;
-}
-
-.popup-window.no-motion {
-  animation: none;
 }
 
 .popup-window h2 { margin-bottom: 22px; font-size: 15px; letter-spacing: 0.06em; }
@@ -858,8 +848,6 @@
     outline: none;
 
     color: var(--text-primary);
-<<<<<<< Updated upstream
-=======
 }
 
 /* ── Help Page ──────────────────────────────────────────────────────────── */
@@ -1361,5 +1349,4 @@
   .help-mood-cards {
     grid-template-columns: 1fr;
   }
->>>>>>> Stashed changes
 }

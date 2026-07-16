@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useSmoothScroll } from "../../../Data/useSmoothScroll";
 
 interface StartSessionPopupProps
 {
@@ -33,7 +32,6 @@ export default function StartSessionPopup(
     mode = "create"
 }: StartSessionPopupProps)
 {
-    const smoothScroll = useSmoothScroll();
     const [type, setType] = useState("Coding");
     const [duration, setDuration] = useState(60);
     const [mood, setMood] = useState("Focus");
@@ -53,14 +51,12 @@ export default function StartSessionPopup(
         }}
     >
         <div
-            className={`popover-panel${smoothScroll ? "" : " no-motion"}`}
             style={{
                 width: "400px",
                 background: "#1a1a2e",
                 padding: "20px",
                 borderRadius: "10px",
                 zIndex: 10000,
-                transformOrigin: "center",
             }}
             onClick={(e) =>
                 e.stopPropagation()

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { Task } from "../Data/tasks";
-import { useSmoothScroll } from "../Data/useSmoothScroll";
 
 type CreateTaskPopupProps = {
   onClose: () => void;
@@ -8,7 +7,6 @@ type CreateTaskPopupProps = {
 };
 
 export default function CreateTaskPopup({ onClose, onCreate }: CreateTaskPopupProps) {
-  const smoothScroll = useSmoothScroll();
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [mood, setMood] = useState("Focused");
@@ -33,7 +31,7 @@ export default function CreateTaskPopup({ onClose, onCreate }: CreateTaskPopupPr
 
   return (
     <div className="popup-overlay">
-      <div className={`glass-panel popup-window${smoothScroll ? "" : " no-motion"}`}>
+      <div className="glass-panel popup-window">
         <h2>Create New Task</h2>
 
         <div className="form-field">

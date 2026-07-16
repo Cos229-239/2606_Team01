@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { getConfirmBeforeDelete } from "../Data/generalSettings";
-import { useSmoothScroll } from "../Data/useSmoothScroll";
 
 interface PendingConfirm {
     message: string;
@@ -21,7 +20,6 @@ interface PendingConfirm {
 // on the settings page while this component is mounted still takes effect.
 export function useConfirmDelete() {
     const [pending, setPending] = useState<PendingConfirm | null>(null);
-    const smoothScroll = useSmoothScroll();
 
     const requestDelete = useCallback((message: string, onConfirm: () => void) => {
         if (!getConfirmBeforeDelete()) {
@@ -43,7 +41,7 @@ export function useConfirmDelete() {
     const confirmDialog = pending ? (
         <div className="popup-overlay" onClick={handleCancel}>
             <div
-                className={`glass-panel popup-window${smoothScroll ? "" : " no-motion"}`}
+                className="glass-panel popup-window"
                 style={{ width: "360px" }}
                 onClick={(e) => e.stopPropagation()}
             >

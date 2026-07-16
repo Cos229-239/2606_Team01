@@ -48,9 +48,8 @@ export default function SortControl(
                 Sort
             </button>
 
-            {isOpen && (
             <div
-                className={`popover-panel${smoothScroll ? "" : " no-motion"}`}
+                aria-hidden={!isOpen}
                 style={{
                     position: "absolute",
                     top: "110%",
@@ -62,6 +61,13 @@ export default function SortControl(
                     padding: 12,
                     zIndex: 1000,
                     transformOrigin: "top left",
+                    opacity: isOpen ? 1 : 0,
+                    transform: isOpen ? "translateY(0) scale(1)" : "translateY(-4px) scale(0.98)",
+                    visibility: isOpen ? "visible" : "hidden",
+                    pointerEvents: isOpen ? "auto" : "none",
+                    transition: smoothScroll
+                        ? "opacity 0.16s ease, transform 0.16s ease, visibility 0.16s"
+                        : "none",
                 }}
             >
 
@@ -156,7 +162,6 @@ export default function SortControl(
                 </div>
 
             </div>
-            )}
 
         </div>
     );
