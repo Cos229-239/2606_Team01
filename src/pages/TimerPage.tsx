@@ -19,7 +19,7 @@ import { formatTime } from "../Components/Timer/FormatTime";
 import { playNotificationSound } from "../Data/notificationSound";
 import { getNotificationBehaviorSettings } from "../Data/notificationSettings";
 
-const DEFAULT_MINUTES = 25;
+const DEFAULT_MINUTES = 60;
 
 // Fires the "timer finished" notification. Goes through the Electron
 // bridge when it's available (real desktop popup, no sound yet — see
@@ -211,7 +211,7 @@ export default function TimerPage() {
                     </div>
                 </div>
 
-                {/* Black hole + particles — only relevant for starfield */}
+               {/* Black hole + particles — only relevant for starfield */}
                 {timerBg === "starfield" && (
                     <>
                         <div className="timer-settings-sep" />
@@ -242,6 +242,23 @@ export default function TimerPage() {
                         )}
                     </>
                 )}
+
+                {/* Window controls — outside the starfield conditional,
+                    so these always render regardless of background */}
+                <div className="timer-settings-group timer-window-controls">
+                    <button
+                        className="timer-pill"
+                        onClick={() => window.electron?.minimizeWindow()}
+                    >
+                        _
+                    </button>
+                    <button
+                        className="timer-pill"
+                        onClick={() => window.electron?.maximizeWindow()}
+                    >
+                        ▢
+                    </button>
+                </div>
             </div>
 
             <TimerControls

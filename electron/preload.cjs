@@ -13,6 +13,15 @@ contextBridge.exposeInMainWorld("electron", {
         ipcRenderer.send("open-timer");
     },
 
+    minimizeWindow: () => {
+        ipcRenderer.send("window-minimize");
+    },
+
+    maximizeWindow: () => {
+        ipcRenderer.send("window-maximize");
+    },
+
+
     // Tells the main process a countdown just hit zero, so it can pop a
     // native OS notification. payload is simple text only for now —
     // { title, body }.

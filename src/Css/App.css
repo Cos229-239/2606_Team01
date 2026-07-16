@@ -502,7 +502,9 @@
 /* ==========================================================
    TIMER SETTINGS BAR (top of window)
 ========================================================== */
-
+.timer-window-controls {
+    margin-left: auto;
+}
 .timer-settings-bar {
     position: absolute;
     top: 0;

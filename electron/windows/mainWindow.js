@@ -13,8 +13,8 @@ const __dirname = path.dirname(__filename);
         {
             const mainWindow = new BrowserWindow(
                 {
-                    width: 2200,
-                    height: 1200,
+                    width: 1500,
+                    height: 950,
                     
                     webPreferences:
                          {

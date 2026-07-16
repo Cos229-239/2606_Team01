@@ -43,6 +43,31 @@ import path from "node:path";
         {
             createTimerWindow();
         });
+    
+     ipcMain.on("window-minimize", (event) =>
+        {
+            const sourceWindow = BrowserWindow.fromWebContents(event.sender);
+            if (sourceWindow)
+            {
+                sourceWindow.minimize();
+            }
+        });
+
+    ipcMain.on("window-maximize", (event) =>
+        {
+            const sourceWindow = BrowserWindow.fromWebContents(event.sender);
+            if (sourceWindow)
+            {
+                if (sourceWindow.isMaximized())
+                {
+                    sourceWindow.unmaximize();
+                }
+                else
+                {
+                    sourceWindow.maximize();
+                }
+            }
+        });
 
     // Fired by the timer window (via preload) the moment a countdown
     // hits zero. Shows a native OS notification with simple text.

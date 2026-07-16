@@ -15,6 +15,8 @@ declare global
         electron:
         {
             openTimer: () => void;
+            minimizeWindow: () => void;
+            maximizeWindow: () => void;
             notifyTimerComplete: (payload: { title?: string; body?: string }) => void;
             selectAudioFile: () => Promise<string | null>;
             readAudioFileAsDataUrl: (filePath: string) => Promise<string | null>;

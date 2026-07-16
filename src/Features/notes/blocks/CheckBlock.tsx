@@ -25,6 +25,9 @@ export default function CheckBlock(
 
     if (block.type !== "checklist") return null;
 
+const items = block.content;
+
+
 const [showSlashMenu, setShowSlashMenu] =
     useState(false);
 
@@ -76,8 +79,32 @@ function handleSlashCommand(command: string)
     }
 }
 
-   return (
+function handleWrapperKeyDown(
+    event: React.KeyboardEvent<HTMLDivElement>
+)
+{
+    if (event.key !== "Backspace")
+    {
+        return;
+    }
+
+    const isSingleEmptyItem =
+        items.length === 1 &&
+        items[0].text === "";
+
+    if (!isSingleEmptyItem)
+    {
+        return;
+    }
+
+    onDeleteBlock?.(
+        block.id
+    );
+}
+
+  return (
     <div
+        onKeyDown={handleWrapperKeyDown}
         style={{
             position: "relative",
             padding: "6px 0",

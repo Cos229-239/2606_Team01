@@ -9,18 +9,18 @@ const __dirname = path.dirname(__filename);
 // Creates floating timer
 export function createTimerWindow() {
     const timerWindow = new BrowserWindow({
-        width: 420,
-        height: 460,
+        width: 300,
+        height: 280,
 
-        minWidth: 280,
-        minHeight: 200,
+        minWidth: 230,
+        minHeight: 120,
 
         alwaysOnTop: true,
-        skipTaskbar: true,
         resizable: true,          // allow resizing so clock scales with clamp()
-        maximizable: false,
-        fullscreenable: false,
+        maximizable: true,
+        fullscreenable: true,
 
+        skipTaskbar: true,
         autoHideMenuBar: true,
         type: 'toolbar',
 
