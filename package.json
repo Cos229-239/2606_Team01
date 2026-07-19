@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "electron:dev": "wait-on http://localhost:5173 && electron .",
     "dashboard": "concurrently \"npm run dev\" \"npm run electron:dev\"",
-    "package": "npm run build && electron-builder --dir"
+    "package": "npm run build && electron-builder --dir",
+    "installer": "npm run build && electron-builder --win"
   },
   "build": {
     "appId": "com.bettereveryday.app",
@@ -23,6 +24,15 @@
     ],
     "directories": {
       "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   },
   "dependencies": {
