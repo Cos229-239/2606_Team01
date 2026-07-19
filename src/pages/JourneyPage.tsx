@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { Journey } from "../Features/journey/types";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
+import { useSmoothScroll } from "../Data/useSmoothScroll";
 import {
     loadJourneys,
     saveJourneys,
@@ -43,6 +44,8 @@ export default function JourneyPage()
     // ======================================================
     // STATE
     // ======================================================
+
+    const smoothScroll = useSmoothScroll();
 
     const [journeys, setJourneys] =
         useState<Journey[]>([]);
@@ -954,6 +957,7 @@ const journeySessions =
                             </div>
                         {showTaskPicker && (
                             <div
+                                className={`popover-panel${smoothScroll ? "" : " no-motion"}`}
                                 style={{
                                     position: "absolute",
                                     top: 160,
