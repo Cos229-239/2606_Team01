@@ -18,7 +18,7 @@
   const MID_BASE  = 0.65;
   const NEAR_BASE = HORIZON;
 
-  const IS_TIMER = window.location.pathname.includes('/timer');
+  const IS_TIMER = window.location.hash.includes('/timer');
 
   function isActive() {
     if (IS_TIMER) return (localStorage.getItem('timer-background') ?? 'starfield') === 'city';

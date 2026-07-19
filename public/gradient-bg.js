@@ -35,7 +35,7 @@
   const el = document.getElementById('gradient-bg');
   if (!el) return;
 
-  const IS_TIMER = window.location.pathname.includes('/timer');
+  const IS_TIMER = window.location.hash.includes('/timer');
 
   function isActive() {
     if (IS_TIMER) return (localStorage.getItem('timer-background') ?? 'starfield') === 'gradient';
