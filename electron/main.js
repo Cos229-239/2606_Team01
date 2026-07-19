@@ -6,6 +6,7 @@ import { createTimerWindow } from "./windows/timerWindow.js";
 import { ipcMain, Notification, dialog } from "electron";
 import fs from "node:fs";
 import path from "node:path";
+import { autoUpdater } from "electron-updater";
 
     // Profile data persistence
     // ------------------------------------------------------
@@ -27,7 +28,42 @@ import path from "node:path";
     // "Electron" label instead of the app's own name.
     app.setAppUserModelId("BetterEveryDay");
 
+function setupAutoUpdater()
+    {
+        autoUpdater.autoDownload = true;
 
+        // Fired once the update has fully downloaded and is ready to
+        // install. This is where the user gets asked, matching the
+        // "always tell them" decision — never applied silently.
+        autoUpdater.on("update-downloaded", (info) =>
+        {
+            dialog.showMessageBox({
+                type: "info",
+                title: "Update Ready",
+                message: `A new version of Better Every Day (${info.version}) has been downloaded.`,
+                detail: "Restart now to install it, or keep working and it'll apply the next time you close the app.",
+                buttons: ["Restart Now", "Later"],
+                defaultId: 0,
+                cancelId: 1,
+            }).then((result) =>
+            {
+                if (result.response === 0)
+                {
+                    autoUpdater.quitAndInstall();
+                }
+            });
+        });
+
+        // Non-fatal — if the update check fails (no internet, GitHub
+        // unreachable, etc.), the app should just continue running
+        // normally rather than interrupting the user.
+        autoUpdater.on("error", (error) =>
+        {
+            console.error("[main] auto-updater error:", error);
+        });
+
+        autoUpdater.checkForUpdates();
+    }
 
         // Wait until Electron has finished starting before
         // creating the application's main window.
@@ -36,6 +72,10 @@ import path from "node:path";
             //creates mainWindow for application
         createMainWindow();
 
+        // check for updates once the app has started. Runs
+        // once per launch — if a newer version is on GitHub, this
+        // kicks off the silent background download.
+        setupAutoUpdater();
        
     });
 

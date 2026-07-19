@@ -2,9 +2,11 @@
   "name": "better-every-day",
   "productName": "BetterEveryDay",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "main": "electron/main.js",
+  "description": "A personal productivity app for tracking journeys, sessions, and tasks.",
+  "author": "Shaquille Codrington",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -12,7 +14,10 @@
     "preview": "vite preview",
     "electron:dev": "wait-on http://localhost:5173 && electron .",
     "dashboard": "concurrently \"npm run dev\" \"npm run electron:dev\"",
-    "package": "npm run build && electron-builder --dir"
+    "package": "npm run build && electron-builder --dir",
+    "installer": "npm run build && electron-builder --win",
+    "installer:publish": "npm run build && electron-builder --win --publish always"
+
   },
   "build": {
     "appId": "com.bettereveryday.app",
@@ -23,9 +28,24 @@
     ],
     "directories": {
       "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Cos229-239",
+      "repo": "2606_Team01"
     }
   },
   "dependencies": {
+    "electron-updater": "^6.3.9",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1"
