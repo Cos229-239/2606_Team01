@@ -4,6 +4,7 @@ import { statesData } from "../statesData";
 import ActivityPage from "../pages/ActivityPage";
 import TaskCard from "../Components/TaskCard";
 import type { Task } from "../Data/tasks";
+import type { ChecklistItem } from "../Components/Checklist";
 import EditTaskPopup from "../Components/EditTaskPopup";
 import {addTask, deleteTask, updateTask, getTasksByMood } from "../Data/taskStorage";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
@@ -49,6 +50,23 @@ function handleCreateTask(newTask: Task) {
     refreshTasks();
     setShowCreateTaskPopup(false);
 }
+
+function handleChecklistChange(taskId: string, items: ChecklistItem[]) {
+  const targetTask = focusedTasks.find((task) => task.id === taskId);
+
+  if (!targetTask) {
+    return;
+  }
+
+  const updatedTask: Task = {
+    ...targetTask,
+    checklist: items,
+  };
+
+  updateTask(updatedTask);
+  refreshTasks();
+}
+
 
   let currentActivities: string[] = [];
 
@@ -104,6 +122,7 @@ function handleCreateTask(newTask: Task) {
                 {...task}
                 onEdit={() => setEditingTask(task)}
                 onDelete={() => handleDeleteTask(task.id)}
+                onChecklistChange={(items) => handleChecklistChange(task.id, items)}
               />
             ))
           )}

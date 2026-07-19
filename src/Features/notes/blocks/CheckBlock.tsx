@@ -34,21 +34,21 @@ const [showSlashMenu, setShowSlashMenu] =
 const [slashQuery, setSlashQuery] =
     useState("");
 
-function updateSlashMenu(input: string)
-{
-    if (!input.startsWith("/"))
-    {
-        setShowSlashMenu(false);
-        setSlashQuery("");
-        return;
-    }
+// function updateSlashMenu(input: string)
+// {
+//     if (!input.startsWith("/"))
+//     {
+//         setShowSlashMenu(false);
+//         setSlashQuery("");
+//         return;
+//     }
 
-    setShowSlashMenu(true);
+//     setShowSlashMenu(true);
 
-    setSlashQuery(
-        input.substring(1).toLowerCase()
-    );
-}
+//     setSlashQuery(
+//         input.substring(1).toLowerCase()
+//     );
+// }
 
 function handleSlashCommand(command: string)
 {

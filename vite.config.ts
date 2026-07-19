@@ -5,6 +5,8 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  
+  base: './',
   //force local cache
   cacheDir: path.resolve(__dirname, 'node_modules/.vite'),
 })

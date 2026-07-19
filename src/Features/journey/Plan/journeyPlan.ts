@@ -1,5 +1,3 @@
-import type { Journey } from "../types";
-
 
 export interface JourneyPlan
 {

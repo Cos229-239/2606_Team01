@@ -27,8 +27,7 @@ interface StartSessionPopupProps
 export default function StartSessionPopup(
 {
     onClose,
-    onStart,
-    initialData,   
+    onStart,   
     mode = "create"
 }: StartSessionPopupProps)
 {

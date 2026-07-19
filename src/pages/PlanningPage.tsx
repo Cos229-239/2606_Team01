@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import TaskCard from "../Components/TaskCard";
 import type { Task } from "../Data/tasks";
+import type { ChecklistItem } from "../Components/Checklist";
 import { deleteTask, getTasksByMood} from "../Data/taskStorage";
 import EditTaskPopup from "../Components/EditTaskPopup";
 import  { addTask, updateTask } from "../Data/taskStorage";
@@ -46,6 +47,22 @@ function handleCreateTask(newTask: Task) {
     setShowCreateTaskPopup(false);
 }
 
+function handleChecklistChange(taskId: string, items: ChecklistItem[]) {
+  const targetTask = planningTasks.find((task) => task.id === taskId);
+
+  if (!targetTask) {
+    return;
+  }
+
+  const updatedTask: Task = {
+    ...targetTask,
+    checklist: items,
+  };
+
+  updateTask(updatedTask);
+  refreshTasks();
+}
+
   //rendering
   return (
     <div>
@@ -76,6 +93,7 @@ function handleCreateTask(newTask: Task) {
             {...task}
             onEdit={() => setEditingTask(task)}
             onDelete={() => handleDeleteTask(task.id)}
+            onChecklistChange={(items) => handleChecklistChange(task.id, items)}
           />
         ))
       )}

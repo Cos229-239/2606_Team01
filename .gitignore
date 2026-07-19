@@ -42,3 +42,9 @@ Thumbs.db
 
 # StackBlitz / local cache, if created
 .stackblitzrc
+
+# Electron build output
+release/
+
+# Optional Electron Builder artifacts
+dist/

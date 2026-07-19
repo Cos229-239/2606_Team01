@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "electron:dev": "wait-on http://localhost:5173 && electron .",
     "dashboard": "concurrently \"npm run dev\" \"npm run electron:dev\"",
-    "package": "electron-builder --dir"
+    "package": "npm run build && electron-builder --dir"
   },
   "build": {
     "appId": "com.bettereveryday.app",

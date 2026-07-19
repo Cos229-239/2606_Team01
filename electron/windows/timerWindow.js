@@ -1,5 +1,5 @@
 //Imports
-import { BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -30,9 +30,23 @@ export function createTimerWindow() {
     });
 
     timerWindow.setAlwaysOnTop(true, "screen-saver");
-
-    // Load timerWindow from react page
-    timerWindow.loadURL("http://localhost:5173/timer");
+// CHANGED: same dev/packaged branch as mainWindow.js. The packaged
+    // build has no dev server, so /timer has to come from a hash route
+    // (#/timer) against the same built index.html instead of a real
+    // URL path segment — this only works because main.tsx now uses
+    // HashRouter instead of BrowserRouter.
+    if (app.isPackaged)
+    {
+        timerWindow.loadFile(
+            path.join(__dirname, "../../dist/index.html"),
+            { hash: "/timer" }
+        );
+    }
+    else
+    {
+        // Load timerWindow from react page
+        timerWindow.loadURL("http://localhost:5173/#/timer");
+    }
 
     return timerWindow;
 }

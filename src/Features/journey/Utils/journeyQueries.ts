@@ -1,5 +1,5 @@
 import type { Journey } from "../types";
-import type { Notebook, Page } from "../../notes/types";
+import type { Page } from "../../notes/types";
 
 import
 {

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import TaskCard from "../Components/TaskCard";
 import type { Task } from "../Data/tasks";
 import EditTaskPopup from "../Components/EditTaskPopup";
+import type { ChecklistItem } from "../Components/Checklist";
 import { addTask,updateTask, deleteTask, getTasksByMood } from "../Data/taskStorage";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
 
@@ -44,6 +45,22 @@ export default function RechargePage() {
     refreshTasks();
     setShowCreateTaskPopup(false);
 }
+
+function handleChecklistChange(taskId: string, items: ChecklistItem[]) {
+  const targetTask = rechargeTasks.find((task) => task.id === taskId);
+
+  if (!targetTask) {
+    return;
+  }
+
+  const updatedTask: Task = {
+    ...targetTask,
+    checklist: items,
+  };
+
+  updateTask(updatedTask);
+  refreshTasks();
+}
   //rendering
   return (
     <div>
@@ -74,6 +91,7 @@ export default function RechargePage() {
             {...task}
             onEdit={() => setEditingTask(task)}
             onDelete={() => handleDeleteTask(task.id)}
+             onChecklistChange={(items) => handleChecklistChange(task.id, items)}
           />
         ))
       )}
