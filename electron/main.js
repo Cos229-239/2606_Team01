@@ -6,8 +6,8 @@ import { createTimerWindow } from "./windows/timerWindow.js";
 import { ipcMain, Notification, dialog } from "electron";
 import fs from "node:fs";
 import path from "node:path";
-import { autoUpdater } from "electron-updater";
-
+import pkg from "electron-updater";
+const { autoUpdater } = pkg;
     // Profile data persistence
     // ------------------------------------------------------
     // The user's profile (name, titles, bio, photo) lives in its own
