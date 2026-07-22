@@ -23,7 +23,9 @@ export default function NotesPage({
 
     const smoothScroll = useSmoothScroll();
 
-const {
+  
+    const {
+    folders,
     notebooks,
     pages,
     blocks,
@@ -32,6 +34,7 @@ const {
     selectedNotebookId,
     focusedBlockId,
     showTaskPicker,
+    selectedFolderId,
 
     setShowTaskPicker,
 
@@ -53,6 +56,12 @@ const {
     handleCanvasClick,
     handleInsertTaskBlock,
     handleCreateTask,
+
+    handleCreateFolder,
+    handleSelectedFolder,
+    handleRenameFolder,
+    handleAssignNotebookToFolder,
+    handleRemoveNotebookFromFolder,
 } = useNotesPageFunctions({
     selectedPageId,
 });
@@ -75,6 +84,8 @@ const selectedPage =
         >
             {/* ================= SIDEBAR ================= */}
             <NotebookBrowser
+
+                folders={folders}
                 notebooks={notebooks}
                 pages={pages}
                 selectedNotebookId={selectedNotebookId}
@@ -85,7 +96,14 @@ const selectedPage =
                 onDeletePage={handleDeletePage}
                 onDeleteNotebook={handleDeleteNotebook}
                 onRenameNotebook={handleRenameNotebook}
-            />
+
+                onCreateFolder={handleCreateFolder}
+                selectedFolderId={selectedFolderId}
+                onSelectedFolder={handleSelectedFolder}
+                onRenameFolder={handleRenameFolder}
+                onAssignNotebookToFolder={handleAssignNotebookToFolder}
+                onRemoveNotebookFromFolder={handleRemoveNotebookFromFolder}
+                />
 
             {/* ================= MAIN EDITOR ================= */}
             <main

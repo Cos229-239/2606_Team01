@@ -15,5 +15,12 @@ export interface Journey
     notebookId: string;
     // When the Journey was created
     createdAt: string;
+    folderId?: string;
     
+}
+
+export interface JourneyFolder
+{
+    id: string;
+    title: string;
 }

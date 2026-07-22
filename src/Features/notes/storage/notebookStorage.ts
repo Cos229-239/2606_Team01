@@ -6,9 +6,10 @@
 // This is the only file that should directly interact
 // with localStorage.
 
-import type { Notebook, Page, Block} from "../types";
+import type {NotebookFolder, Notebook, Page, Block} from "../types";
 
     //storage keys
+const NOTEBOOK_FOLDERS_KEY = "notes.notebookFolders";
 const NOTEBOOKS_KEY = "notes.notebooks";
 const PAGES_KEY = "notes.pages";
 const BLOCKS_KEY = "notes.blocks";
@@ -66,4 +67,29 @@ export function saveBlocks(blocks: Block[]): void{
     localStorage.setItem(BLOCKS_KEY, JSON.stringify(blocks));
 }
 
+// ======================================================
+// Folder Storage
+// ======================================================
+
+export function loadNotebookFolders(): NotebookFolder[]
+{
+    const data = localStorage.getItem(NOTEBOOK_FOLDERS_KEY);
+
+    if (!data)
+    {
+        return [];
+    }
+
+    return JSON.parse(data);
+}
+
+export function saveNotebookFolders(
+    folders: NotebookFolder[]
+): void
+{
+    localStorage.setItem(
+        NOTEBOOK_FOLDERS_KEY,
+        JSON.stringify(folders)
+    );
+}
 

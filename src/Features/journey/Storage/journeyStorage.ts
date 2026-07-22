@@ -1,5 +1,6 @@
-import type { Journey } from "../types";
+import type { Journey, JourneyFolder } from "../types";
 
+const FOLDERS_KEY = "journeyFolders";
 const STORAGE_KEY = "journeys";
 
 // ======================================================
@@ -85,4 +86,37 @@ export function deleteJourney(journeyId: string): Journey[]
     saveJourneys(updatedJourneys);
 
     return updatedJourneys;
+}
+
+// ======================================================
+// Folder Storage
+// ======================================================
+
+export function loadJourneyFolders(): JourneyFolder[]
+{
+    const stored = localStorage.getItem(FOLDERS_KEY);
+
+    if (!stored)
+    {
+        return [];
+    }
+
+    try
+    {
+        return JSON.parse(stored);
+    }
+    catch
+    {
+        return [];
+    }
+}
+
+export function saveJourneyFolders(
+    folders: JourneyFolder[]
+)
+{
+    localStorage.setItem(
+        FOLDERS_KEY,
+        JSON.stringify(folders)
+    );
 }

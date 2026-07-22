@@ -14,6 +14,11 @@ import type { ChecklistItem } from "../../Components/Checklist";
     | "divider" | "task"
     | "checklist";
 
+    export interface NotebookFolder
+    {
+        id: string;
+        title: string;
+    }
 
     //notebook
     export interface Notebook
@@ -25,6 +30,7 @@ import type { ChecklistItem } from "../../Components/Checklist";
 
            // Ordered list of pages contained in this notebook.
         pageIds: string[];
+        folderId?: string;
 
             // Reserved for future notebook settings.
         settings: {};

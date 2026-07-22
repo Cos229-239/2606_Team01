@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Notebook, Page, Block, BlockType } from "../types";
+import type { NotebookFolder, Notebook, Page, Block, BlockType } from "../types";
 import type { Task } from "../../../Data/tasks";
 import {
     getSessionByPageId,
@@ -7,6 +7,7 @@ import {
 import {
     loadNotebooks,  saveNotebooks,    loadPages,
     savePages,  loadBlocks,  saveBlocks,
+    loadNotebookFolders, saveNotebookFolders,
 } from "../storage/notebookStorage";
 
 import { loadTasks, saveTasks } from "../../../Data/taskStorage";
@@ -42,6 +43,25 @@ export function useNotesPageFunctions({
     const [showTaskPicker, setShowTaskPicker] =
         useState(false);
 
+      const [folders, setFolders] =
+    useState<NotebookFolder[]>(loadNotebookFolders());
+
+    const [selectedFolderId, setSelectedFolderId] =
+        useState<string | null>(null);
+
+    const selectedFolder =
+        folders.find(
+            (folder) =>
+                folder.id === selectedFolderId
+        );
+
+    const folderNotebooks =
+            notebooks.filter(
+                (notebook) =>
+                    notebook.folderId === selectedFolderId
+            );
+
+
     // ==================================================
     // Effects
     // ==================================================
@@ -72,7 +92,113 @@ export function useNotesPageFunctions({
     setBlocks(loadBlocks());
     setTasks(loadTasks());
 }
+
+
    
+    // ==================================================
+    // Folder Actions
+    // ==================================================
+   
+    function handleCreateFolder()
+        {
+            const newFolder: NotebookFolder =
+            {
+                id: crypto.randomUUID(),
+                title: "Untitled Folder",
+            };
+
+            const updatedFolders =
+            [
+                ...folders,
+                newFolder,
+            ];
+
+            setFolders(updatedFolders);
+            saveNotebookFolders(updatedFolders);
+
+        }
+
+   function handleSelectedFolder(
+        folderId: string | null
+    )
+    {
+        setSelectedFolderId(folderId);
+
+        // Leaving the notebook view
+        setSelectedNotebookId(null);
+
+        
+    }
+
+    function handleRenameFolder(
+        folderId: string,
+        title: string
+    )
+    {
+        const updatedFolders =
+            folders.map((folder) =>
+            {
+                if (folder.id !== folderId)
+                {
+                    return folder;
+                }
+
+                return {
+                    ...folder,
+                    title,
+                };
+            });
+
+        setFolders(updatedFolders);
+        saveNotebookFolders(updatedFolders);
+    }
+
+    // CHANGED: backs "+ Add Existing Notebook" inside a folder. Just
+    // reassigns folderId on an already-existing loose notebook —
+    // nothing is duplicated, it just disappears from root and shows
+    // up inside the folder because displayedNotebooks filters on
+    // folderId.
+    function handleAssignNotebookToFolder(
+        notebookId: string,
+        folderId: string
+    )
+    {
+        const updatedNotebooks =
+            notebooks.map((notebook) =>
+            {
+                if (notebook.id !== notebookId)
+                {
+                    return notebook;
+                }
+
+                return {
+                    ...notebook,
+                    folderId,
+                };
+            });
+
+        setNotebooks(updatedNotebooks);
+        saveNotebooks(updatedNotebooks);
+    }
+
+     function handleRemoveNotebookFromFolder(notebookId: string)
+    {
+        const updatedNotebooks =
+            notebooks.map((notebook) =>
+            {
+                if (notebook.id !== notebookId)
+                {
+                    return notebook;
+                }
+
+                const { folderId, ...notebookWithoutFolder } = notebook;
+                return notebookWithoutFolder;
+            });
+
+        setNotebooks(updatedNotebooks);
+        saveNotebooks(updatedNotebooks);
+    }
+
     // ==================================================
     // Notebook Actions
     // ==================================================
@@ -83,15 +209,19 @@ export function useNotesPageFunctions({
     {
         const notebook = createNotebook();
 
+        const notebookToAdd: Notebook = selectedFolderId
+            ? { ...notebook, folderId: selectedFolderId }
+            : notebook;
+
         const updatedNotebooks = [
             ...notebooks,
-            notebook,
+            notebookToAdd,
         ];
 
         setNotebooks(updatedNotebooks);
         saveNotebooks(updatedNotebooks);
 
-        setSelectedNotebookId(notebook.id);;
+        setSelectedNotebookId(notebookToAdd.id);;
     }
 
     function handleSelectedNotebook(
@@ -587,6 +717,14 @@ function handleCreateTask(task: Task)
         handleConvertBlock,
         handleCreateTask, 
         reloadData,
+
+        folders,
+        selectedFolderId,
+        handleSelectedFolder,
+        handleCreateFolder,
+        handleRenameFolder,
+        handleAssignNotebookToFolder,
+        handleRemoveNotebookFromFolder,
    
     };
 }
