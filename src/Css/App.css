@@ -173,6 +173,59 @@
 
 .accordion-card .open-btn { margin-top: var(--space-md); }
 
+/* ── Animated accordion body ───────────────────────────────────────────────
+   Wraps the expandable content in a 1-row grid that tweens between a 0fr
+   and 1fr row-track size. This animates smoothly to the content's natural
+   height without JS measuring pixel heights, and collapses cleanly back to
+   zero. The .accordion-body-inner wrapper is required because grid-track
+   animation can't itself clip overflowing content. When smooth scrolling is
+   turned off in Settings, callers add the "no-motion" class, which removes
+   the transition so the accordion snaps open/closed instantly instead. */
+.accordion-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s ease;
+}
+
+.accordion-body.open {
+  grid-template-rows: 1fr;
+}
+
+.accordion-body.no-motion {
+  transition: none;
+}
+
+.accordion-body-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Animated popovers (task picker, etc.) ─────────────────────────────────
+   For panels that mount/unmount entirely (rather than toggling a class,
+   like the accordions above), a plain CSS animation on mount is simplest:
+   no state needed for "closing", it just plays once when the element
+   appears. Add the "no-motion" class alongside "popover-panel" to skip the
+   animation when smooth scrolling is turned off in Settings. */
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popover-panel {
+  animation: popover-in 0.16s ease;
+  transform-origin: top right;
+}
+
+.popover-panel.no-motion {
+  animation: none;
+}
+
 /* ── Task List ──────────────────────────────────────────────────────────── */
 .task-list-header {
   display: flex;
@@ -807,13 +860,17 @@
 /* ── Help Page ──────────────────────────────────────────────────────────── */
 .help-page {
   width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding-bottom: var(--space-xl);
 }
 
 /* ── About block (goal + benefits) ─────────────────────────────────────── */
 .help-about {
-  padding: calc(var(--panel-padding) + 6px) var(--panel-padding) var(--panel-padding);
+  padding: 24px 20px 18px;
   margin-top: var(--space-lg);
   margin-bottom: var(--space-xl);
+  scroll-margin-top: var(--space-lg);
   text-align: left;
 }
 
@@ -856,6 +913,7 @@
   color: rgba(220, 235, 255, 0.85);
   line-height: 1.65;
   margin: 0;
+  max-width: 720px;
 }
 
 .help-about-section p + p {
@@ -877,6 +935,7 @@
   font-size: var(--font-size-sm);
   color: rgba(220, 235, 255, 0.85);
   line-height: 1.6;
+  max-width: 700px;
 }
 
 .help-about-benefits li::before {
@@ -912,7 +971,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: 14px var(--panel-padding);
+  padding: 14px 20px;
   cursor: pointer;
   user-select: none;
 }
@@ -947,7 +1006,7 @@
 }
 
 .help-chapter-body {
-  padding: 0 var(--panel-padding) 18px;
+  padding: 0 20px 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: var(--space-sm);
 }
@@ -966,4 +1025,335 @@
 .help-chapter-placeholder {
   color: rgba(255, 255, 255, 0.35) !important;
   font-style: italic;
+}
+
+/* ── Page intro ─────────────────────────────────────────────────────────── */
+.help-page-intro {
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.72);
+  line-height: 1.6;
+  max-width: 640px;
+  margin-top: -6px;
+  margin-bottom: var(--space-lg);
+}
+
+/* ── Quick nav ──────────────────────────────────────────────────────────── */
+.help-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.help-toc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: rgba(220, 235, 255, 0.80);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-panel);
+  border-radius: 999px;
+  backdrop-filter: blur(var(--blur-panel));
+  -webkit-backdrop-filter: blur(var(--blur-panel));
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.help-toc-link:hover {
+  color: rgba(255, 255, 255, 0.97);
+  background: var(--bg-panel-hover);
+  border-color: var(--border-panel-hover);
+  box-shadow: 0 0 14px var(--accent-glow-panel);
+  transform: translateY(-1px);
+}
+
+.help-toc-icon {
+  font-size: 13px;
+}
+
+/* ── Documentation section cards ───────────────────────────────────────── */
+.help-section {
+  padding: 24px 20px 22px;
+  margin-top: var(--space-xl);
+  scroll-margin-top: var(--space-lg);
+  text-align: left;
+}
+
+.help-section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding-bottom: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.help-section-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  font-size: 20px;
+  border-radius: 12px;
+  background: var(--bg-btn);
+  border: 1px solid var(--border-btn);
+  box-shadow: 0 0 16px var(--accent-glow-btn);
+}
+
+.help-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.help-section-subtitle {
+  font-size: var(--font-size-sm);
+  color: rgba(160, 190, 255, 0.7);
+  margin: var(--space-xs) 0 0;
+}
+
+.help-section-body > p {
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.85);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 720px;
+}
+
+/* New sub-blocks inside a section always start with clear vertical
+   breathing room instead of running on from the previous element. */
+.help-section-body > * + * {
+  margin-top: var(--space-lg);
+}
+
+.help-subsection h3 {
+  font-size: var(--font-size-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-label);
+  margin: 0 0 var(--space-sm);
+}
+
+.help-subsection h4 {
+  margin: 0 0 4px;
+}
+
+.help-subsection > p {
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.85);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 700px;
+}
+
+.help-subsection > p + p {
+  margin-top: var(--space-sm);
+}
+
+/* ── Numbered step lists ────────────────────────────────────────────────── */
+.help-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.help-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.85);
+  line-height: 1.6;
+}
+
+.help-step-index {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(200, 220, 255, 0.95);
+  background: var(--bg-btn);
+  border: 1px solid var(--border-btn);
+}
+
+/* ── Callouts (tip / warning / note) ────────────────────────────────────── */
+.help-callout {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--border-panel);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.help-callout-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.help-callout-title {
+  display: block;
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.help-callout-text p {
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.82);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.help-callout-tip {
+  border-color: rgba(120, 200, 160, 0.30);
+  background: rgba(90, 200, 150, 0.07);
+}
+.help-callout-tip .help-callout-title { color: rgba(140, 230, 180, 0.95); }
+
+.help-callout-warning {
+  border-color: rgba(255, 180, 90, 0.32);
+  background: rgba(255, 160, 60, 0.08);
+}
+.help-callout-warning .help-callout-title { color: rgba(255, 195, 120, 0.95); }
+
+.help-callout-note {
+  border-color: rgba(160, 190, 255, 0.30);
+  background: rgba(120, 160, 255, 0.07);
+}
+.help-callout-note .help-callout-title { color: rgba(180, 210, 255, 0.95); }
+
+/* ── Mood cards (Congruence) ────────────────────────────────────────────── */
+.help-mood-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.help-mood-card {
+  padding: var(--space-md);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--border-panel);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+}
+
+.help-mood-card h4 {
+  margin: var(--space-xs) 0 4px;
+}
+
+.help-mood-card p {
+  font-size: var(--font-size-xs);
+  color: rgba(220, 235, 255, 0.72);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.help-mood-icon {
+  font-size: 20px;
+}
+
+.help-mood-focus     { border-color: rgba(100, 160, 255, 0.30); }
+.help-mood-planning  { border-color: rgba(255, 180, 60, 0.30); }
+.help-mood-recharge  { border-color: rgba(60, 220, 160, 0.30); }
+
+/* ── Block type reference cards (Notebook) ──────────────────────────────── */
+.help-block-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-md);
+}
+
+.help-block-card {
+  padding: var(--space-md);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--border-panel);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+}
+
+.help-block-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.help-block-card h4 {
+  margin: var(--space-xs) 0 4px;
+}
+
+.help-block-card p {
+  font-size: var(--font-size-xs);
+  color: rgba(220, 235, 255, 0.72);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Keyboard shortcut list ──────────────────────────────────────────────── */
+.help-shortcut-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.help-shortcut-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.help-shortcut-row:last-child {
+  border-bottom: none;
+}
+
+.help-shortcut-plus {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--font-size-xs);
+}
+
+.help-shortcut-desc {
+  font-size: var(--font-size-sm);
+  color: rgba(220, 235, 255, 0.78);
+  margin-left: 6px;
+}
+
+.help-kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: var(--font-size-xs);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: rgba(230, 240, 255, 0.92);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 900px) {
+  .help-mood-cards {
+    grid-template-columns: 1fr;
+  }
 }

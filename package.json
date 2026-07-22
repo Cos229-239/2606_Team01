@@ -2,9 +2,11 @@
   "name": "better-every-day",
   "productName": "BetterEveryDay",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "electron/main.js",
+  "description": "A personal productivity app for tracking journeys, sessions, and tasks.",
+  "author": "Shaquille Codrington",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -14,7 +16,8 @@
     "dashboard": "concurrently \"npm run dev\" \"npm run electron:dev\"",
     "package": "npm run build && electron-builder --dir",
     "installer": "npm run build && electron-builder --win",
-     "installer:publish": "npm run build && electron-builder --win --publish always"
+    "installer:publish": "npm run build && electron-builder --win --publish always"
+
   },
   "build": {
     "appId": "com.bettereveryday.app",
@@ -42,7 +45,7 @@
     }
   },
   "dependencies": {
-    "electron-updater": "^6.8.9",
+    "electron-updater": "^6.3.9",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1"

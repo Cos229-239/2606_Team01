@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 export function createTimerWindow() {
     const timerWindow = new BrowserWindow({
         width: 300,
-        height: 280,
+        height: 330,
 
         minWidth: 230,
         minHeight: 120,

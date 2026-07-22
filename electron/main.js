@@ -6,9 +6,8 @@ import { createTimerWindow } from "./windows/timerWindow.js";
 import { ipcMain, Notification, dialog } from "electron";
 import fs from "node:fs";
 import path from "node:path";
-import { autoUpdater } from "electron-updater";
-
-
+import pkg from "electron-updater";
+const { autoUpdater } = pkg;
     // Profile data persistence
     // ------------------------------------------------------
     // The user's profile (name, titles, bio, photo) lives in its own
@@ -29,7 +28,7 @@ import { autoUpdater } from "electron-updater";
     // "Electron" label instead of the app's own name.
     app.setAppUserModelId("BetterEveryDay");
 
-     function setupAutoUpdater()
+function setupAutoUpdater()
     {
         autoUpdater.autoDownload = true;
 
@@ -66,8 +65,6 @@ import { autoUpdater } from "electron-updater";
         autoUpdater.checkForUpdates();
     }
 
-
-
         // Wait until Electron has finished starting before
         // creating the application's main window.
     app.whenReady().then(() =>
@@ -79,6 +76,7 @@ import { autoUpdater } from "electron-updater";
         // once per launch — if a newer version is on GitHub, this
         // kicks off the silent background download.
         setupAutoUpdater();
+       
     });
 
     ipcMain.on("open-timer", () =>

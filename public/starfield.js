@@ -30,7 +30,7 @@
   let W, H;
 
   // ── Determine if this window is the timer window ─────────────────────────
-  const IS_TIMER = window.location.pathname.includes('/timer');
+  const IS_TIMER = window.location.hash.includes('/timer');
 
   // ── Active check ─────────────────────────────────────────────────────────
   function isActive() {

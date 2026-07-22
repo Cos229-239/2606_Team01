@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useSmoothScroll } from "../Data/useSmoothScroll";
 
 type DashboardAccordionProps = {
   title: string;
@@ -15,22 +16,23 @@ export default function DashboardAccordion({
   pagePath,
 }: DashboardAccordionProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const smoothScroll = useSmoothScroll();
 
   return (
     <div className="glass-panel accordion-card">
       <h3 onClick={() => setIsOpen(!isOpen)}>{title}</h3>
       <p>{preview}</p>
 
-      {isOpen && (
-        <>
+      <div className={`accordion-body ${isOpen ? "open" : ""} ${smoothScroll ? "" : "no-motion"}`}>
+        <div className="accordion-body-inner">
           {expandedView.map((line, index) => (
             <p key={index} className="expanded-line">{line}</p>
           ))}
           <Link to={pagePath}>
             <button className="open-btn">Open Activity</button>
           </Link>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }
