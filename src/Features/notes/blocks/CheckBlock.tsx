@@ -2,6 +2,7 @@ import type { Block, BlockType } from "../types";
 import CheckList from "../../../Components/Checklist";
 import { useState } from "react";
 import SlashMenu from "../slash/SlashMenu";
+import Tooltip from "../../../Components/Tooltip";
 
 interface Props {
     block: Block;
@@ -118,11 +119,13 @@ function handleWrapperKeyDown(
                 gap: 8,
             }}
         >
-            <button
-                onClick={() => setShowSlashMenu(true)}
-            >
-                +
-            </button>
+            <Tooltip text="Insert or convert this into a different block type" side="right">
+                <button
+                    onClick={() => setShowSlashMenu(true)}
+                >
+                    +
+                </button>
+            </Tooltip>
 
         <div
             style={{

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Journey } from "../Features/journey/types";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
 import { useSmoothScroll } from "../Data/useSmoothScroll";
+import Tooltip from "../Components/Tooltip";
 import {
     loadJourneys,
     saveJourneys,
@@ -690,48 +691,56 @@ const journeySessions =
                         >
 
                             {/* PLAN SESSION */}
-                            <button
-                                onClick={() =>
-                                    setShowSessionPopup(true)
-                                }
-                            >
-                                Plan Session
-                            </button>
+                            <Tooltip text="Set up a reason, duration, mood, and goal for this session">
+                                <button
+                                    onClick={() =>
+                                        setShowSessionPopup(true)
+                                    }
+                                >
+                                    Plan Session
+                                </button>
+                            </Tooltip>
 
-                            <button
-                                onClick={() =>
-                                    setShowEditSessionPopup(true)
-                                }
-                                disabled={
-                                    !activeSession ||
-                                    activeSession.status === "Completed"
-                                }
-                            >
-                                Edit Session
-                            </button>
+                            <Tooltip text="Adjust the plan before or during the session">
+                                <button
+                                    onClick={() =>
+                                        setShowEditSessionPopup(true)
+                                    }
+                                    disabled={
+                                        !activeSession ||
+                                        activeSession.status === "Completed"
+                                    }
+                                >
+                                    Edit Session
+                                </button>
+                            </Tooltip>
 
                             {/* START SESSION */}
-                            <button
-                                onClick={handleActivateSession}
-                                disabled={
-                                    !activeSession ||
-                                    activeSession.status !== "Planning"
-                                }
-                            >
-                                Start Session
-                            </button>
+                            <Tooltip text="Begin the session and start tracking the actual time">
+                                <button
+                                    onClick={handleActivateSession}
+                                    disabled={
+                                        !activeSession ||
+                                        activeSession.status !== "Planning"
+                                    }
+                                >
+                                    Start Session
+                                </button>
+                            </Tooltip>
 
 
                             {/* END SESSION */}
-                            <button
-                                onClick={handleEndSession}
-                                disabled={
-                                    !activeSession ||
-                                    activeSession.status !== "Active"
-                                }
-                            >
-                                End Session
-                            </button>
+                            <Tooltip text="Wrap up the session and log the actual time it took">
+                                <button
+                                    onClick={handleEndSession}
+                                    disabled={
+                                        !activeSession ||
+                                        activeSession.status !== "Active"
+                                    }
+                                >
+                                    End Session
+                                </button>
+                            </Tooltip>
 
                         </div>
 
@@ -920,40 +929,44 @@ const journeySessions =
                                 marginTop:"20px",
                             }}
                         >
-                         <button
-                            onClick={() =>
-                                setShowCreateTaskPopup(true)
-                            }
-                                style={{
-                                    padding: "10px",
-                                    borderRadius: "6px",
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-        }}
-                            
-                        >
-                            + Create New Task
-                        </button>
+                         <Tooltip text="Create a brand new task from scratch">
+                            <button
+                                onClick={() =>
+                                    setShowCreateTaskPopup(true)
+                                }
+                                    style={{
+                                        padding: "10px",
+                                        borderRadius: "6px",
+                                        cursor: "pointer",
+                                        fontWeight: "bold",
+            }}
+
+                            >
+                                + Create New Task
+                            </button>
+                        </Tooltip>
 
 
 
 
                         {/* TASK PICKER */}
 
-                        <button
-                            onClick={() =>
-                                setShowTaskPicker(true)
-                            }
+                        <Tooltip text="Drop an existing task into this page">
+                            <button
+                                onClick={() =>
+                                    setShowTaskPicker(true)
+                                }
 
-                           style={{
-                                padding: "10px",
-                                borderRadius: "6px",
-                                cursor: "pointer",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            + Add Task Block
-                        </button>
+                               style={{
+                                    padding: "10px",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                + Add Task Block
+                            </button>
+                        </Tooltip>
                             </div>
                         {showTaskPicker && (
                             <div

@@ -1,6 +1,7 @@
 import type { Block, BlockType } from "../types";
 import SlashMenu from "../slash/SlashMenu";
 import { useEffect, useRef, useState } from "react";
+import Tooltip from "../../../Components/Tooltip";
 
 
 interface Props {
@@ -217,11 +218,13 @@ const [value, setValue] = useState<string>(
                         gap: 8,
                     }}
             >
-                <button
-                    onClick={() => setShowSlashMenu(true)}
-                >
-                    +
-                </button>
+                <Tooltip text="Insert or convert this into a different block type" side="right">
+                    <button
+                        onClick={() => setShowSlashMenu(true)}
+                    >
+                        +
+                    </button>
+                </Tooltip>
 
                 {/* display left Bullet Column */}
 

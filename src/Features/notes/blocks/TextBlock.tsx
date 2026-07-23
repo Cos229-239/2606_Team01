@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Block, BlockType } from "../types";
 import SlashMenu from "../slash/SlashMenu";
+import Tooltip from "../../../Components/Tooltip";
 
 interface Props {
     block: Block;
@@ -177,11 +178,13 @@ export default function TextBlock(
                         gap: 8,
                     }}
             >
-                <button
-                    onClick={() => setShowSlashMenu(true)}
-                >
-                    +
-                </button>
+                <Tooltip text="Insert or convert this into a different block type" side="right">
+                    <button
+                        onClick={() => setShowSlashMenu(true)}
+                    >
+                        +
+                    </button>
+                </Tooltip>
 
         <textarea
                 ref={inputRef}

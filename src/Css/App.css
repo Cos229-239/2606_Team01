@@ -1357,3 +1357,106 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Tooltip ────────────────────────────────────────────────────────────── */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip-bubble {
+  position: absolute;
+  z-index: 200;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 240px;
+  white-space: normal;
+  width: max-content;
+  padding: 6px 10px;
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: rgba(235, 242, 255, 0.95);
+  background: rgba(12, 8, 32, 0.92);
+  border: 1px solid var(--border-panel);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  animation: tooltip-fade-in 0.12s ease-out;
+}
+
+.tooltip-bottom { top: calc(100% + 8px); }
+.tooltip-top { bottom: calc(100% + 8px); }
+.tooltip-right { left: calc(100% + 8px); top: 50%; transform: translateY(-50%); }
+.tooltip-left { right: calc(100% + 8px); left: auto; top: 50%; transform: translateY(-50%); }
+
+@keyframes tooltip-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Contextual Help Button (toolbar) ──────────────────────────────────── */
+.context-help-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.context-help-popup {
+  width: min(560px, 90vw);
+  max-height: 78vh;
+  padding: var(--popup-padding);
+  border-radius: var(--radius-popup);
+  display: flex;
+  flex-direction: column;
+
+  /* .glass-panel's default background is only ~38% opaque, which let
+     page content behind the overlay show through and fight with the
+     help text. This popup is read-focused (longer blocks of body
+     text), so it gets a much more solid background instead. */
+  background: rgba(16, 10, 40, 0.97);
+}
+
+.context-help-popup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  flex-shrink: 0;
+}
+
+.context-help-popup-close {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.context-help-popup-body {
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160,190,255,0.15) transparent;
+}
+
+.context-help-popup-body::-webkit-scrollbar { width: 5px; }
+.context-help-popup-body::-webkit-scrollbar-thumb {
+  background: rgba(160,190,255,0.15);
+  border-radius: 3px;
+}
+
+.context-help-popup-body > * + * {
+  margin-top: var(--space-lg);
+}

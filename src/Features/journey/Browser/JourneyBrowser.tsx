@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useConfirmDelete } from "../../../Components/ConfirmDialog";
 import SortControl from "../../../Components/SortControl";
 import type { SortDirection } from "../../../Components/SortControl";
+import Tooltip from "../../../Components/Tooltip";
 
 import
 {
@@ -147,17 +148,19 @@ export default function JourneyBrowser(
                                 marginBottom: "20px",
                             }}
                         >
-            <button
-                onClick={onCreateJourney}
-                style={{
-                    padding: "10px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                }}
-            >
-                + New Journey
-            </button>
+            <Tooltip text="Start a new long-running project with its own notebook">
+                <button
+                    onClick={onCreateJourney}
+                    style={{
+                        padding: "10px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                    }}
+                >
+                    + New Journey
+                </button>
+            </Tooltip>
 
             
         <SortControl
@@ -350,23 +353,25 @@ export default function JourneyBrowser(
                             </button>
 
 
-                            <button
-                                onClick={() =>
-                                    requestDelete(
-                                        `Delete "${notebook.title || "Untitled Journey"}" and all of its sessions? This can't be undone.`,
-                                        () => onDeleteNotebook(notebook.id)
-                                    )
-                                }
+                            <Tooltip text="Delete this journey and all of its sessions">
+                                <button
+                                    onClick={() =>
+                                        requestDelete(
+                                            `Delete "${notebook.title || "Untitled Journey"}" and all of its sessions? This can't be undone.`,
+                                            () => onDeleteNotebook(notebook.id)
+                                        )
+                                    }
 
-                                style={{
-                                    border:"none",
-                                    background:"transparent",
-                                    cursor:"pointer",
-                                    opacity:0.5,
-                                }}
-                            >
-                                X
-                            </button>
+                                    style={{
+                                        border:"none",
+                                        background:"transparent",
+                                        cursor:"pointer",
+                                        opacity:0.5,
+                                    }}
+                                >
+                                    X
+                                </button>
+                            </Tooltip>
 
 
                         </div>
@@ -428,40 +433,44 @@ export default function JourneyBrowser(
                                                     {page.title}
                                                 </button>
 
-                                                <button
-                                                    onClick={() =>
-                                                        requestDelete(
-                                                            `Delete "${page.title || "Untitled Session"}"? This can't be undone.`,
-                                                            () => onDeletePage(page.id)
-                                                        )
-                                                    }
-                                                    style={{
-                                                        border: "none",
-                                                        background: "transparent",
-                                                        cursor: "pointer",
-                                                        opacity: 0.5,
-                                                    }}
-                                                >
-                                                    X
-                                                </button>
+                                                <Tooltip text="Delete this session">
+                                                    <button
+                                                        onClick={() =>
+                                                            requestDelete(
+                                                                `Delete "${page.title || "Untitled Session"}"? This can't be undone.`,
+                                                                () => onDeletePage(page.id)
+                                                            )
+                                                        }
+                                                        style={{
+                                                            border: "none",
+                                                            background: "transparent",
+                                                            cursor: "pointer",
+                                                            opacity: 0.5,
+                                                        }}
+                                                    >
+                                                        X
+                                                    </button>
+                                                </Tooltip>
                                             </div>
                                         );
                                     })}
                                 </div>
 
-                                <button
-                                    onClick={() =>
-                                        onCreatePage(notebook.id)
-                                    }
-                                    style={{
-                                        marginTop: "10px",
-                                        marginLeft: "18px",
-                                        padding: "6px 10px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    + New Session
-                                </button>
+                                <Tooltip text="Add a new session page to this journey">
+                                    <button
+                                        onClick={() =>
+                                            onCreatePage(notebook.id)
+                                        }
+                                        style={{
+                                            marginTop: "10px",
+                                            marginLeft: "18px",
+                                            padding: "6px 10px",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        + New Session
+                                    </button>
+                                </Tooltip>
                             </>
                         )}
                     </div>

@@ -10,6 +10,7 @@ import type { JourneyPlan } from "../Plan/journeyPlan";
 import { getPlanByJourneyId, setPlan } from "../Plan/journeyPlan";
 
 import JourneyPlanPopup from "../Plan/JourneyPlanPopup";
+import Tooltip from "../../../Components/Tooltip";
 
 interface JourneyOverviewProps
 {
@@ -140,9 +141,11 @@ export default function JourneyOverview(
                  <div>
 
                     <div>
-                <button onClick={() => setShowPlanPopup(true)}>
-                        {currentPlan ? "Edit Plan" : "Set Journey Plan"}
-                    </button>
+                <Tooltip text="Set a purpose and a weekly session target for this journey">
+                        <button onClick={() => setShowPlanPopup(true)}>
+                            {currentPlan ? "Edit Plan" : "Set Journey Plan"}
+                        </button>
+                    </Tooltip>
                     <br />
                     <br/>
             <h3>Journey Plan</h3>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Block, BlockType } from "../types";
 import { useConfirmDelete } from "../../../Components/ConfirmDialog";
 import SlashMenu from "../slash/SlashMenu";
+import Tooltip from "../../../Components/Tooltip";
 
 interface Props {
     block: Block;
@@ -62,11 +63,13 @@ export default function DividerBlock(
                 padding: "6px 0",
             }}
         >
-            <button
-                onClick={() => setShowSlashMenu(true)}
-            >
-                +
-            </button>
+            <Tooltip text="Insert or convert this into a different block type" side="right">
+                <button
+                    onClick={() => setShowSlashMenu(true)}
+                >
+                    +
+                </button>
+            </Tooltip>
             {confirmDialog}
             <hr style={{ flex: 1, margin: 0 }} />
 

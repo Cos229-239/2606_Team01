@@ -10,6 +10,7 @@
 import type { NotebookFolder, Notebook, Page } from "../types";
 import { useState } from "react";
 import { useConfirmDelete } from "../../../Components/ConfirmDialog";
+import Tooltip from "../../../Components/Tooltip";
 
 interface NotebookBrowserProps
 {
@@ -285,22 +286,24 @@ function startEditingNotebook(notebook: Notebook)
                         </button>
                     )}
 
-                    <button
-                        onClick={() =>
-                            requestDelete(
-                                `Delete "${notebook.title || "Untitled Notebook"}" and all of its pages? This can't be undone.`,
-                                () => onDeleteNotebook(notebook.id)
-                            )
-                        }
-                        style={{
-                            border: "none",
-                            background: "transparent",
-                            cursor: "pointer",
-                            opacity: 0.5,
-                        }}
-                    >
-                        X
-                    </button>
+                    <Tooltip text="Delete this notebook and everything in it">
+                        <button
+                            onClick={() =>
+                                requestDelete(
+                                    `Delete "${notebook.title || "Untitled Notebook"}" and all of its pages? This can't be undone.`,
+                                    () => onDeleteNotebook(notebook.id)
+                                )
+                            }
+                            style={{
+                                border: "none",
+                                background: "transparent",
+                                cursor: "pointer",
+                                opacity: 0.5,
+                            }}
+                        >
+                            X
+                        </button>
+                    </Tooltip>
                 </div>
 
                 {/* ================= Pages ================= */}
@@ -383,40 +386,44 @@ function startEditingNotebook(notebook: Notebook)
                                                 )}
                                             </button>
 
-                                            <button
-                                                onClick={() =>
-                                                    requestDelete(
-                                                        `Delete "${page.title || "Untitled Page"}"? This can't be undone.`,
-                                                        () => onDeletePage(page.id)
-                                                    )
-                                                }
-                                                style={{
-                                                    border: "none",
-                                                    background:
-                                                        "transparent",
-                                                    cursor: "pointer",
-                                                    opacity: 0.5,
-                                                }}
-                                            >
-                                                X
-                                            </button>
+                                            <Tooltip text="Delete this page">
+                                                <button
+                                                    onClick={() =>
+                                                        requestDelete(
+                                                            `Delete "${page.title || "Untitled Page"}"? This can't be undone.`,
+                                                            () => onDeletePage(page.id)
+                                                        )
+                                                    }
+                                                    style={{
+                                                        border: "none",
+                                                        background:
+                                                            "transparent",
+                                                        cursor: "pointer",
+                                                        opacity: 0.5,
+                                                    }}
+                                                >
+                                                    X
+                                                </button>
+                                            </Tooltip>
                                         </div>
                                     );
                                 })}
                             </div>
                         )}
 
-                        <button
-                            onClick={() => onCreatePage(notebook.id)}
-                            style={{
-                                marginTop: "10px",
-                                marginLeft: "10px",
-                                padding: "6px 10px",
-                                cursor: "pointer",
-                            }}
-                        >
-                            + New Page
-                        </button>
+                        <Tooltip text="Add a blank page to this notebook">
+                            <button
+                                onClick={() => onCreatePage(notebook.id)}
+                                style={{
+                                    marginTop: "10px",
+                                    marginLeft: "10px",
+                                    padding: "6px 10px",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                + New Page
+                            </button>
+                        </Tooltip>
                     </>
                 )}
             </div>
@@ -448,46 +455,52 @@ function startEditingNotebook(notebook: Notebook)
                     flexWrap: 'wrap'
                 }}
             >
-                <button
-                    onClick={onCreateFolder}
-                    style={{
-                        padding: "10px",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        flex: 1,
-                        width: '50%'
-                    }}
-                >
-                    + New Folder
-                </button>
+                <Tooltip text="Group notebooks together under a folder">
+                    <button
+                        onClick={onCreateFolder}
+                        style={{
+                            padding: "10px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            flex: 1,
+                            width: '50%'
+                        }}
+                    >
+                        + New Folder
+                    </button>
+                </Tooltip>
 
-                <button
-                    onClick={onCreateNotebook}
-                    style={{
-                        padding: "10px",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        flex: 1,
-                        width: '50%'
-                    }}
-                >
-                    + New Notebook
-                </button>
+                <Tooltip text="Start a new notebook for a separate set of pages">
+                    <button
+                        onClick={onCreateNotebook}
+                        style={{
+                            padding: "10px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            flex: 1,
+                            width: '50%'
+                        }}
+                    >
+                        + New Notebook
+                    </button>
+                </Tooltip>
 
-                <button
-                    onClick={handleRenameButtonClick}
-                    style={{
-                        padding: "10px",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        width: '100%'
-                    }}
-                >
-                    Rename
-                </button>
+                <Tooltip text="Rename whatever's currently selected on the left">
+                    <button
+                        onClick={handleRenameButtonClick}
+                        style={{
+                            padding: "10px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            width: '100%'
+                        }}
+                    >
+                        Rename
+                    </button>
+                </Tooltip>
             </div>
 
             {folders.length === 0 && notebooks.length === 0 && (
@@ -573,22 +586,24 @@ function startEditingNotebook(notebook: Notebook)
                                 )}
                             </button>
 
-                            <button
-                                onClick={() =>
-                                    requestDelete(
-                                        `Delete "${folder.title || "Untitled Folder"}"? Notebooks inside it will become loose, not deleted.`,
-                                        () => onDeleteFolder(folder.id)
-                                    )
-                                }
-                                style={{
-                                    border: "none",
-                                    background: "transparent",
-                                    cursor: "pointer",
-                                    opacity: 0.5,
-                                }}
-                            >
-                                X
-                            </button>
+                            <Tooltip text="Delete this folder (notebooks inside stay, just unfiled)">
+                                <button
+                                    onClick={() =>
+                                        requestDelete(
+                                            `Delete "${folder.title || "Untitled Folder"}"? Notebooks inside it will become loose, not deleted.`,
+                                            () => onDeleteFolder(folder.id)
+                                        )
+                                    }
+                                    style={{
+                                        border: "none",
+                                        background: "transparent",
+                                        cursor: "pointer",
+                                        opacity: 0.5,
+                                    }}
+                                >
+                                    X
+                                </button>
+                            </Tooltip>
                         </div>
 
                         {/* ================= Folder Contents ================= */}
@@ -599,16 +614,18 @@ function startEditingNotebook(notebook: Notebook)
                                     marginLeft: "18px",
                                 }}
                             >
-                                <button
-                                    onClick={() => setShowAddExistingPopup(true)}
-                                    style={{
-                                        marginBottom: "12px",
-                                        padding: "6px 10px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    + Add Existing Notebook
-                                </button>
+                                <Tooltip text="Move one of your unfiled notebooks into this folder">
+                                    <button
+                                        onClick={() => setShowAddExistingPopup(true)}
+                                        style={{
+                                            marginBottom: "12px",
+                                            padding: "6px 10px",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        + Add Existing Notebook
+                                    </button>
+                                </Tooltip>
 
                                 {showAddExistingPopup && (
                                     <div

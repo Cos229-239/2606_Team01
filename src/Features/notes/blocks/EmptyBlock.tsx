@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { Block, BlockType } from "../types";
 import SlashMenu from "../slash/SlashMenu";
+import Tooltip from "../../../Components/Tooltip";
 
 
 
@@ -114,11 +115,13 @@ export default function EmptyBlock({
                         gap: 8,
                     }}
             >
-                <button
-                    onClick={() => setShowSlashMenu(true)}
-                >
-                    +
-                </button>
+                <Tooltip text="Insert or convert this into a different block type" side="right">
+                    <button
+                        onClick={() => setShowSlashMenu(true)}
+                    >
+                        +
+                    </button>
+                </Tooltip>
                     <textarea
                         ref={ref}
                         value={value}

@@ -4,6 +4,7 @@ import NotebookBrowser from "../Features/notes/browser/NotebookBrowser";
 import BlockList from "../Features/notes/editor/BlockList";
 import CreateTaskPopup from "../Components/CreateTaskPopup";
 import { useSmoothScroll } from "../Data/useSmoothScroll";
+import Tooltip from "../Components/Tooltip";
 
 interface NotesPageProps {
     initialNotebookId?: string;
@@ -174,12 +175,14 @@ const selectedPage =
                             }}
                         >
                         {/* TASK CREATION */}
-                        <button
-                            onClick={() => setShowCreateTaskPopup(true)}
-                            style={{ alignSelf: "flex-start" }}
-                        >
-                            + Create New Task
-                        </button>
+                        <Tooltip text="Create a brand new task from scratch">
+                            <button
+                                onClick={() => setShowCreateTaskPopup(true)}
+                                style={{ alignSelf: "flex-start" }}
+                            >
+                                + Create New Task
+                            </button>
+                        </Tooltip>
 
                         {showCreateTaskPopup && (
                             <CreateTaskPopup
@@ -194,12 +197,14 @@ const selectedPage =
                         )}
 
                         {/* TASK PICKER */}
-                        <button
-                            onClick={() => setShowTaskPicker(true)}
-                            style={{ alignSelf: "flex-start", marginBottom: "24px" }}
-                        >
-                            + Add Task Block
-                        </button>
+                        <Tooltip text="Drop an existing task into this page">
+                            <button
+                                onClick={() => setShowTaskPicker(true)}
+                                style={{ alignSelf: "flex-start", marginBottom: "24px" }}
+                            >
+                                + Add Task Block
+                            </button>
+                        </Tooltip>
                         </div>
                         {showTaskPicker && (
                             <div

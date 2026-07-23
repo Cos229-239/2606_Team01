@@ -17,6 +17,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getTaskCountByMood, getTasksByMood, getUpcomingTaskTitle } from "../Data/taskStorage";
+import Tooltip from "../Components/Tooltip";
 
 // ── Mood card definitions ────────────────────────────────────────────────
 // Each entry maps to one of the MOOD_THEMES in starfield.js.
@@ -28,6 +29,7 @@ const stateCards = [
     description: "Ready for deep work that moves the needle.",
     buttonText:  "Enter Focus",
     route:       "/focus",
+    tooltip:     "Switch to Focused and see tasks that need concentration",
 
     // Visual accent colour shown on the active card border
     accentColor: "rgba(100, 160, 255, 0.6)",
@@ -39,6 +41,7 @@ const stateCards = [
     description: "Organise ideas and prepare for execution.",
     buttonText:  "Start Planning",
     route:       "/planning",
+    tooltip:     "Switch to Planning and see tasks for organising ahead",
 
     accentColor: "rgba(255, 180, 60, 0.6)",
     accentGlow:  "rgba(255, 160, 40, 0.15)",
@@ -49,6 +52,7 @@ const stateCards = [
     description: "Recover energy through reflection, learning, or light creative work.",
     buttonText:  "Begin Recharge",
     route:       "/recharge",
+    tooltip:     "Switch to Recharge and see lighter, lower-effort tasks",
 
     accentColor: "rgba(60, 220, 160, 0.6)",
     accentGlow:  "rgba(40, 200, 140, 0.15)",
@@ -172,18 +176,20 @@ export default function CongruencePage() {
                   before the Link navigates, so the starfield starts transitioning
                   immediately as the page changes.
                 */}
-                <Link to={state.route}>
-                  <button
-                    className="open-btn"
-                    onClick={() => handleMoodSelect(state.moodKey)}
-                    style={isActive ? {
-                      borderColor: state.accentColor,
-                      color:       "rgba(255,255,255,0.95)",
-                    } : undefined}
-                  >
-                    {state.buttonText}
-                  </button>
-                </Link>
+                <Tooltip text={state.tooltip}>
+                  <Link to={state.route}>
+                    <button
+                      className="open-btn"
+                      onClick={() => handleMoodSelect(state.moodKey)}
+                      style={isActive ? {
+                        borderColor: state.accentColor,
+                        color:       "rgba(255,255,255,0.95)",
+                      } : undefined}
+                    >
+                      {state.buttonText}
+                    </button>
+                  </Link>
+                </Tooltip>
               </div>
             );
           })}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getProfile } from "../Data/profileStorage";
+import ContextHelpButton from "./ContextHelpButton";
+import Tooltip from "./Tooltip";
 
 // ── Default person icon shown when no profile photo has been set ─────────
 function DefaultAvatarIcon() {
@@ -39,31 +41,33 @@ function ProfileButton() {
   }, []);
 
   return (
-    <Link to="/profile" aria-label="Profile" title="Profile">
-      <button
-        className="toolbar-profile-btn"
-        style={{
-          width: "34px",
-          height: "34px",
-          borderRadius: "50%",
-          padding: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-        }}
-      >
-        {photo ? (
-          <img
-            src={photo}
-            alt="Profile"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        ) : (
-          <DefaultAvatarIcon />
-        )}
-      </button>
-    </Link>
+    <Tooltip text="Profile">
+      <Link to="/profile" aria-label="Profile">
+        <button
+          className="toolbar-profile-btn"
+          style={{
+            width: "34px",
+            height: "34px",
+            borderRadius: "50%",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+        >
+          {photo ? (
+            <img
+              src={photo}
+              alt="Profile"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <DefaultAvatarIcon />
+          )}
+        </button>
+      </Link>
+    </Tooltip>
   );
 }
 
@@ -76,14 +80,28 @@ export default function Toolbar() {
       <ProfileButton />
 
       {/* back button */}
-      <button onClick={() => navigate(-1)}>Back</button>
+      <Tooltip text="Go back to the previous page">
+        <button onClick={() => navigate(-1)}>Back</button>
+      </Tooltip>
+
       {/* Dashboard Button */}
-      <Link to="/">
-        <button>Dashboard</button>
-      </Link>
-      <button  onClick = {() => window.electron.openTimer()}>
-        Timer
-      </button>
+      <Tooltip text="Jump to your dashboard">
+        <Link to="/">
+          <button>Dashboard</button>
+        </Link>
+      </Tooltip>
+
+      {/* Timer button — now sits next to Dashboard */}
+      <Tooltip text="Open the floating countdown timer">
+        <button onClick={() => window.electron.openTimer()}>
+          Timer
+        </button>
+      </Tooltip>
+
+      {/* Help stays pinned to the right edge on its own */}
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
+        <ContextHelpButton />
+      </div>
     </div>
 
   );
