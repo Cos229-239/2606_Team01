@@ -58,6 +58,7 @@ export default function NotesPage({
     handleCreateTask,
 
     handleCreateFolder,
+    handleDeleteFolder,
     handleSelectedFolder,
     handleRenameFolder,
     handleAssignNotebookToFolder,
@@ -103,6 +104,7 @@ const selectedPage =
                 onRenameFolder={handleRenameFolder}
                 onAssignNotebookToFolder={handleAssignNotebookToFolder}
                 onRemoveNotebookFromFolder={handleRemoveNotebookFromFolder}
+                onDeleteFolder={handleDeleteFolder}
                 />
 
             {/* ================= MAIN EDITOR ================= */}

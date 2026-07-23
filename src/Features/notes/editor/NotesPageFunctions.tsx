@@ -153,11 +153,43 @@ export function useNotesPageFunctions({
         saveNotebookFolders(updatedFolders);
     }
 
-    // CHANGED: backs "+ Add Existing Notebook" inside a folder. Just
-    // reassigns folderId on an already-existing loose notebook —
-    // nothing is duplicated, it just disappears from root and shows
-    // up inside the folder because displayedNotebooks filters on
-    // folderId.
+    function handleDeleteFolder(
+        folderId: string
+    )
+    {
+        const updatedFolders =
+            folders.filter(
+                (folder) => folder.id !== folderId
+            );
+
+        setFolders(updatedFolders);
+        saveNotebookFolders(updatedFolders);
+
+        const updatedNotebooks =
+            notebooks.map((notebook) =>
+            {
+                if (notebook.folderId !== folderId)
+                {
+                    return notebook;
+                }
+
+                const { folderId: _removed, ...notebookWithoutFolder } = notebook;
+                return notebookWithoutFolder;
+            });
+
+        setNotebooks(updatedNotebooks);
+        saveNotebooks(updatedNotebooks);
+
+        if (selectedFolderId === folderId)
+        {
+            setSelectedFolderId(null);
+        }
+    }
+
+
+    // CHANGED: assigns a loose notebook to a folder (backs
+    // "+ Add Existing Notebook"). Nothing is duplicated — the
+    // notebook already exists, this just points it at the folder.
     function handleAssignNotebookToFolder(
         notebookId: string,
         folderId: string
@@ -688,6 +720,7 @@ function handleCreateTask(task: Task)
         pages,
         blocks,
         tasks,
+        folders,
 
         selectedNotebookId,
         selectedPageId,
@@ -701,27 +734,32 @@ function handleCreateTask(task: Task)
         handleCreateNotebook,
         handleSelectedNotebook,
         handleRenameNotebook,
+
         handleCreatePage,
         handleSelectedPage,
         handlePageTitleChange,
+
         handleUpdateBlock,
         handleCreateBlockAfter,
         handleDeleteBlock,
+
         handleDeletePage,
         handleDeleteNotebook,
         handleCreateBlockAtEnd,
         handleCanvasClick,
         handleInsertTaskBlock,
+
         handleEditTask,
         handleDeleteTask,
         handleConvertBlock,
         handleCreateTask, 
+
         reloadData,
 
-        folders,
         selectedFolderId,
         handleSelectedFolder,
         handleCreateFolder,
+        handleDeleteFolder,
         handleRenameFolder,
         handleAssignNotebookToFolder,
         handleRemoveNotebookFromFolder,

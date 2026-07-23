@@ -30,8 +30,9 @@ interface NotebookBrowserProps
     onDeletePage: (  pageId: string ) => void;
 
     onCreateFolder: () => void;
+    onDeleteFolder: (folderId: string) => void;
     onSelectedFolder: (folderId: string | null) => void;
-     onRenameFolder: (folderId: string, title: string) => void;
+    onRenameFolder: (folderId: string, title: string) => void;
     onAssignNotebookToFolder: (notebookId: string, folderId: string) => void;
     onRemoveNotebookFromFolder: (notebookId: string) => void;
 }
@@ -55,6 +56,7 @@ export default function NotebookBrowser(
     onRenameNotebook,
     
     onCreateFolder,
+    onDeleteFolder,
     selectedFolderId,
     onSelectedFolder,
     onRenameFolder,
@@ -125,7 +127,7 @@ function startEditingFolder(folder: NotebookFolder)
         setShowAddExistingPopup(false);
     }
 
-     return (
+    return (
         <>
         {confirmDialog}
         <aside
@@ -139,267 +141,258 @@ function startEditingFolder(folder: NotebookFolder)
                 overflowY: "auto",
             }}
         >
+            {/* ================= Back + Rename ================= */}
 
-        {selectedFolderId === null ? (
-    <>
-        {/* ================= Root Toolbar ================= */}
-
-        <button
-            onClick={onCreateFolder}
-            style={{
-                marginTop: "20px",
-                marginBottom: "10px",
-                padding: "10px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "bold",
-            }}
-        >
-            + New Folder
-        </button>
-
-        <button
-            onClick={onCreateNotebook}
-            style={{
-                marginTop: "10px",
-                marginBottom: "20px",
-                padding: "10px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "bold",
-            }}
-        >
-            + New Notebook
-        </button>
-
-        {/* ================= Folder List ================= */}
-
-        {folders.map((folder) => (
-            <button
-                key={folder.id}
-                onClick={() => onSelectedFolder(folder.id)}
-                onDoubleClick={() => startEditingFolder(folder)}
-                style={{
-                    width: "100%",
-                    textAlign: "left",
-                    marginBottom: "8px",
-                    padding: "8px 10px",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                }}
-            > 
-            {editingFolderId === folder.id ? (
-                    // CHANGED: inline edit, same pattern as notebook rename
-                    <input
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                        value={editingFolderTitle}
-                        onChange={(e) =>
-                            setEditingFolderTitle(e.target.value)
-                        }
-                        onBlur={commitFolderRename}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter")
-                            {
-                                commitFolderRename();
-                            }
-                        }}
-                        style={{
-                            width: "100%",
-                            border: "none",
-                            outline: "none",
-                            background: "transparent",
-                            color: "inherit",
-                            font: "inherit",
-                        }}
-                    />
-                ) : (
-                    <>📁 {folder.title}</>
-                )}
-            </button>
-        ))}
-         {notebooks.length === 0 && (
-
-                            <div
-                                style={{
-                                    marginTop: "20px",
-                                    opacity: 0.7,
-                                    fontSize: "0.9rem",
-                                }}
-                            >
-                                No notebooks yet. Create your first notebook.
-                            </div>
-             )}
-
-           
-            
-
-                </>
-) : (
-    <>
-        {/* ================= Folder Toolbar ================= */}
-
-        <button
-            onClick={() => onSelectedFolder(null)}
-            style={{
-                marginTop: "20px",
-                marginBottom: "10px",
-                cursor: "pointer",
-            }}
-        >
-            ← Back
-        </button>
-
-       
-        <button
-            // it acts on
-            // the currently open folder, same as double-clicking the
-            // title below.
-            onClick={() =>
-                selectedFolder && startEditingFolder(selectedFolder)
-            }
-            style={{
-                marginBottom: "10px",
-                marginLeft: "10px",
-                cursor: "pointer",
-            }}
-        >
-            Rename
-        </button>
-
-        <button
-            onClick={onCreateFolder}
-            style={{
-                display: "block",
-                marginBottom: "20px",
-                padding: "10px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "bold",
-            }}
-        >
-            + New Folder
-        </button>
-
-        <div
-            // CHANGED: double-click now starts the same inline rename
-            // as the Rename button above.
-            onDoubleClick={() =>
-                selectedFolder && startEditingFolder(selectedFolder)
-            }
-            style={{
-                marginBottom: "20px",
-                fontWeight: "bold",
-            }}
-        >
-            {editingFolderId === selectedFolder?.id ? (
-                <input
-                    autoFocus
-                    value={editingFolderTitle}
-                    onChange={(e) =>
-                        setEditingFolderTitle(e.target.value)
-                    }
-                    onBlur={commitFolderRename}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter")
-                        {
-                            commitFolderRename();
-                        }
-                    }}
-                    style={{
-                        border: "none",
-                        outline: "none",
-                        background: "transparent",
-                        color: "inherit",
-                        font: "inherit",
-                        fontWeight: "bold",
-                    }}
-                />
-            ) : (
-                <>📁 {selectedFolder?.title}</>
-            )}
-        </div>
-
-        <button
-            onClick={onCreateNotebook}
-            style={{
-                marginBottom: "10px",
-                padding: "10px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "bold",
-            }}
-        >
-            + New Notebook
-        </button>
-
-        <button
-         onClick={() => setShowAddExistingPopup(true)}
-            style={{
-                marginBottom: "20px",
-                padding: "10px",
-                borderRadius: "6px",
-                cursor: "pointer",
-            }}
-        >
-            + Add Existing Notebook
-        </button>
-        {/* CHANGED: picker popup — only shows loose notebooks, matching
-            the spec ("only display loose items"). Selecting one just
-            reassigns its folderId; no new notebook is created. */}
-        {showAddExistingPopup && (
             <div
                 style={{
-                    position: "relative",
-                    width: "100%",
-                    background: "#1a1a2e",
-                    borderRadius: 8,
-                    padding: 12,
-                    marginBottom: "20px",
-                    zIndex: 1000,
+                    display: "flex",
+                    gap: "8px",
+                    marginTop: "20px",
+                    marginBottom: "10px",
                 }}
             >
-                <h4>Add Existing Notebook</h4>
+                <button onClick={() => onSelectedFolder(null)}>
+                    ← Back
+                </button>
 
-                {looseNotebooks.length === 0 && (
-                    <div style={{ opacity: 0.6, fontSize: "0.85rem", padding: "8px 0" }}>
-                        No loose notebooks to add.
-                    </div>
-                )}
+                <button
+                    onClick={() =>
+                        selectedFolder && startEditingFolder(selectedFolder)
+                    }
+                >
+                    Rename
+                </button>
+            </div>
 
-                {looseNotebooks.map((notebook) => (
-                    <div
-                        key={notebook.id}
-                        onClick={() => handleAddExistingNotebook(notebook.id)}
+            {/* ================= Toolbar ================= */}
+
+            <div
+                style={{
+                    display: "flex",
+                    gap: "10px",
+                    marginBottom: "20px",
+                }}
+            >
+                <button
+                    onClick={onCreateFolder}
+                    style={{
+                        padding: "10px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                    }}
+                >
+                    + New Folder
+                </button>
+
+                <button
+                    onClick={onCreateNotebook}
+                    style={{
+                        padding: "10px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                    }}
+                >
+                    + New Notebook
+                </button>
+
+                {selectedFolderId !== null && (
+                    <button
+                        onClick={() => setShowAddExistingPopup(true)}
                         style={{
                             padding: "10px",
+                            borderRadius: "6px",
                             cursor: "pointer",
-                            borderBottom: "1px solid rgba(255,255,255,.15)",
                         }}
                     >
-                        {notebook.title}
+                        + Add Existing Notebook
+                    </button>
+                )}
+            </div>
+
+            {/* ================= Current Folder Title ================= */}
+
+            {selectedFolderId !== null && (
+                <div
+                    onDoubleClick={() =>
+                        selectedFolder && startEditingFolder(selectedFolder)
+                    }
+                    style={{
+                        marginBottom: "20px",
+                        fontWeight: "bold",
+                    }}
+                >
+                    {editingFolderId === selectedFolder?.id ? (
+                        <input
+                            autoFocus
+                            value={editingFolderTitle}
+                            onChange={(e) =>
+                                setEditingFolderTitle(e.target.value)
+                            }
+                            onBlur={commitFolderRename}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter")
+                                {
+                                    commitFolderRename();
+                                }
+                            }}
+                            style={{
+                                border: "none",
+                                outline: "none",
+                                background: "transparent",
+                                color: "inherit",
+                                font: "inherit",
+                                fontWeight: "bold",
+                            }}
+                        />
+                    ) : (
+                        <>📁 {selectedFolder?.title}</>
+                    )}
+                </div>
+            )}
+
+            {/* ================= Add Existing Notebook popup ================= */}
+
+            {showAddExistingPopup && (
+                <div
+                    style={{
+                        position: "relative",
+                        width: "100%",
+                        background: "#1a1a2e",
+                        borderRadius: 8,
+                        padding: 12,
+                        marginBottom: "20px",
+                        zIndex: 1000,
+                    }}
+                >
+                    <h4>Add Existing Notebook</h4>
+
+                    {looseNotebooks.length === 0 && (
+                        <div
+                            style={{
+                                opacity: 0.6,
+                                fontSize: "0.85rem",
+                                padding: "8px 0",
+                            }}
+                        >
+                            No loose notebooks to add.
+                        </div>
+                    )}
+
+                    {looseNotebooks.map((notebook) => (
+                        <div
+                            key={notebook.id}
+                            onClick={() =>
+                                handleAddExistingNotebook(notebook.id)
+                            }
+                            style={{
+                                padding: "10px",
+                                cursor: "pointer",
+                                borderBottom:
+                                    "1px solid rgba(255,255,255,.15)",
+                            }}
+                        >
+                            {notebook.title}
+                        </div>
+                    ))}
+
+                    <button onClick={() => setShowAddExistingPopup(false)}>
+                        Close
+                    </button>
+                </div>
+            )}
+
+            {/* ================= Folder List ================= */}
+
+            {selectedFolderId === null &&
+                folders.map((folder) => (
+                    <div
+                        key={folder.id}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            marginBottom: "8px",
+                        }}
+                    >
+                        <button
+                            onClick={() => onSelectedFolder(folder.id)}
+                            onDoubleClick={() => startEditingFolder(folder)}
+                            style={{
+                                flex: 1,
+                                textAlign: "left",
+                                padding: "8px 10px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            {editingFolderId === folder.id ? (
+                                <input
+                                    autoFocus
+                                    onClick={(e) => e.stopPropagation()}
+                                    value={editingFolderTitle}
+                                    onChange={(e) =>
+                                        setEditingFolderTitle(e.target.value)
+                                    }
+                                    onBlur={commitFolderRename}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter")
+                                        {
+                                            commitFolderRename();
+                                        }
+                                    }}
+                                    style={{
+                                        width: "100%",
+                                        border: "none",
+                                        outline: "none",
+                                        background: "transparent",
+                                        color: "inherit",
+                                        font: "inherit",
+                                    }}
+                                />
+                            ) : (
+                                <>📁 {folder.title}</>
+                            )}
+                        </button>
+
+                        <button
+                            onClick={() =>
+                                requestDelete(
+                                    `Delete "${folder.title || "Untitled Folder"}"? Notebooks inside it will become loose, not deleted.`,
+                                    () => onDeleteFolder(folder.id)
+                                )
+                            }
+                            style={{
+                                border: "none",
+                                background: "transparent",
+                                cursor: "pointer",
+                                opacity: 0.5,
+                            }}
+                        >
+                            X
+                        </button>
                     </div>
                 ))}
 
-                <button onClick={() => setShowAddExistingPopup(false)}>
-                    Close
-                </button>
-            </div>
-        )}
-        </>
-)}
-      {/* ================= Notebook List ================= */}
+            {notebooks.length === 0 && (
+                <div
+                    style={{
+                        marginTop: "20px",
+                        opacity: 0.7,
+                        fontSize: "0.9rem",
+                    }}
+                >
+                    No notebooks yet. Create your first notebook.
+                </div>
+            )}
 
-           {/* CHANGED: was folderNotebooks, which only matches
-               notebook.folderId === null exactly. Real "loose"
-               notebooks have folderId undefined, so at the root this
-               rendered nothing. displayedNotebooks already handles
-               both cases (root -> looseNotebooks, folder -> folderNotebooks). */}
-           {displayedNotebooks.map((notebook) => {
+            {/* ================= Notebook List ================= */}
+
+            {displayedNotebooks.map((notebook) => {
                 const isSelected =
                     selectedNotebookId === notebook.id;
 
-                //  derive pages correctly
                 const notebookPages = pages.filter(
                     (page) => page.notebookId === notebook.id
                 );
@@ -409,7 +402,7 @@ function startEditingFolder(folder: NotebookFolder)
                         key={notebook.id}
                         style={{ marginBottom: "18px" }}
                     >
-                       {/* ================= Notebook Row ================= */}
+                        {/* ================= Notebook Row ================= */}
                         <div
                             style={{
                                 display: "flex",
@@ -423,13 +416,8 @@ function startEditingFolder(folder: NotebookFolder)
                                     onSelectedNotebook(notebook.id)
                                 }
                                 onDoubleClick={() => {
-                                    setEditingNotebookId(
-                                        notebook.id
-                                    );
-
-                                    setEditingTitle(
-                                        notebook.title
-                                    );
+                                    setEditingNotebookId(notebook.id);
+                                    setEditingTitle(notebook.title);
                                 }}
                                 style={{
                                     flex: 1,
@@ -451,20 +439,15 @@ function startEditingFolder(folder: NotebookFolder)
                                         onClick={(e) => e.stopPropagation()}
                                         value={editingTitle}
                                         onChange={(e) =>
-                                            setEditingTitle(
-                                                e.target.value
-                                            )
+                                            setEditingTitle(e.target.value)
                                         }
                                         onBlur={() => {
                                             onRenameNotebook(
                                                 notebook.id,
                                                 editingTitle.trim() ||
-                                                "Untitled Notebook"
+                                                    "Untitled Notebook"
                                             );
-
-                                            setEditingNotebookId(
-                                                null
-                                            );
+                                            setEditingNotebookId(null);
                                         }}
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter")
@@ -472,12 +455,9 @@ function startEditingFolder(folder: NotebookFolder)
                                                 onRenameNotebook(
                                                     notebook.id,
                                                     editingTitle.trim() ||
-                                                    "Untitled Notebook"
+                                                        "Untitled Notebook"
                                                 );
-
-                                                setEditingNotebookId(
-                                                    null
-                                                );
+                                                setEditingNotebookId(null);
                                             }
                                         }}
                                         style={{
@@ -494,26 +474,21 @@ function startEditingFolder(folder: NotebookFolder)
                                 )}
                             </button>
 
-                            {/* CHANGED: only relevant while inside a
-                                folder — clears folderId, doesn't touch
-                                pages/blocks. */}
-                            {selectedFolderId !== null && (
-                                <button
-                                    onClick={() =>
-                                        onRemoveNotebookFromFolder(notebook.id)
-                                    }
-                                    style={{
-                                        border: "none",
-                                        background: "transparent",
-                                        cursor: "pointer",
-                                        opacity: 0.6,
-                                        fontSize: "0.8rem",
-                                    }}
-                                    title="Remove from folder"
-                                >
-                                    ↩ Remove
-                                </button>
-                            )}
+                            <button
+                                onClick={() =>
+                                    onRemoveNotebookFromFolder(notebook.id)
+                                }
+                                style={{
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                    opacity: 0.6,
+                                    fontSize: "0.8rem",
+                                }}
+                                title="Remove from folder"
+                            >
+                                ↩ Remove
+                            </button>
 
                             <button
                                 onClick={() =>
@@ -595,9 +570,7 @@ function startEditingFolder(folder: NotebookFolder)
                                 )}
 
                                 <button
-                                    onClick={() =>
-                                        onCreatePage(notebook.id)
-                                    }
+                                    onClick={() => onCreatePage(notebook.id)}
                                     style={{
                                         marginTop: "10px",
                                         marginLeft: "10px",
