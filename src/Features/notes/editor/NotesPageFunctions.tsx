@@ -118,17 +118,24 @@ export function useNotesPageFunctions({
 
         }
 
-   function handleSelectedFolder(
-        folderId: string | null
-    )
-    {
-        setSelectedFolderId(folderId);
+        function handleSelectedFolder(
+            folderId: string | null
+        )
+        {
+            // Clicking the same folder closes it.
+            if (selectedFolderId === folderId)
+            {
+                setSelectedFolderId(null);
+                return;
+            }
 
-        // Leaving the notebook view
-        setSelectedNotebookId(null);
+            setSelectedFolderId(folderId);
 
-        
-    }
+            // Collapse any open notebook when switching folders.
+            setSelectedNotebookId(null);
+
+            
+        }
 
     function handleRenameFolder(
         folderId: string,
@@ -448,6 +455,29 @@ export function useNotesPageFunctions({
         }
     }
 
+     function handleRenamePage(
+        pageId: string,
+        title: string
+    )
+    {
+        const updatedPages =
+            pages.map((page) =>
+            {
+                if (page.id !== pageId)
+                {
+                    return page;
+                }
+
+                return {
+                    ...page,
+                    title,
+                };
+            });
+
+        setPages(updatedPages);
+        savePages(updatedPages);
+    }
+
     // ==================================================
     // Block Actions
     // ==================================================
@@ -744,6 +774,7 @@ function handleCreateTask(task: Task)
         handleDeleteBlock,
 
         handleDeletePage,
+        handleRenamePage,
         handleDeleteNotebook,
         handleCreateBlockAtEnd,
         handleCanvasClick,

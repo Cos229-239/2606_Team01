@@ -41,8 +41,11 @@ export default function NotesPage({
     handleCreateNotebook,
     handleSelectedNotebook,
     handleRenameNotebook,
+
     handleCreatePage,
     handlePageTitleChange,
+    handleRenamePage,
+
     handleUpdateBlock,
     handleCreateBlockAfter,
     handleDeleteBlock,
@@ -89,14 +92,19 @@ const selectedPage =
                 folders={folders}
                 notebooks={notebooks}
                 pages={pages}
+
                 selectedNotebookId={selectedNotebookId}
                 onCreateNotebook={handleCreateNotebook}
                 onSelectedNotebook={handleSelectedNotebook}
+                onDeleteNotebook={handleDeleteNotebook}
+                onRenameNotebook={handleRenameNotebook}
+
                 onCreatePage={handleCreatePage}
                 onSelectedPage={setSelectedPageId}
                 onDeletePage={handleDeletePage}
-                onDeleteNotebook={handleDeleteNotebook}
-                onRenameNotebook={handleRenameNotebook}
+                onRenamePage={handleRenamePage}
+                selectedPageId={selectedPageId}
+
 
                 onCreateFolder={handleCreateFolder}
                 selectedFolderId={selectedFolderId}
