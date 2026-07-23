@@ -502,26 +502,46 @@ const looseJourneys =
                     </button>
 
 
-                    <button
-                        onClick={() =>
-                            requestDelete(
-                                `Delete "${notebook.title || "Untitled Journey"}" and all of its sessions?`,
-                                () =>
-                                    onDeleteNotebook(
-                                        notebook.id
-                                    )
-                            )
-                        }
+                    {notebook.folderId && (
+                <button
+                    onClick={() =>
+                        onRemoveNotebookFromFolder(
+                            notebook.id
+                        )
+                    }
+                    style={{
+                        border:"none",
+                        background:"transparent",
+                        cursor:"pointer",
+                        opacity:0.6,
+                        fontSize:"0.8rem",
+                    }}
+                    title="Remove from folder"
+                >
+                    ↩ Remove
+                </button>
+            )}
 
-                        style={{
-                            border:"none",
-                            background:"transparent",
-                            cursor:"pointer",
-                            opacity:0.5,
-                        }}
-                    >
-                        X
-                    </button>
+
+            <button
+                onClick={() =>
+                    requestDelete(
+                        `Delete "${notebook.title || "Untitled Journey"}" and all of its sessions?`,
+                        () =>
+                            onDeleteNotebook(
+                                notebook.id
+                            )
+                    )
+                }
+                style={{
+                    border:"none",
+                    background:"transparent",
+                    cursor:"pointer",
+                    opacity:0.5,
+                }}
+            >
+                X
+            </button>
 
                 </div>
 
