@@ -445,7 +445,6 @@ function startEditingNotebook(notebook: Notebook)
         <aside
             style={{
                 width: "260px",
-                flexShrink: 0,
                 padding: "12px",
                 borderRight: "1px solid rgba(255,255,255,0.1)",
                 height: "100%",
@@ -456,13 +455,14 @@ function startEditingNotebook(notebook: Notebook)
             
             <div
                 style={{
-                    display: "flex",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
                     gap: "10px",
                     marginTop: "20px",
                     marginBottom: "20px",
-                    flexWrap: 'wrap'
                 }}
             >
+                
                 <Tooltip text="Group notebooks together under a folder">
                     <button
                         onClick={onCreateFolder}
@@ -471,8 +471,7 @@ function startEditingNotebook(notebook: Notebook)
                             borderRadius: "6px",
                             cursor: "pointer",
                             fontWeight: "bold",
-                            flex: 1,
-                            width: '50%'
+                            width: "100%",
                         }}
                     >
                         + New Folder
@@ -487,14 +486,21 @@ function startEditingNotebook(notebook: Notebook)
                             borderRadius: "6px",
                             cursor: "pointer",
                             fontWeight: "bold",
-                            flex: 1,
-                            width: '50%'
+                            width: "100%",
                         }}
                     >
                         + New Notebook
                     </button>
                 </Tooltip>
 
+                        {/* only for rename button */}
+                      <div
+                    style={{
+                        gridColumn: "1 / -1",
+                        display: "grid",
+                        gridTemplateColumns: "1fr",
+                    }}
+                >
                 <Tooltip text="Rename whatever's currently selected on the left">
                     <button
                         onClick={handleRenameButtonClick}
@@ -509,6 +515,7 @@ function startEditingNotebook(notebook: Notebook)
                         Rename
                     </button>
                 </Tooltip>
+                </div>
             </div>
 
             {folders.length === 0 && notebooks.length === 0 && (

@@ -426,18 +426,10 @@ const looseJourneys =
                 >
 
                     <button
-                        onClick={() =>
-                            onSelectedJourney(
-                                journey.journeyId
-                            )
-                        }
-
+                        onClick={() =>  
+                                onSelectedJourney(  journey.journeyId ) }
                         onDoubleClick={() =>
-                            startEditingJourney(
-                                journey
-                            )
-                        }
-
+                             startEditingJourney( journey ) }
                         style={{
                             flex:1,
                             textAlign:"left",
@@ -503,7 +495,9 @@ const looseJourneys =
                     </button>
 
 
+                          {/* Remove From Folder */}
                     {notebook.folderId && (
+                        
                 <button
                     onClick={() =>
                         onRemoveNotebookFromFolder(
@@ -736,6 +730,7 @@ const looseJourneys =
                 style={{
                     display:"flex",
                     gap:"10px",
+                    marginTop: "20px",
                     marginBottom:"20px",
                     flexWrap:"wrap",
                 }}
@@ -746,6 +741,7 @@ const looseJourneys =
                     style={{
                         flex:1,
                         padding:"10px",
+                            fontWeight: "bold",
                     }}
                 >
                     + New Folder
@@ -758,6 +754,7 @@ const looseJourneys =
                     style={{
                         flex:1,
                         padding:"10px",
+                            fontWeight: "bold",
                     }}
                 >
                     + New Journey
@@ -770,6 +767,7 @@ const looseJourneys =
                     style={{
                         width:"100%",
                         padding:"10px",
+                        fontWeight: "bold",
                     }}
                 >
                     Rename
