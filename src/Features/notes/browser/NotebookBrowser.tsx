@@ -202,6 +202,12 @@ function startEditingNotebook(notebook: Notebook)
         onAssignNotebookToFolder(notebookId, selectedFolderId);
         setShowAddExistingPopup(false);
     }
+
+    {/* Displays one notebook in the sidebar.
+            Handles notebook selection.
+            Handles notebook rename.
+            Handles notebook deletion.
+            Shows pages when selected.*/}
     function renderNotebookRow(notebook: Notebook)
     {
         const isSelected = selectedNotebookId === notebook.id;
@@ -268,6 +274,8 @@ function startEditingNotebook(notebook: Notebook)
                         )}
                     </button>
 
+
+                          {/* Remove From Folder */}
                     {notebook.folderId && (
                         <button
                             onClick={() =>

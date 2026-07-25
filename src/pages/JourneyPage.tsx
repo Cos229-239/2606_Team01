@@ -81,6 +81,7 @@ export default function JourneyPage()
     const [searchParams] = useSearchParams();
 
     const {
+    folders,
     notebooks,
     pages,
     blocks,
@@ -103,6 +104,16 @@ export default function JourneyPage()
     handleCreateTask,
     handleCreatePage,
     handleDeletePage,
+    handleRenamePage,
+
+    
+    handleCreateFolder,
+    handleDeleteFolder,
+    handleSelectedFolder,
+    handleRenameFolder,
+    handleAssignNotebookToFolder,
+    handleRemoveNotebookFromFolder,
+    selectedFolderId,
     reloadData,
 
 } = useNotesPageFunctions({
@@ -612,30 +623,74 @@ const journeySessions =
         >
 
 
-            <JourneyBrowser
+         <JourneyBrowser
 
-                journeys={journeys}
-                notebooks={notebooks}
-                pages={pages}
+    folders={folders}
+    journeys={journeys}
+    notebooks={notebooks}
+    pages={pages}
 
-                selectedJourneyId={ selectedJourneyId
-                }
-                selectedPageId={ selectedPageId
-                }
-               onCreateJourney={  handleCreateJourney
-                }
-                onSelectedJourney={     handleSelectJourney
-                }
-                onSelectedPage={    handleSelectPage
-                }
+    selectedJourneyId={selectedJourneyId}
+    selectedFolderId={selectedFolderId}
+    selectedPageId={selectedPageId}
 
-                onCreatePage={handleCreatePage}
-                onDeletePage={handleDeletePage}
-                onDeleteNotebook={ handleDeleteNotebook
-                }
-                onRenameNotebook={  handleRenameNotebook
-                }
-            />
+
+    onCreateJourney={
+        handleCreateJourney
+    }
+
+    onSelectedJourney={
+        handleSelectJourney
+    }
+
+
+    onSelectedFolder={
+        handleSelectedFolder
+    }
+    onRemoveNotebookFromFolder={handleRemoveNotebookFromFolder}
+
+    onCreateFolder={
+        handleCreateFolder
+    }
+
+    onDeleteFolder={
+        handleDeleteFolder
+    }
+
+    onRenameFolder={
+        handleRenameFolder
+    }
+
+
+    onSelectedPage={
+        handleSelectPage
+    }
+
+    onCreatePage={
+        handleCreatePage
+    }
+
+    onDeletePage={
+        handleDeletePage
+    }
+
+    onRenamePage={
+        handleRenamePage
+    }
+
+
+    onDeleteNotebook={
+        handleDeleteNotebook
+    }
+
+    onRenameNotebook={
+        handleRenameNotebook
+    }
+    onAssignNotebookToFolder={
+    handleAssignNotebookToFolder
+}
+
+/>
 
 
             <main
